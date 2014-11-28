@@ -1,0 +1,32 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  host: localhost
+  pool: 5
+  username: postgres
+  password:
+  port: 5432
+
+development:
+  <<: *default
+  database: sapi_development
+  pool: 5
+  timeout: 5000
+
+test:
+  <<: *default
+  database: sapi_test
+  pool: 5
+  timeout: 5000
+
+staging:
+  <<: *default
+  database: sapi_development
+  pool: 10
+  template: template0
+
+production:
+  <<: *default
+  database: sapi_development
+  pool: 10
+  template: template0
