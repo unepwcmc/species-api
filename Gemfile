@@ -2,6 +2,8 @@ source 'https://rubygems.org'
 
 gem 'apipie-rails' # Documentation
 gem 'doorkeeper' # Token Generation
+gem 'susy'
+gem 'devise'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.1.1'
