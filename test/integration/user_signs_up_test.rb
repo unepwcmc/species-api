@@ -18,8 +18,4 @@ class UserSignsUpTest < ActionDispatch::IntegrationTest
     end
     #assert_equal 'new_user_registration_path', current_path
   end
-
-  test "user signs up with invalid information" do
-    assert false
-  end
 end
