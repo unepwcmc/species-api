@@ -25,12 +25,6 @@
 
 <% unless method[:examples].blank? %>
   <%= heading(t('apipie.examples'), h_level) %>
-  <% method[:examples].each do |example| %>
-<!--     <div class="well">
-      <pre class="prettyprint"></pre>
-    </div> -->
-
-
     <div role="tabpanel">
       <!-- Nav tabs -->
       <ul class="nav nav-tabs" role="tablist">
@@ -40,14 +34,19 @@
 
       <!-- Tab panes -->
       <div class="tab-content">
-        <div role="tabpanel" class="tab-pane active well" id="json"><pre class="prettyprint"><%= example %></pre></div>
-        <div role="tabpanel" class="tab-pane well" id="xml"><pre class="prettyprint">XML example here</pre></div>
+        <div role="tabpanel" class="tab-pane active panel panel-default" id="json">
+          <div class="panel-body">
+            <pre class="prettyprint"><%= method[:examples][0] %></pre>
+          </div>
+        </div>
+        
+        <div role="tabpanel" class="tab-pane panel panel-default" id="xml">
+          <div class="panel-body">
+            <pre class="prettyprint"><%= method[:examples][1] %></pre>
+          </div>
+        </div>
       </div>
     </div>
-
-
-
-  <% end %>
 <% end %>
 
 <% unless method[:params].blank? %>

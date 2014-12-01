@@ -1,6 +1,6 @@
 class Api::V1::ReferencesController < ApplicationController
   resource_description do
-    formats ['JSON']
+    formats ['JSON', 'XML']
     api_base_url 'api/v1/taxon_concepts'
   end
 
@@ -13,6 +13,13 @@ class Api::V1::ReferencesController < ApplicationController
         'is_standard' : false
       }
     ]
+  EOS
+
+  example <<-EOS
+    <cites_legislation>
+      <taxon_concept_id>1</taxon_concept_id>
+      <is_current>true</is_current>
+    </cites_legislation>
   EOS
   
   def index

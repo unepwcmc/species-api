@@ -1,13 +1,13 @@
 class Api::V1::CitesLegislationController < ApplicationController
   resource_description do
-    formats ['JSON']
+    formats ['JSON', 'XML']
     api_base_url 'api/v1/taxon_concepts'
     name 'CITES Legislation'
   end
 
   api :GET, '/:id/cites_legislation', "Lists current listings, quotas, and suspensions for a given taxon concept"
   param :id, Integer, :desc => "Taxon Concept ID", :required => true
-  json_example <<-EOS
+  example <<-EOS
     'cites_legislation': [
       {
         'taxon_concept_id': 1,
@@ -72,23 +72,11 @@ class Api::V1::CitesLegislationController < ApplicationController
     ]
   EOS
 
-  xml_example <<-EOS
-    'cites_legislation': [
-      {
-        'taxon_concept_id': 1,
-        'cites_listings' : [
-wkgr09h538tjg0krt8ejv9iorg3emot33
-h543
-6j4
-4
-j4
-j4j4kj57yjh38j9koy45rkij45nr
-5mukj46m
-jk5myrj5mrj5kumty
-rj5kumtyrj
-        ]
-      }
-    ]
+  example <<-EOS
+    <cites_legislation>
+      <taxon_concept_id>1</taxon_concept_id>
+      <is_current>true</is_current>
+    </cites_legislation>
   EOS
   
   def index
