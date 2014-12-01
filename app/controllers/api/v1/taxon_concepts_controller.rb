@@ -7,6 +7,7 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
 
   api :GET, '/', 'Lists taxon concepts'
   param :page, Integer, desc: 'Page Number', required: false
+  param :updated_since, Time, desc: 'Return taxa updated since', required: false
   example <<-EOS
     'taxon_concepts': [
       {
@@ -41,6 +42,13 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
   EOS
 
   def index
-    render text: "API!"
+    @taxon_concepts = TaxonConcept.
+      where(
+        rank_name: 'SPECIES',
+        taxonomy_is_cites_eu: true,
+        name_status: 'A',
+        full_name: 'Loxodonta africana'
+      ).order('full_name').limit(100) # TODO paginate
+    render 'api/v1/taxon_concepts/index'
   end
 end
