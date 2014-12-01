@@ -1,13 +1,40 @@
 ENV['RAILS_ENV'] ||= 'test'
 require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
+require 'capybara/rails'
+
 
 class ActiveSupport::TestCase
-  # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
-  #
-  # Note: You'll currently still have to declare fixtures explicitly in integration tests
-  # -- they do not yet inherit this setting
-  fixtures :all
+end
 
-  # Add more helper methods to be used by all tests here...
+class ActionDispatch::IntegrationTest
+  include Capybara::DSL
+
+  def sign_up user, opts = {}
+    options = {
+      terms_and_conditions: true
+    }.merge(opts)
+    visit new_user_registration_path
+    within('#new_user') do
+      fill_in 'Name', :with => user.name 
+      fill_in 'Email', :with => user.email 
+      fill_in 'Password', :with => user.password
+      fill_in 'Password confirmation', :with => user.password
+      find(:css, "#user_terms_and_conditions").set(options[:terms_and_conditions])
+      click_button 'Sign up'
+    end
+  end
+
+  def sign_in user
+    visit new_user_session_path
+    within('#new_user') do
+      fill_in 'Email', :with => user.email 
+      fill_in 'Password', :with => user.password
+      click_button 'Sign in'
+    end
+  end
+end
+
+class ActionController::TestCase
+  include Devise::TestHelpers
 end

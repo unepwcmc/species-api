@@ -11,6 +11,12 @@ gem "susy"
 gem 'compass'#, '>= 0.12.2'
 gem 'compass-rails'#, '>= 1.0.3'
 
+group :test do
+  gem 'shoulda'
+  gem 'capybara'
+  gem 'factory_girl_rails'
+end
+
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.1.1'
@@ -32,4 +38,3 @@ gem 'sdoc', '~> 0.4.0',          group: :doc
 
 # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
 gem 'spring',        group: :development
-
