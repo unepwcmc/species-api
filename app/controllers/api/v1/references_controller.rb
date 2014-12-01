@@ -4,8 +4,8 @@ class Api::V1::ReferencesController < ApplicationController
     api_base_url 'api/v1/taxon_concepts'
   end
 
-  api :GET, '/:id/references', "Lists references for a given taxon concept"
-  param :id, Integer, :desc => "Taxon Concept ID", :required => true
+  api :GET, '/:id/references', 'Lists references for a given taxon concept'
+  param :id, Integer, desc: 'Taxon Concept ID', required: true
   example <<-EOS
     'references': [
       {

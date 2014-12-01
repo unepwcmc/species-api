@@ -5,7 +5,7 @@ class Api::V1::CitesLegislationController < ApplicationController
     name 'CITES Legislation'
   end
 
-  api :GET, '/:id/cites_legislation', "Lists current listings, quotas, and suspensions for a given taxon concept"
+  api :GET, '/:id/cites_legislation', 'Lists current listings, quotas, and suspensions for a given taxon concept'
   param :id, Integer, :desc => "Taxon Concept ID", :required => true
   example <<-EOS
     'cites_legislation': [
@@ -78,7 +78,7 @@ class Api::V1::CitesLegislationController < ApplicationController
       <is_current>true</is_current>
     </cites_legislation>
   EOS
-  
+
   def index
   end
 end

@@ -5,8 +5,8 @@ class Api::V1::EuLegislationController < ApplicationController
     name 'EU Legislation'
   end
 
-  api :GET, '/:id/eu_legislation', "Lists current listings, opinions, and suspensions for a given taxon concept"
-  param :id, Integer, :desc => "Taxon Concept ID", :required => true
+  api :GET, '/:id/eu_legislation', 'Lists current listings, opinions, and suspensions for a given taxon concept'
+  param :id, Integer, desc: 'Taxon Concept ID', required: true
   example <<-EOS
     'eu_legislation': [
       {

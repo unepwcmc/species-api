@@ -5,8 +5,8 @@ class Api::V1::TaxonConceptsController < ApplicationController
     name 'Taxon Concepts'
   end
 
-  api :GET, '/', "Lists taxon concepts"
-  param :page, Integer, :desc => "Page Number", :required => false
+  api :GET, '/', 'Lists taxon concepts'
+  param :page, Integer, desc: 'Page Number', required: false
   example <<-EOS
     'taxon_concepts': [
       {
