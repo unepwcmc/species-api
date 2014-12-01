@@ -8,7 +8,6 @@
   <meta name="author" content="">
 
   <%= stylesheet_link_tag "application" %>
-
   <%= csrf_meta_tags %>
 
   <!-- Google Analytics ga.js -->
@@ -32,30 +31,24 @@
     ga('create', 'UA-21313092-2', 'speciesplus.net');
     ga('send', 'pageview');
   </script>
-
   <!-- End Google Analytics ga.js -->
 
 </head>
 <body class="inner">
-
   <div id="wrapper">
     <div class="w1">   
       <div id="header">
         <strong class="logo"><a href="/species">Species+</a></strong>
         <ul id="nav">
-          <li><a href="/about">About</a></li>
-          <li class="add"><a href="#">Related Resources</a>
-          <div class="popup-holder">
-            <ul>
-              <li><a href="http://checklist.cites.org">Checklist of CITES Species</a></li>
-              <li><a href="http://www.unep-wcmc-apps.org/citestrade/expert_accord.cfm">CITES Trade Database</a></li>
-              <li><a href="http://captivebreeding.unep-wcmc.org">EU Captive breeding database</a></li>
-              <li><a href="http://elibrary.unep-wcmc.org/">EU E-library</a></li>
-              <li><a href="/eu_legislation">EU Wildlife Trade Legislation</a></li>
-            </ul>
-          </div>
-          </li>
-          <li><a href="/terms-of-use">Terms of use</a></li>
+          <li><%= link_to 'Species+', 'http://speciesplus.net' %></li>
+          <li><%= link_to 'API Documentation', '/documentation' %></li>
+          <% if user_signed_in? %>
+            <li>Signed in as <%= current_user.name %></li>
+            <li><%= link_to 'Sign Out', destroy_user_session_path, method: :delete %></li>
+          <% else %>
+            <li><%= link_to 'Sign In', new_user_session_path %></li>
+            <li><%= link_to 'Register an Account', new_user_registration_path %></li>
+          <% end %>
         </ul>
       </div>
       <div class="page">
