@@ -68,7 +68,7 @@ class Api::V1::EuLegislationController < Api::V1::BaseController
       <is_current>true</is_current>
     </cites_legislation>
   EOS
-  
+
   def index
   end
 end
