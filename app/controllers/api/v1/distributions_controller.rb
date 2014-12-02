@@ -4,8 +4,8 @@ class Api::V1::DistributionsController < ApplicationController
     api_base_url 'api/v1/taxon_concepts'
   end
 
-  api :GET, '/:id/distributions', "Lists distributions for a given taxon concept"
-  param :id, Integer, :desc => "Taxon Concept ID", :required => true
+  api :GET, '/:id/distributions', 'Lists distributions for a given taxon concept'
+  param :id, Integer, desc: 'Taxon Concept ID', required: true
   example <<-EOS
     'distributions': [
       {

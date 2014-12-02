@@ -5,15 +5,30 @@ class Api::V1::TaxonConceptsController < ApplicationController
     name 'Taxon Concepts'
   end
 
-  api :GET, '/', "Lists taxon concepts"
-  param :page, Integer, :desc => "Page Number", :required => false
+  api :GET, '/', 'Lists taxon concepts'
+  param :page, Integer, desc: 'Page Number', required: false
   example <<-EOS
     'taxon_concepts': [
       {
-        'id': 1,
+        'id': 4521,
         'scientific_name': 'Loxodonta africana',
         'author_year': '(Blumenbach, 1797)',
-        'rank': 'SPECIES'
+        'rank': 'SPECIES',
+        'name_status': 'A',
+        'higher_taxa': {
+          'genus': 'Loxodonta',
+          'family': 'Elephantidae',
+          'order': 'Proboscidea',
+          'class': 'Mammalia',
+          'phylum': 'Chordata'
+        },
+        'synonyms': [
+          {
+            id: 37069,
+            scientific_name: 'Loxodonta cyclotis',
+            author_year: '(Matschie, 1900)'
+          }
+        ]
       }
     ]
   EOS
