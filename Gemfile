@@ -38,3 +38,10 @@ gem 'sdoc', '~> 0.4.0',          group: :doc
 
 # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
 gem 'spring',        group: :development
+
+group :development do
+  gem 'capistrano', '~> 2.15.5'
+  gem 'capistrano-ext'
+  gem 'rvm-capistrano'
+  gem 'brightbox', '~> 2.4.4'
+end
