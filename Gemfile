@@ -17,6 +17,9 @@ group :test do
   gem 'factory_girl_rails'
 end
 
+group :staging, :production do
+  gem 'dotenv-rails'
+end
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.1.1'
