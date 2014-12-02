@@ -67,7 +67,7 @@ set :copy_exclude, [ '.git' ]
 # The shared area is prepared with 'deploy:setup' and all the shared
 # items are symlinked in when the code is updated.
 set :local_shared_dirs, %w(tmp/pids)
-set :local_shared_files, %w(config/database.yml config/secrets.yml)
+set :local_shared_files, %w(config/database.yml .env)
 
 ## Global Shared Area
 # These are the list of files and directories that you want
