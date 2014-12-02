@@ -64,10 +64,16 @@
   <div id="footer">
     <div class="holder">
       <ul class="sponsor">
-        <li><a href="http://www.cites.org"><img src="/assets/species/logo-CITES.png" alt="CITES logo" width="77" height="44" /></a></li>
+        <li>
+          <a href="http://www.cites.org">
+            <%= image_tag("species/logo-CITES.png", alt: 'CITES logo', width: 77, height: 44) %>
+          </a>
+        </li>
       </ul>
       <div class="power-by">
-        <a href="http://www.unep-wcmc.org"><img src="/assets/species/powered_by.png" alt="Powered by logo" width="66" height="44" /></a>
+        <a href="http://www.unep-wcmc.org">
+          <%= image_tag("species/powered_by.png", alt: 'Powered by logo', width: 66, height: 44) %>
+        </a>
       </div>
     </div>
   </div>
