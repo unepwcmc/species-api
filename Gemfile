@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 gem 'apipie-rails' # Documentation
-gem 'doorkeeper' # Token Generation
+gem 'simple_token_authentication' # Token Generation
 gem 'devise'
 gem 'annotate'
 

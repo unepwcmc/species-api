@@ -2,6 +2,17 @@ Rails.application.routes.draw do
 
   get 'dashboard/index'
 
+  namespace :api do
+    namespace :v1 do
+      resources :cites_legislation, :only => [:index]
+      resources :common_names, :only => [:index]
+      resources :distributions, :only => [:index]
+      resources :eu_legislation, :only => [:index]
+      resources :references, :only => [:index]
+      resources :taxon_concepts, :only => [:index]
+    end
+  end
+
   devise_for :users, :controllers => { :registrations => "registrations" }
   apipie
 

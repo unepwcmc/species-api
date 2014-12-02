@@ -3,9 +3,9 @@ class User < ActiveRecord::Base
   # :confirmable, :lockable, :timeoutable and :omniauthable
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable
-  #include SentientUser
-  devise :database_authenticatable, :registerable, :recoverable, :rememberable,
-    :trackable, :validatable
+  
+  acts_as_token_authenticatable
+
   # attr_accessible :email, :name, :password, :password_confirmation,
   #   :remember_me, :role, :terms_and_conditions
 
@@ -16,6 +16,8 @@ class User < ActiveRecord::Base
   validates :role, inclusion: { in: ['default', 'admin', 'api'] }, 
                    presence: true
   validates :terms_and_conditions, acceptance: true
+
+
 
   def is_contributor?
     self.role == 'default'
