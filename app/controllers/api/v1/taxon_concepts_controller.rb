@@ -1,8 +1,4 @@
-class Api::V1::TaxonConceptsController < ApplicationController
-  skip_before_filter :authenticate_user!
-  acts_as_token_authentication_handler_for User, fallback_to_devise: false
-
-
+class Api::V1::TaxonConceptsController < Api::V1::BaseController
   resource_description do
     formats ['JSON', 'XML']
     api_base_url 'api/v1/taxon_concepts'

@@ -1,4 +1,4 @@
-class Api::V1::CitesLegislationController < ApplicationController
+class Api::V1::CitesLegislationController < Api::V1::BaseController
   resource_description do
     formats ['JSON', 'XML']
     api_base_url 'api/v1/taxon_concepts'
