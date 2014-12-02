@@ -97,12 +97,12 @@ p.browsehappy a {
 }
 #header .logo {
   margin-top: -1px;
-	width: 160px;
+	width: 220px;
 	height: 43px;
 	float: left;
 	text-indent: -9999px;
 	overflow: hidden;
-	background: url(/assets/species/species+_logo_header.png) no-repeat;
+	background: url(/assets/species-plus-api-logo.png) no-repeat;
 	background-size:100%;
 }
 
