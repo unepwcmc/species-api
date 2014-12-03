@@ -9,36 +9,48 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
   param :page, Integer, desc: 'Page Number', required: false
   param :updated_since, Time, desc: 'Return taxa updated since', required: false
   example <<-EOS
-    'taxon_concepts': [
+    [
       {
-        'id': 4521,
-        'scientific_name': 'Loxodonta africana',
-        'author_year': '(Blumenbach, 1797)',
-        'rank': 'SPECIES',
-        'name_status': 'A',
-        'higher_taxa': {
-          'genus': 'Loxodonta',
-          'family': 'Elephantidae',
-          'order': 'Proboscidea',
-          'class': 'Mammalia',
-          'phylum': 'Chordata'
-        },
-        'synonyms': [
-          {
-            id: 37069,
-            scientific_name: 'Loxodonta cyclotis',
-            author_year: '(Matschie, 1900)'
-          }
-        ]
+        "taxon_concept":{
+          "id":4521,
+          "full_name":"Loxodonta africana",
+          "author_year":"(Blumenbach, 1797)",
+          "rank_name":"SPECIES",
+          "name_status":"A",
+          "updated_at":"2014-10-14T08:55:39.212Z",
+          "higher_taxa":{
+            "kingdom":"Animalia",
+            "phylum":"Chordata",
+            "class":"Mammalia",
+            "order":"Proboscidea",
+            "family":"Elephantidae"
+          },
+          "synonyms":null
+        }
       }
     ]
   EOS
 
   example <<-EOS
-    <cites_legislation>
-      <taxon_concept_id>1</taxon_concept_id>
-      <is_current>true</is_current>
-    </cites_legislation>
+    <?xml version="1.0" encoding="UTF-8"?>
+    <taxon-concepts type="array">
+      <taxon-concept>
+        <id type="integer">4521</id>
+        <full-name>Loxodonta africana</full-name>
+        <author-year>(Blumenbach, 1797)</author-year>
+        <rank-name>SPECIES</rank-name>
+        <name-status>A</name-status>
+        <updated-at type="dateTime">2014-10-14T08:55:39Z</updated-at>
+        <higher-taxa>
+          <kingdom>Animalia</kingdom>
+          <phylum>Chordata</phylum>
+          <class>Mammalia</class>
+          <order>Proboscidea</order>
+          <family>Elephantidae</family>
+        </higher-taxa>
+        <synonyms nil="true"/>
+      </taxon-concept>
+    </taxon-concepts>
   EOS
 
   def index
