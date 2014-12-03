@@ -1,71 +1,106 @@
 <h2>Nomenclature in Species+</h2>
 
-<p>The <%= link_to('Simplified Entity Relationship Diagram', image_url('speciesplus_erd.png')) %> might be of assistance when perusing the descriptions below.</p>
+<p>The <%= link_to('Simplified Entity Relationship Diagram', image_url('speciesplus_erd.png')) %> can be accessed to provide clarity and aid in the understanding of the descriptions below..</p>
 
 <h3>Taxon concepts</h3>
 
-<p>The basic entity that underpins the Species+ database is a taxon concept. It is a unique combination of a scientific name and the author/year, which has an automatically generated numeric identifier. A taxon concept has a rank property, which can be one of the following: kingdom, phylum, class, order, family, subfamily, species, subspecies, variety.</p>
+<p>The basic entity that underpins the Species+ database is a "taxon concept". A taxon concept is a unique combination of a scientific name and its corresponding author/year. Each taxon concept has an automatically generated unique numeric identifier and a “rank” property, indicating its place in the taxonomic hierarchy. "Ranks" include: kingdom, phylum, class, order, family, subfamily, species, subspecies, and variety.</p>
 
 <h4>Accepted names vs synonyms</h4>
 
-<p>Another propety of a taxon concept is it's name status. This property is used to diffferentiate between accepted names and synonyms. Both are types of taxon concepts, uniquely identified by a numeric id.</p>
+<p>Another property of a taxon concept is its name status. This property is used to differentiate between accepted names and synonyms. Both accepted names and synonyms are types of taxon concepts, uniquely identified by a numeric ID.</p>
 
-<p>Accepted names have a parent property, whereby they can be arranged in a taxonomic tree. Synonyms do not require a parent property to be defined; they are linked to the taxonomic tree by means of a synonymy relationship, whereby a given accepted name can have many synonyms and a synonym can be linked to many accepted names.</p>
+<p>Accepted names have a "parent" property, whereby they can be arranged in a taxonomic tree. Synonyms do not require a parent property to be defined; they are linked to the taxonomic tree by means of a synonymy relationship, whereby a given accepted name can have several synonyms and a synonym can be linked to several accepted names.</p>
 
 <h4>Permanent identifiers</h4>
 
-<p>The numeric identifiers of taxon concepts are considered permanent and represent the same scientific name and author/year combination at all times. It is possible for a taxon concept to undergo certain changes, such as changing the higher taxonomy (e.g. moving to a different family) or changing the name status (e.g. promoting a synonym to an accepted name). Yet, its identifier is expected to remain the same.</p>
+<p>The numeric identifiers of taxon concepts are permanent and represent the same scientific name and author/year combination at all times. It is possible for a taxon concept to undergo certain changes, such higher taxonomy changes (e.g. relocation to a different family) or name status changes (e.g. promoting a synonym to an accepted name). Yet, its identifier will remain the same.</p>
 
-<h3>Other data types</h3>
+<h3>Other data entities</h3>
 
 <p>The following entities are in place:</p>
+<ul>
+<li>
+<b>Common names</b><br>
+Multilingual. Some languages have better coverage than others.
+</li>
 
-<h4>Common names</h4>
-Multilingual, where some languages have better coverage than others.
+<li>
+<b>Distributions</b><br>
+Geographical occurrence of a taxon concept, at the level of countries and territories. Additional information on distribution status (e.g. extinct, uncertain) is included.
+</li>
 
-<h4>Distributions</h4>
-Where a taxon concept occurrs in terms of countries and territories. Additional information of distribution status (e.g. extinct, uncertain) is included, as well as references.
+<li>
+<b>Distribution references</b><br>
+Publications on which distribution information is based.
+</li>
 
-<h4>Distribution references</h4>
-Which publications describe the distribution of the taxon cocnept.
+<li>
+<b>Taxon concept references</b><br>
+Publications describing the taxon concept, with indication of whether they are CITES standard nomenclature references.
+</li>
 
-<h4>Taxon concept references</h4>
-Which publications describe the taxon concept and whether or not they are CITES standard references.
+<li>
+<b>CITES listings</b><br>
+CITES Appendix listings and reservations, both current and historic.
+</li>
 
-<h4>CITES listings</h4>
-CITES appendices and reservations, both current and historic.
-
-<h4>CITES quotas</h4>
+<li>
+<b>CITES quotas</b><br>
 Both current and historic.
+</li>
 
-<h4>CITES suspensions</h4>
+<li>
+<b>CITES suspensions</b><br>
 Both current and historic.
+</li>
 
-<h4>EU annexes</h4>
+<li>
+<b>EU annexes</b><br>
 Both current and historic.
+</li>
 
-<h4>EU suspensions</h4>
+<li>
+<b>EU suspensions</b><br>
 Both current and historic.
+</li>
 
-<h4>EU opinions<h4>
+<li>
+<b>EU opinions</b><br>
 Both current and historic.
+</li>
+</ul>
 
 <h3>Changes to taxon concepts tree</h3>
 
-<p>The above considerations are at the core of the nomenclature changes management process in Species+. Let us consider an example of a species split and the expected effects it will have on the underlying structure:</p>
+<p>
+Taxon concepts might be subject to a number of nomenclature changes, such as splits (i.e. one taxon concept splitting into two or more taxon concepts) lumps (i.e. two or more taxon concepts lumping into one taxon concept) or name status swap (i.e. a synonym becoming an accepted name, or vice versa).The taxon concept, name status and unique identifier considerations outlined above are at the core of the nomenclature changes management process in Species+. The example below illustrates the expected effects that a split will have on the underlying structure.
+</p>
 
-<p>Species <i>Antilocapra americana</i> splitting into itself (<i>Antilocapra americana</i>) and a new species <i>Antilocapra mexicana</i>, which will be the new name of a previously accepted subspecies name <i>Antilocapra americana mexicana</i>.</p>
+<p>
+<b>Example:</b> Elevation of the subspecies <i>Antilocapra americana mexicana</i> to species level, resulting in <i>Antilocapra americana</i> splitting into two taxa: <i>Antilocapra americana</i> and <i>Antilocapra mexicana</i>.
+</p>
 
-<p>No effect in terms of changes to the name status or higher taxa is expected for <i>Antilocapra americana</i>. The species may, however, undergo changes of distribution and list of synonyms and descendents (see below).</p>
+<p><b>Effects on taxon concepts:</b></p>
 
-<p>As for <i>Antilocapra americana mexicana</i>, that old name is going to be turned into a synonym of the newly created species <i>Antilocapra mexicana</i>. Therefore, the taxon concept <i>Antilocapra americana mexicana</i> will undergo changes to the name status (now a synonym) and will get detached from the taxon concept tree (it's previous parent). In addition a new taxon concept <i>Antilocapra mexicana</i> will be created.</p>
+<ul>
+<li>
+No changes to the name status or higher taxonomy for <i>Antilocapra americana</i>. The species may, however, undergo changes of distribution and list of synonyms and descendents and a "nomenclature note" would be added to this species to indicate that a split took place.
+</li>
+<li>
+A new taxon concept, <i>Antilocapra mexicana</i>, is created. As this scientific name did not previously exist, a new unique identifier would be created.
+</li>
+<li>
+The taxon concept <i>Antilocapra americana mexicana</i> (representing the subspecies being elevated as part of the split) undergoes changes to its name status, as it changes from an accepted name to a synonym of the newly created species <i>Antilocapra mexicana</i>. It maintains its original unique identifier. By becoming a synonym, <i>A. a. mexicana</i> would no longer be associated with a "parent" taxon and its only connection to the taxonomic tree is as a synonym.
+</li>
+</ul>
 
-<p>With regard to associated entities such as common names, distribution, legislation etc, the split may result in some of the information from the base species being copied over to the newly created species, as well as some information may be removed from the base species completely and moved to the new one. For example, common names might be copied over from <i>Antilocapra americana</i> to <i>Antilocapra mexicana</i>, whereas distribution information might be divided between the two according to range.</p>
+<p><b>Effects on associated data entities:</b></p>
 
-<p>Taxon concepts might be subject to other types of nomenclature changes, such as lumping or swapping a synonym with an accepted name.</p>
+<p>The split may require that some information, such as common names, distribution, legislation, etc, would need to be copied or transferred from <i>Antilocapra americana</i> to <i>Antilocapra mexicana</i>.  For example, historic CITES listing information might need to be copied over to the newly created species, whereas distribution information might be divided between the two newly split species according to the range of the new taxa. This transfer of data is carried out by UNEP-WCMC at the time of the nomenclature updates.</p>
 
 <h3>Consequences for the API</h3>
 
-<p>Nomenclature changes typically have massive scope in terms of the number of operations involved when modifying the taxonomic tree as well as copying / moving around related entities (common names, distributions, legislation etc). A formal representation of the different types of changes is not straightforward. The API does not aim to expose that formal representation or the log of changes that had been performed, because that would require API consumers to build complex logic around parsing and processing particular steps. In addition this type of integration would be very brittle and susceptible to changes in internal handling of nomenclature changes in the future</p>
+<p>Nomenclature changes typically involve a large number of operations and a formal representation of the different types of changes is not straightforward. The API does not aim to expose that formal representation or the log of all changes performed as that would require API consumers to build complex logic around parsing and processing particular steps, and the integration would be susceptible to adjustments in the way nomenclature changes are handled.</p>
 
-<p>What the API exposes instead is the current state of data with enough information to detect changes to relevant structures in the destination system. Because all operations that affect a particular taxon concept automatically update the timestamp of last modification, API consumers will know which taxa were changed by fetching the list of taxa changed since the last run of the synchronisation mechanism. The assumption is that API consumers will store the Species+ identifier in their systems. With that in place, new taxa can be detected by the fact that a given identifier is not present in the destination database and changes to the taxonomic tree can be detected by comparing the parent property.</p>
+<p>Instead, the API exposes the current state of data with enough information to detect changes to relevant structures in the destination system. Because all operations that affect a particular taxon concept automatically update the timestamp of the last modification, API consumers will know which taxa were changed by fetching the list of taxa changed since the last run of the synchronisation mechanism. The assumption is that API consumers will store the Species+ identifier in their systems. With that in place, new taxa can be detected by the fact that a given identifier is not present in the destination database and changes to the taxonomic tree can be detected by comparing the parent property.</p>
