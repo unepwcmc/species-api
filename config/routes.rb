@@ -3,7 +3,7 @@ Rails.application.routes.draw do
   get 'dashboard/index', as: 'dashboard'
   post 'dashboard/generate_new_token', to: 'dashboard#generate_new_token', as: 'generate_new_token'
 
-  namespace :api do
+  namespace :api, defaults: {format: 'json'} do
     namespace :v1 do
       resources :cites_legislation, :only => [:index]
       resources :common_names, :only => [:index]
