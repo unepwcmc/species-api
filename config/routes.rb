@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
 
   get 'dashboard/index', as: 'dashboard'
+  post 'dashboard/generate_new_token', to: 'dashboard#generate_new_token', as: 'generate_new_token'
 
   namespace :api do
     namespace :v1 do
