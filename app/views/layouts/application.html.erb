@@ -2,7 +2,7 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta charset="utf-8">
-  <title>CITES Checklist and Species+ API</title>
+  <title>CITES Checklist/Species+ API</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
   <meta name="author" content="">
@@ -44,7 +44,7 @@
           <li><%= link_to 'Species+', 'http://speciesplus.net' %></li>
           <li><%= link_to 'API Documentation', '/documentation' %></li>
           <% if user_signed_in? %>
-            <li>Signed in as <%= current_user.name %></li>
+            <li><%= link_to 'API Dashboard', dashboard_path %></li>
             <li><%= link_to 'Sign Out', destroy_user_session_path, method: :delete %></li>
           <% else %>
             <li><%= link_to 'Sign In', new_user_session_path %></li>
@@ -62,9 +62,6 @@
     <div class="holder">
       <ul class="sponsor">
         <li><a href="http://www.cites.org"><img src="/assets/species/logo-CITES.png" alt="CITES logo" width="77" height="44" /></a></li>
-        <li><a href="http://www.cms.int"><img src="/assets/species/logo-CMS.png" alt="CMS logo" width="31" height="44" /></a></li>
-        <li><a href="http://www.unep.org"><img src="/assets/species/logo-UNEP.png" alt="UNEP logo" width="37" height="43" /></a></li>
-        <li><a href="http://ec.europa.eu/environment/cites/home_en.htm"><img src="/assets/species/logo-EU.png" alt="EU logo" width="65" height="44" /></a></li>
       </ul>
       <div class="power-by">
         <a href="http://www.unep-wcmc.org"><img src="/assets/species/powered_by.png" alt="Powered by logo" width="66" height="44" /></a>

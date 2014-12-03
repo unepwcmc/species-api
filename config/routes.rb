@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
 
-  get 'dashboard/index'
+  get 'dashboard/index', as: 'dashboard'
 
   namespace :api do
     namespace :v1 do

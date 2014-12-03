@@ -1,5 +1,5 @@
 Apipie.configure do |config|
-  config.app_name = "CITES Checklist and Species+ API"
+  config.app_name = "CITES Checklist/Species+ API"
   config.api_base_url = "v1"
   config.doc_base_url = "/documentation"
   config.default_version = "v1"

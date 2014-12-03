@@ -1,4 +1,4 @@
-class Api::V1::TaxonConceptsController < Api::V1::BaseController
+class Api::V1::TaxonConceptsController < Api::V1::BaseController  
   resource_description do
     formats ['JSON', 'XML']
     api_base_url 'api/v1/taxon_concepts'
@@ -41,6 +41,6 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
   EOS
   
   def index
-    render text: "Successfully Done!"
+    render text: "API!"
   end
 end
