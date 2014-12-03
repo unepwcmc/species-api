@@ -5,7 +5,7 @@ class Api::V1::CitesLegislationController < Api::V1::BaseController
     name 'CITES Legislation'
   end
 
-  api :GET, '/:id/cites_legislation', 'Lists current listings, quotas, and suspensions for a given taxon concept'
+  api :GET, '/:id/cites_legislation', 'Lists current CITES appendix listings and reservations, CITES quotas, and CITES suspensions for a given taxon concept'
   param :id, Integer, :desc => "Taxon Concept ID", :required => true
   example <<-EOS
     'cites_legislation': [

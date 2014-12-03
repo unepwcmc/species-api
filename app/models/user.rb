@@ -29,4 +29,9 @@ class User < ActiveRecord::Base
   def is_api?
     self.role == 'api'
   end
+
+  def generate_new_token
+    self.authentication_token = nil
+    self.save!
+  end
 end
