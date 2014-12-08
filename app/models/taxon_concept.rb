@@ -2,6 +2,8 @@
 class TaxonConcept < ActiveRecord::Base
   self.table_name = :taxon_concepts_mview
   self.primary_key = :id
+  
+  WillPaginate.per_page = 100
 
   def higher_taxa
     ['KINGDOM', 'PHYLUM', 'CLASS', 'ORDER', 'FAMILY'].map do |rank|

@@ -6,7 +6,7 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
   end
 
   api :GET, '/', 'Lists taxon concepts'
-  param :page, Integer, desc: 'Page Number', required: false
+  param :page, String, desc: 'Page Number', required: false
   param :updated_since, Time, desc: 'Return taxa updated since', required: false
   example <<-EOS
     [
@@ -60,7 +60,7 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
         taxonomy_is_cites_eu: true,
         name_status: 'A',
         full_name: 'Loxodonta africana'
-      ).order('full_name').limit(100) # TODO paginate
+      ).paginate(:page => params[:page]).order('full_name')
     render 'api/v1/taxon_concepts/index'
   end
 end
