@@ -7,6 +7,6 @@ class UserSignsInTest < ActionDispatch::IntegrationTest
 
   test "user signs in with valid information" do
     sign_in @user
-    assert page.has_content?("Signed in as #{@user.name}")
+    assert page.has_content?("API Dashboard")
   end 
 end

@@ -18,4 +18,9 @@ class UserSignsUpTest < ActionDispatch::IntegrationTest
     end
     #assert_equal 'new_user_registration_path', current_path
   end
+
+  test "user gets an api token on sign up" do
+    sign_up @user
+    assert_not_nil User.last.authentication_token
+  end
 end

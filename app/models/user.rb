@@ -1,5 +1,4 @@
 class User < ActiveRecord::Base
-  acts_as_token_authenticatable
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :omniauthable
   devise :database_authenticatable, :registerable,
@@ -16,7 +15,7 @@ class User < ActiveRecord::Base
                    presence: true
   validates :terms_and_conditions, acceptance: true
 
-
+  after_create :generate_authentication_token
 
   def is_contributor?
     self.role == 'default'
@@ -30,8 +29,12 @@ class User < ActiveRecord::Base
     self.role == 'api'
   end
 
-  def generate_new_token
-    self.authentication_token = nil
-    self.save!
+  def generate_authentication_token
+    token = loop do
+      t = SecureRandom.base64.tr('+/=', 'Qrt')
+      break t unless User.exists?(authentication_token: t)
+    end
+    self.authentication_token = token
+    self.save
   end
 end

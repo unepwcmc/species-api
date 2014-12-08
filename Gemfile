@@ -1,10 +1,8 @@
 source 'https://rubygems.org'
 
 gem 'apipie-rails' # Documentation
-gem 'simple_token_authentication' # Token Generation
 gem 'devise'
 gem 'annotate'
-
 gem 'sass-rails'#,   '~> 3.2.3'
 gem 'uglifier'#, '>= 1.0.3'
 gem "susy"
