@@ -165,10 +165,6 @@ GEM
     shoulda-context (1.2.1)
     shoulda-matchers (2.7.0)
       activesupport (>= 3.0.0)
-    simple_token_authentication (1.7.0)
-      actionmailer (>= 3.2.6, < 5)
-      actionpack (>= 3.2.6, < 5)
-      devise (~> 3.2)
     spring (1.2.0)
     sprockets (2.12.3)
       hike (~> 1.2)
@@ -224,7 +220,6 @@ DEPENDENCIES
   sass-rails
   sdoc (~> 0.4.0)
   shoulda
-  simple_token_authentication
   spring
   susy
   turbolinks
