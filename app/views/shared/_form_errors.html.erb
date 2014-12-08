@@ -1,0 +1,12 @@
+<% if resource.errors.any? %>
+  <div id="error_explanation">
+    <div class="alert alert-danger">
+      <i class="fa fa-warning"></i> Oops! The form contains <%= pluralize(resource.errors.count, "error") %>...
+      <ul>
+        <% resource.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+<% end %>
