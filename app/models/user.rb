@@ -15,7 +15,7 @@ class User < ActiveRecord::Base
                    presence: true
   validates :terms_and_conditions, acceptance: true
 
-
+  after_create :generate_authentication_token
 
   def is_contributor?
     self.role == 'default'
