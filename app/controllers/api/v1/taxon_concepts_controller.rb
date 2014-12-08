@@ -1,4 +1,6 @@
 class Api::V1::TaxonConceptsController < Api::V1::BaseController
+  after_action only: [:index] { set_pagination_headers(:taxon_concepts) }
+
   resource_description do
     formats ['JSON', 'XML']
     api_base_url 'api/v1/taxon_concepts'
