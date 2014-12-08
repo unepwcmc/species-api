@@ -8,6 +8,7 @@ gem 'uglifier'#, '>= 1.0.3'
 gem "susy"
 gem 'compass'#, '>= 0.12.2'
 gem 'compass-rails'#, '>= 1.0.3'
+gem 'will_paginate' #, '~> 3.0.6'
 
 group :test do
   gem 'shoulda'
