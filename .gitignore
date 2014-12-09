@@ -5,7 +5,6 @@ capybara-*.html
 /tmp
 /coverage
 /db/*.sqlite3
-/db/structure.sql
 /db/schema.rb
 /public/system
 /coverage/
