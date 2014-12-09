@@ -3,7 +3,7 @@
 
   <p>Application Programming Interface (API) to support CITES Parties to increase the accuracy and efficiency of curating CITES species data for permitting purposes.</p>
 
-  <div class="panel panel-default">
+<!--   <div class="panel panel-default">
     <div class="panel-heading">Version Specific Documentation</div>
     <ul class="list-group">
       <li class='list-group-item'><a href='<%= @doc[:doc_url] %><%= @doc[:link_extension] %>'><%= @doc[:name] %> <%= @doc[:resources].values.first && @doc[:resources].values.first[:version] %></a></li>
@@ -14,20 +14,30 @@
       </li>
       <% end %>
     </ul>
-  </div>
+  </div> -->
 
   <h3 class="first">Getting Started</h3>
   <h4>Authenticating your requests</h4>
   <p>You can sign up for an API account <%= link_to 'here', new_user_registration_path %>. Once you have signed up, visit <%= link_to 'Sign in', new_user_session_path %> to log in to the API Dashboard and retrieve your generated token. This token will need to be passed into every request you make via the HTTP header below:</p>
 
   <div class="well">
-    <pre>X-Authentication-Token: 8QWE6QlYsJDGoi9BG2k0Lgtt</pre>
+    <pre>X-Authentication-Token: 8QW6Qgh57sBG2k0gtt</pre>
   </div>
 
-  <h4>Pagination</h4>
-  <p>Where the request returns more than 100 objects, the request is paginated, showing 100 objects at a time. To fetch the remaining objects, you will need to make a new request and pass the optional ‘page’ parameter as below:</p>
+  <h4>Optional parameters</h4>
+  <p>Whereas authentication is passed via a HTTP header, other parameters for refining your response data are provided via the query string. These are detailed below and where appropriate in the documentation for each endpoint.</p>
 
-  <div class="well"><pre>http://www.speciesplus.net/api/v1/taxon_concepts?page=2</pre></div>
+  <h4>Paginating Responses</h4>
+  <p>Where the request returns more than 100 objects, the request is paginated, showing 100 objects (Or less by passing in an optional 'per_page' parameter) at a time. To fetch the remaining objects, you will need to make a new request and pass the optional ‘page’ parameter as below:</p>
+
+  <div class="well"><pre>http://www.speciesplus.net/api/v1/taxon_concepts?page=2&per_page=25</pre></div>
+
+  <p>Information about the remaining pages is provided in the Link header of the API response. For example, making the above request for page two, with a limit of 25 objects per page would return the following in the link header along with a total-count header:</p>
+
+  <div class="well"><pre>Link: &lt;http://speciesplus.net/api/v1/taxon_concepts?page=3&per_page=25&gt;; rel="next", &lt;http://speciesplus.net/api/v1/taxon_concepts?page=2570&per_page=25&gt;; rel="last"
+Total-Count: 64230</pre></div>
+
+  <p>If there are additional pages, the link header will contain the URL for the next page of results, followed by the URL for the last page of results. The Total-Count header shows the total number of objects returned for this call, regardless of pagination.</p>
 
   <h4>Formats</h4>
   <p>All endpoint can return both JSON and XML data. The default is JSON, if you would like to receive XML data, you can add .xml to the endpoint as below:</p>

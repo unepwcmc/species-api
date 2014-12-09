@@ -8,7 +8,8 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
   end
 
   api :GET, '/', 'Lists taxon concepts'
-  param :page, String, desc: 'Page Number', required: false
+  param :page, String, desc: 'Page number for paginated responses', required: false
+  param :per_page, String, desc: 'Limit for how many objects returned per page for paginated responses. If not specificed it will default to the maximum value of 100', required: false
   param :updated_since, Time, desc: 'Return taxa updated since', required: false
   example <<-EOS
     [
