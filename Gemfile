@@ -13,7 +13,8 @@ group :test do
   gem 'shoulda'
   gem 'capybara'
   gem 'factory_girl_rails'
-  gem 'simplecov', :require => false
+  gem 'simplecov', require: false
+  gem 'codeclimate-test-reporter', require: nil
 end
 
 group :staging, :production do

@@ -1,4 +1,10 @@
 require 'simplecov'
+formatters = [SimpleCov::Formatter::HTMLFormatter]
+if ENV['CODECLIMATE_REPO_TOKEN']
+  require 'codeclimate-test-reporter'
+  formatters.push CodeClimate::TestReporter::Formatter
+end
+SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[*formatters]
 SimpleCov.start 'rails'
 SimpleCov.command_name 'test'
 
