@@ -8,8 +8,6 @@ addons:
 before_script:
   - psql -c 'create database sapi_test' -U postgres
 script:
-  - RAILS_ENV=test bundle exec rake db:structure:load
-  - RAILS_ENV=test bundle exec rake db:migrate
   - CODECLIMATE_REPO_TOKEN=7ee3093908aa296e3db98e6e00cd28db3f8dd802d932f2dc218eb954c73c6402 bundle exec rake
 notifications:
   slack: wcmc:38bMoeEC28Tm3cnSGmhdGYVh
