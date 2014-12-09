@@ -19,8 +19,9 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
           "id":4521,
           "full_name":"Loxodonta africana",
           "author_year":"(Blumenbach, 1797)",
-          "rank_name":"SPECIES",
+          "rank":"SPECIES",
           "name_status":"A",
+          "taxonomy":"CITES",
           "updated_at":"2014-10-14T08:55:39.212Z",
           "higher_taxa":{
             "kingdom":"Animalia",
@@ -29,7 +30,13 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
             "order":"Proboscidea",
             "family":"Elephantidae"
           },
-          "synonyms":null
+          "synonyms":[
+            {
+              "id":37069,
+              "full_name":"Loxodonta cyclotis",
+              "author_year":"(Matschie, 1900)"
+            }
+          ]
         }
       }
     ]
@@ -42,8 +49,9 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
         <id type="integer">4521</id>
         <full-name>Loxodonta africana</full-name>
         <author-year>(Blumenbach, 1797)</author-year>
-        <rank-name>SPECIES</rank-name>
+        <rank>SPECIES</rank>
         <name-status>A</name-status>
+        <taxonomy>CITES</taxonomy>
         <updated-at type="dateTime">2014-10-14T08:55:39Z</updated-at>
         <higher-taxa>
           <kingdom>Animalia</kingdom>
@@ -52,7 +60,13 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
           <order>Proboscidea</order>
           <family>Elephantidae</family>
         </higher-taxa>
-        <synonyms nil="true"/>
+        <synonyms type="array">
+          <synonym>
+            <id type="integer">37069</id>
+            <full-name>Loxodonta cyclotis</full-name>
+            <author-year>(Matschie, 1900)</author-year>
+          </synonym>
+        </synonyms>
       </taxon-concept>
     </taxon-concepts>
   EOS
