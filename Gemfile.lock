@@ -161,6 +161,9 @@ GEM
       sass (~> 3.2)
       sprockets (~> 2.12)
       sprockets-rails (>= 2.0, < 4.0)
+    schema_plus (1.7.1)
+      activerecord (>= 3.2)
+      valuable
     sdoc (0.4.1)
       json (~> 1.7, >= 1.7.7)
       rdoc (~> 4.0)
@@ -200,6 +203,7 @@ GEM
     uglifier (2.5.3)
       execjs (>= 0.3.0)
       json (>= 1.8.0)
+    valuable (0.9.9)
     warden (1.2.3)
       rack (>= 1.0)
     will_paginate (3.0.7)
@@ -232,6 +236,7 @@ DEPENDENCIES
   rails (= 4.1.1)
   rvm-capistrano
   sass-rails
+  schema_plus
   sdoc (~> 0.4.0)
   shoulda
   simplecov
