@@ -25,7 +25,7 @@
   </div>
 
   <h4>Optional parameters</h4>
-  <p>Whereas authentication is passed via a HTTP header, other parameters for refining your response data are provided via the query string. These are detailed below and where appropriate in the documentation for each endpoint.</p>
+  <p>Whereas authentication is passed via a HTTP header, other parameters for refining your response data are provided via the query string. These are detailed below and where appropriate in the documentation for each endpoint. Parameters can be combined.</p>
 
   <h4>Paginating Responses</h4>
   <p>Where the request returns more than 100 objects, the request is paginated, showing 100 objects (Or less by passing in an optional 'per_page' parameter) at a time. To fetch the remaining objects, you will need to make a new request and pass the optional ‘page’ parameter as below:</p>
@@ -38,6 +38,11 @@
 Total-Count: 64230</pre></div>
 
   <p>If there are additional pages, the link header will contain the URL for the next page of results, followed by the URL for the last page of results. The Total-Count header shows the total number of objects returned for this call, regardless of pagination.</p>
+
+  <h4>Filtering by Date Updated</h4>
+  <p>An optional 'updated_since' parameter can be passed to pull only objects updated after (and including) the specified timestamp in ISO8601 format (UTC time).
+
+  <div class="well"><pre>http://www.speciesplus.net/api/v1/taxon_concepts?updated_since=2013-12-09T12:05:34+00:00</pre></div>
 
   <h4>Formats</h4>
   <p>All endpoint can return both JSON and XML data. The default is JSON, if you would like to receive XML data, you can add .xml to the endpoint as below:</p>

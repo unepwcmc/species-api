@@ -63,6 +63,11 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
         per_page: (params[:per_page] && params[:per_page].to_i < TaxonConcept.per_page ? params[:per_page] : TaxonConcept.per_page)
       ).
       order('full_name')
+
+    if params[:updated_since]
+      @taxon_concepts = @taxon_concepts.where("updated_at >= ?", params[:updated_since])
+    end
+      
     render 'api/v1/taxon_concepts/index'
   end
 end
