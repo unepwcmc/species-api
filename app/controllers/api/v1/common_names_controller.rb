@@ -6,6 +6,7 @@ class Api::V1::CommonNamesController < Api::V1::BaseController
 
   api :GET, '/:id/common_names', 'Lists common names for a given taxon concept'
   param :id, Integer, desc: 'Taxon Concept ID', required: true
+
   example <<-EOS
     'common_names': [
       {
@@ -18,14 +19,14 @@ class Api::V1::CommonNamesController < Api::V1::BaseController
       }
     ]
   EOS
-  
+
   example <<-EOS
     <cites_legislation>
       <taxon_concept_id>1</taxon_concept_id>
       <is_current>true</is_current>
     </cites_legislation>
   EOS
-  
+
   def index
   end
 end

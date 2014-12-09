@@ -8,6 +8,8 @@ gem 'uglifier'#, '>= 1.0.3'
 gem "susy"
 gem 'compass'#, '>= 0.12.2'
 gem 'compass-rails'#, '>= 1.0.3'
+gem 'will_paginate' #, '~> 3.0.6'
+gem 'api_pagination_headers'
 
 group :test do
   gem 'shoulda'
@@ -15,6 +17,7 @@ group :test do
   gem 'factory_girl_rails'
   gem 'simplecov', require: false
   gem 'codeclimate-test-reporter', require: nil
+  gem 'link_header'
 end
 
 group :staging, :production do
@@ -34,8 +37,10 @@ gem 'coffee-rails', '~> 4.0.0'
 gem 'jquery-rails'
 # Turbolinks makes following links in your web application faster. Read more: https://github.com/rails/turbolinks
 gem 'turbolinks'
-# Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
-gem 'jbuilder', '~> 2.0'
+# Build JSON / XML API
+gem 'rabl'
+# Also add either `oj` or `yajl-ruby` as the JSON parser
+gem 'oj'
 # bundle exec rake doc:rails generates the API under doc/api.
 gem 'sdoc', '~> 0.4.0',          group: :doc
 

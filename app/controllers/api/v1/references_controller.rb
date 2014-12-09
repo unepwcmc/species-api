@@ -21,7 +21,7 @@ class Api::V1::ReferencesController < Api::V1::BaseController
       <is_current>true</is_current>
     </cites_legislation>
   EOS
-  
+
   def index
   end
 end
