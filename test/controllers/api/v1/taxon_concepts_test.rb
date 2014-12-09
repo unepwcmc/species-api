@@ -31,4 +31,26 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
       lh.attr_pairs.include?(['rel', 'next'])
     end
   end
+
+  test "filters results by date with 'updated_since' params" do
+    FactoryGirl.create(:taxon_concept, updated_at: 1.year.ago)
+    FactoryGirl.create(:taxon_concept, updated_at: 1.month.ago)
+    @request.headers["X-Authentication-Token"] = @user.authentication_token
+
+    get :index, updated_since: 2.months.ago.to_s
+    results = JSON.parse(response.body)
+    assert_equal 1, results.length
+  end
+
+  test "filters results by name with 'name' params" do
+    FactoryGirl.create(:taxon_concept, full_name: "John Hammond")
+    FactoryGirl.create(:taxon_concept, full_name: "Ingen")
+    @request.headers["X-Authentication-Token"] = @user.authentication_token
+    
+    get :index, name: "John Hammond"
+    results = JSON.parse(response.body)
+
+    assert_equal "John Hammond", results.first["taxon_concept"]["full_name"]
+    assert_equal 1, results.length
+  end
 end

@@ -10,7 +10,8 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
   api :GET, '/', 'Lists taxon concepts'
   param :page, String, desc: 'Page number for paginated responses', required: false
   param :per_page, String, desc: 'Limit for how many objects returned per page for paginated responses. If not specificed it will default to the maximum value of 100', required: false
-  param :updated_since, Time, desc: 'Return taxa updated since', required: false
+  param :updated_since, String, desc: 'Return taxa updated since', required: false
+  param :name, String, desc: 'Filter taxon concepts by name', required: false
   example <<-EOS
     [
       {
@@ -64,10 +65,14 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
       ).
       order('full_name')
 
+    if params[:name]
+      @taxon_concepts = @taxon_concepts.where(full_name: params[:name])
+    end
+
     if params[:updated_since]
       @taxon_concepts = @taxon_concepts.where("updated_at >= ?", params[:updated_since])
     end
-      
+
     render 'api/v1/taxon_concepts/index'
   end
 end
