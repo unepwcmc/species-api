@@ -17,6 +17,7 @@ group :test do
   gem 'factory_girl_rails'
   gem 'simplecov', require: false
   gem 'codeclimate-test-reporter', require: nil
+  gem 'link_header'
 end
 
 group :staging, :production do

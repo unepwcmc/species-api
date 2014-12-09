@@ -57,12 +57,11 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
 
   def index
     @taxon_concepts = TaxonConcept.
-      where(
-        rank_name: 'SPECIES',
-        taxonomy_is_cites_eu: true,
-        name_status: 'A',
-        full_name: 'Loxodonta africana'
-      ).paginate(:page => params[:page]).order('full_name')
+      paginate(
+        page: params[:page],
+        per_page: (params[:per_page] && params[:per_page].to_i < TaxonConcept.per_page ? params[:per_page] : TaxonConcept.per_page)
+      ).
+      order('full_name')
     render 'api/v1/taxon_concepts/index'
   end
 end
