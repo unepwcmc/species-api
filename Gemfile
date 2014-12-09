@@ -28,6 +28,7 @@ end
 gem 'rails', '4.1.1'
 # Use postgresql as the database for Active Record
 gem 'pg'
+gem 'schema_plus'
 # Use CoffeeScript for .js.coffee assets and views
 gem 'coffee-rails', '~> 4.0.0'
 # See https://github.com/sstephenson/execjs#readme for more supported runtimes
