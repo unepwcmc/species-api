@@ -18,6 +18,7 @@ group :test do
   gem 'simplecov', require: false
   gem 'codeclimate-test-reporter', require: nil
   gem 'link_header'
+  gem 'launchy'
 end
 
 group :staging, :production do

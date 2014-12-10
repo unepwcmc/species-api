@@ -1,5 +1,6 @@
 class Api::BaseController < ApplicationController
-  skip_before_filter :authenticate_user!
+  skip_before_action :authenticate_user!
+  skip_before_filter :authenticate_is_api_or_admin
   respond_to :xml, :json
   before_action :authenticate
 
