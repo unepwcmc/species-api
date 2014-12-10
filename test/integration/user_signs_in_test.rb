@@ -20,8 +20,7 @@ class UserSignsInTest < ActionDispatch::IntegrationTest
   test "default user cannot access API dashboard" do
     sign_in @contributor
     save_and_open_page
-    #assert page.has_content?("Log in"), "Not log in page"
-    
-    assert page.has_no_content?("API Dashboard"), "Is logged in. #{@contributor.role}"
+    assert page.has_content?("Sign up")
+    assert page.has_no_content?("API Dashboard")
   end
 end

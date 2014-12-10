@@ -22,7 +22,7 @@ class ApplicationController < ActionController::Base
       unless (params[:controller] == 'registrations') || (params[:controller] == 'devise/sessions')
         if current_user && current_user.is_contributor?
           sign_out current_user 
-          redirect_to root_url, notice: "You do not have permission to access the API"
+          redirect_to new_user_registration_path, notice: "You do not have permission to access the API, please sign up for an API account"
         end
       end
     end
