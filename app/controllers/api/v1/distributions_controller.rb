@@ -5,7 +5,7 @@ class Api::V1::DistributionsController < Api::V1::BaseController
   end
 
   api :GET, '/:id/distributions', 'Lists distributions for a given taxon concept'
-  param :id, Integer, desc: 'Taxon Concept ID', required: true
+  param :id, String, desc: 'Taxon Concept ID', required: true
   example <<-EOS
     'distributions': [
       {
@@ -23,5 +23,6 @@ class Api::V1::DistributionsController < Api::V1::BaseController
   EOS
 
   def index
+    Distribution.find(params[:id])
   end
 end
