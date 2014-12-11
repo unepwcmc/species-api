@@ -1,6 +1,6 @@
 class Api::BaseController < ApplicationController
   skip_before_action :authenticate_user!
-  skip_before_filter :authenticate_is_api_or_admin
+  #skip_before_filter :authenticate_is_api_or_admin
   respond_to :xml, :json
   before_action :authenticate
 
@@ -9,7 +9,7 @@ class Api::BaseController < ApplicationController
       token = request.headers['X-Authentication-Token']
       @user = User.where(authentication_token: token).first if token 
          
-      unless @user
+      if @user.nil? || @user.is_contributor?
         head status: :unauthorized
         return false
       end
