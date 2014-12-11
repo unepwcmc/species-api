@@ -200,7 +200,7 @@ require 'yaml'
     
 }
   run "mkdir -p #{shared_path}/config"
-  put(spec.to_yaml, "#{shared_path}/config/.env")
+  put(spec.to_yaml, "#{shared_path}/.env")
 end
 
 after "deploy:setup", :setup_production_database_configuration
