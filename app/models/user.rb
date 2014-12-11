@@ -4,11 +4,6 @@ class User < ActiveRecord::Base
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable
 
-  # attr_accessible :email, :name, :password, :password_confirmation,
-  #   :remember_me, :role, :terms_and_conditions
-
-  # has_many :ahoy_visits, dependent: :nullify, class_name: 'Ahoy::Visit' 
-
   validates :email, :uniqueness => true, :presence => true
   validates :name, :presence => true
   validates :role, inclusion: { in: ['default', 'admin', 'api'] }, 
