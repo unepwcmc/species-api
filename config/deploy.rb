@@ -1,6 +1,9 @@
 set :default_stage, 'staging'
 
+set :generate_webserver_config, false
+
 require 'capistrano/ext/multistage'
+
 
 ## Generated with 'brightbox-capify' on 2014-12-02 11:03:02 +0000
 gem 'brightbox', '>=2.4.4'
@@ -155,3 +158,52 @@ default_run_options[:pty] = true
 # :hard forcibly kills running instances, rarely needed now but used
 # to be necessary with older versions of passenger
 # set :passenger_restart_strategy, :soft
+
+
+desc "Restarting mod_rails with restart.txt"
+  task :restart, :roles => :app, :except => { :no_release => true } do
+    run "touch #{current_path}/tmp/restart.txt"
+end
+
+task :setup_production_database_configuration do
+  the_host = Capistrano::CLI.ui.ask("Database IP address: ")
+  database_name = Capistrano::CLI.ui.ask("Database name: ")
+  database_user = Capistrano::CLI.ui.ask("Database username: ")
+  pg_password = Capistrano::CLI.password_prompt("Database user password: ")
+
+  require 'yaml'
+
+  spec = {
+    "#{rails_env}" => {
+      "adapter" => "postgresql",
+      "database" => database_name,
+      "username" => database_user,
+      "host" => the_host,
+      "password" => pg_password
+    }
+  }
+
+  run "mkdir -p #{shared_path}/config"
+  put(spec.to_yaml, "#{shared_path}/config/database.yml")
+end
+
+
+task :setup_dotenv do
+  SECRET_KEY_BASE = Capistrano::CLI.ui.ask("SECRET_KEY_BASE: ")
+  DEVISE_SECRET_KEY = Capistrano::CLI.ui.ask("DEVISE_SECRET_KEY: ")
+
+require 'yaml'
+
+  spec = {
+    "SECRET_KEY_BASE:" => SECRET_KEY_BASE,
+    "DEVISE_SECRET_KEY:" => DEVISE_SECRET_KEY
+    
+}
+  run "mkdir -p #{shared_path}/config"
+  put(spec.to_yaml, "#{shared_path}/config/.env")
+end
+
+after "deploy:setup", :setup_production_database_configuration
+after "deploy:setup", :setup_dotenv
+
+
