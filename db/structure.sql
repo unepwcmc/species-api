@@ -209,10 +209,7 @@ CREATE TABLE listing_changes (
     import_row_id integer,
     created_by_id integer,
     updated_by_id integer,
-    internal_notes text,
-    nomenclature_note_en text,
-    nomenclature_note_es text,
-    nomenclature_note_fr text
+    internal_notes text
 );
 
 
@@ -241,11 +238,7 @@ CREATE TABLE taxon_concepts (
     legacy_trade_code character varying(255),
     updated_by_id integer,
     created_by_id integer,
-    dependents_updated_at timestamp without time zone,
-    nomenclature_note_en text,
-    nomenclature_note_es text,
-    nomenclature_note_fr text,
-    internal_nomenclature_note text
+    dependents_updated_at timestamp without time zone
 );
 
 
@@ -7499,7 +7492,7 @@ CREATE TABLE users (
     last_sign_in_at timestamp without time zone,
     current_sign_in_ip character varying(255),
     last_sign_in_ip character varying(255),
-    role character varying(255) DEFAULT 'default'::character varying NOT NULL,
+    role character varying(255) DEFAULT 'default'::character varying,
     authentication_token character varying(255)
 );
 
@@ -7962,7 +7955,7 @@ CREATE TABLE eu_decisions (
     notes text,
     internal_notes text,
     taxon_concept_id integer,
-    geo_entity_id integer NOT NULL,
+    geo_entity_id integer,
     start_date timestamp without time zone,
     start_event_id integer,
     end_date timestamp without time zone,
@@ -7975,10 +7968,7 @@ CREATE TABLE eu_decisions (
     term_id integer,
     source_id integer,
     created_by_id integer,
-    updated_by_id integer,
-    nomenclature_note_en text,
-    nomenclature_note_es text,
-    nomenclature_note_fr text
+    updated_by_id integer
 );
 
 
@@ -8647,29 +8637,27 @@ ALTER SEQUENCE listing_distributions_id_seq OWNED BY listing_distributions.id;
 
 
 --
--- Name: nomenclature_change_inputs; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: oauth_access_grants; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
-CREATE TABLE nomenclature_change_inputs (
+CREATE TABLE oauth_access_grants (
     id integer NOT NULL,
-    nomenclature_change_id integer NOT NULL,
-    taxon_concept_id integer NOT NULL,
-    note_en text,
-    created_by_id integer NOT NULL,
-    updated_by_id integer NOT NULL,
+    resource_owner_id integer NOT NULL,
+    application_id integer NOT NULL,
+    token character varying(255) NOT NULL,
+    expires_in integer NOT NULL,
+    redirect_uri text NOT NULL,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    internal_note text,
-    note_es text,
-    note_fr text
+    revoked_at timestamp without time zone,
+    scopes character varying(255)
 );
 
 
 --
--- Name: nomenclature_change_inputs_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: oauth_access_grants_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE nomenclature_change_inputs_id_seq
+CREATE SEQUENCE oauth_access_grants_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -8678,38 +8666,34 @@ CREATE SEQUENCE nomenclature_change_inputs_id_seq
 
 
 --
--- Name: nomenclature_change_inputs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: oauth_access_grants_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE nomenclature_change_inputs_id_seq OWNED BY nomenclature_change_inputs.id;
+ALTER SEQUENCE oauth_access_grants_id_seq OWNED BY oauth_access_grants.id;
 
 
 --
--- Name: nomenclature_change_output_reassignments; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: oauth_access_tokens; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
-CREATE TABLE nomenclature_change_output_reassignments (
+CREATE TABLE oauth_access_tokens (
     id integer NOT NULL,
-    nomenclature_change_output_id integer NOT NULL,
-    type character varying(255) NOT NULL,
-    reassignable_type character varying(255),
-    reassignable_id integer,
-    note_en text,
-    created_by_id integer NOT NULL,
-    updated_by_id integer NOT NULL,
+    resource_owner_id integer,
+    application_id integer,
+    token character varying(255) NOT NULL,
+    refresh_token character varying(255),
+    expires_in integer,
+    revoked_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    note_es text,
-    note_fr text,
-    internal_note text
+    scopes character varying(255)
 );
 
 
 --
--- Name: nomenclature_change_output_reassignments_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: oauth_access_tokens_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE nomenclature_change_output_reassignments_id_seq
+CREATE SEQUENCE oauth_access_tokens_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -8718,48 +8702,32 @@ CREATE SEQUENCE nomenclature_change_output_reassignments_id_seq
 
 
 --
--- Name: nomenclature_change_output_reassignments_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: oauth_access_tokens_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE nomenclature_change_output_reassignments_id_seq OWNED BY nomenclature_change_output_reassignments.id;
+ALTER SEQUENCE oauth_access_tokens_id_seq OWNED BY oauth_access_tokens.id;
 
 
 --
--- Name: nomenclature_change_outputs; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: oauth_applications; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
-CREATE TABLE nomenclature_change_outputs (
+CREATE TABLE oauth_applications (
     id integer NOT NULL,
-    nomenclature_change_id integer NOT NULL,
-    taxon_concept_id integer,
-    new_taxon_concept_id integer,
-    new_parent_id integer,
-    new_rank_id integer,
-    new_scientific_name character varying(255),
-    new_author_year character varying(255),
-    new_name_status character varying(255),
-    note_en text,
-    created_by_id integer NOT NULL,
-    updated_by_id integer NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    internal_note text,
-    is_primary_output boolean DEFAULT true,
-    parent_id integer,
-    rank_id integer,
-    scientific_name character varying(255),
-    author_year character varying(255),
-    name_status character varying(255),
-    note_es text,
-    note_fr text
+    name character varying(255) NOT NULL,
+    uid character varying(255) NOT NULL,
+    secret character varying(255) NOT NULL,
+    redirect_uri text NOT NULL,
+    created_at timestamp without time zone,
+    updated_at timestamp without time zone
 );
 
 
 --
--- Name: nomenclature_change_outputs_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: oauth_applications_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE nomenclature_change_outputs_id_seq
+CREATE SEQUENCE oauth_applications_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -8768,119 +8736,10 @@ CREATE SEQUENCE nomenclature_change_outputs_id_seq
 
 
 --
--- Name: nomenclature_change_outputs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: oauth_applications_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE nomenclature_change_outputs_id_seq OWNED BY nomenclature_change_outputs.id;
-
-
---
--- Name: nomenclature_change_reassignment_targets; Type: TABLE; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE TABLE nomenclature_change_reassignment_targets (
-    id integer NOT NULL,
-    nomenclature_change_reassignment_id integer NOT NULL,
-    nomenclature_change_output_id integer NOT NULL,
-    created_by_id integer NOT NULL,
-    updated_by_id integer NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
-
-
---
--- Name: nomenclature_change_reassignment_targets_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE nomenclature_change_reassignment_targets_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: nomenclature_change_reassignment_targets_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE nomenclature_change_reassignment_targets_id_seq OWNED BY nomenclature_change_reassignment_targets.id;
-
-
---
--- Name: nomenclature_change_reassignments; Type: TABLE; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE TABLE nomenclature_change_reassignments (
-    id integer NOT NULL,
-    nomenclature_change_input_id integer NOT NULL,
-    type character varying(255) NOT NULL,
-    reassignable_type character varying(255),
-    reassignable_id integer,
-    note_en text,
-    created_by_id integer NOT NULL,
-    updated_by_id integer NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    note_es text,
-    note_fr text,
-    internal_note text
-);
-
-
---
--- Name: nomenclature_change_reassignments_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE nomenclature_change_reassignments_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: nomenclature_change_reassignments_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE nomenclature_change_reassignments_id_seq OWNED BY nomenclature_change_reassignments.id;
-
-
---
--- Name: nomenclature_changes; Type: TABLE; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE TABLE nomenclature_changes (
-    id integer NOT NULL,
-    event_id integer,
-    type character varying(255) NOT NULL,
-    status character varying(255) NOT NULL,
-    created_by_id integer NOT NULL,
-    updated_by_id integer NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
-
-
---
--- Name: nomenclature_changes_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE nomenclature_changes_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: nomenclature_changes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE nomenclature_changes_id_seq OWNED BY nomenclature_changes.id;
+ALTER SEQUENCE oauth_applications_id_seq OWNED BY oauth_applications.id;
 
 
 --
@@ -9878,10 +9737,7 @@ CREATE TABLE trade_restrictions (
     original_id integer,
     updated_by_id integer,
     created_by_id integer,
-    internal_notes text,
-    nomenclature_note_en text,
-    nomenclature_note_es text,
-    nomenclature_note_fr text
+    internal_notes text
 );
 
 
@@ -10674,42 +10530,21 @@ ALTER TABLE ONLY listing_distributions ALTER COLUMN id SET DEFAULT nextval('list
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY nomenclature_change_inputs ALTER COLUMN id SET DEFAULT nextval('nomenclature_change_inputs_id_seq'::regclass);
+ALTER TABLE ONLY oauth_access_grants ALTER COLUMN id SET DEFAULT nextval('oauth_access_grants_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY nomenclature_change_output_reassignments ALTER COLUMN id SET DEFAULT nextval('nomenclature_change_output_reassignments_id_seq'::regclass);
+ALTER TABLE ONLY oauth_access_tokens ALTER COLUMN id SET DEFAULT nextval('oauth_access_tokens_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY nomenclature_change_outputs ALTER COLUMN id SET DEFAULT nextval('nomenclature_change_outputs_id_seq'::regclass);
-
-
---
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY nomenclature_change_reassignment_targets ALTER COLUMN id SET DEFAULT nextval('nomenclature_change_reassignment_targets_id_seq'::regclass);
-
-
---
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY nomenclature_change_reassignments ALTER COLUMN id SET DEFAULT nextval('nomenclature_change_reassignments_id_seq'::regclass);
-
-
---
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY nomenclature_changes ALTER COLUMN id SET DEFAULT nextval('nomenclature_changes_id_seq'::regclass);
+ALTER TABLE ONLY oauth_applications ALTER COLUMN id SET DEFAULT nextval('oauth_applications_id_seq'::regclass);
 
 
 --
@@ -11178,51 +11013,27 @@ ALTER TABLE ONLY listing_distributions
 
 
 --
--- Name: nomenclature_change_inputs_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: oauth_access_grants_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
-ALTER TABLE ONLY nomenclature_change_inputs
-    ADD CONSTRAINT nomenclature_change_inputs_pkey PRIMARY KEY (id);
-
-
---
--- Name: nomenclature_change_output_reassignments_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
---
-
-ALTER TABLE ONLY nomenclature_change_output_reassignments
-    ADD CONSTRAINT nomenclature_change_output_reassignments_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY oauth_access_grants
+    ADD CONSTRAINT oauth_access_grants_pkey PRIMARY KEY (id);
 
 
 --
--- Name: nomenclature_change_outputs_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: oauth_access_tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
-ALTER TABLE ONLY nomenclature_change_outputs
-    ADD CONSTRAINT nomenclature_change_outputs_pkey PRIMARY KEY (id);
-
-
---
--- Name: nomenclature_change_reassignment_targets_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
---
-
-ALTER TABLE ONLY nomenclature_change_reassignment_targets
-    ADD CONSTRAINT nomenclature_change_reassignment_targets_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY oauth_access_tokens
+    ADD CONSTRAINT oauth_access_tokens_pkey PRIMARY KEY (id);
 
 
 --
--- Name: nomenclature_change_reassignments_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: oauth_applications_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
-ALTER TABLE ONLY nomenclature_change_reassignments
-    ADD CONSTRAINT nomenclature_change_reassignments_pkey PRIMARY KEY (id);
-
-
---
--- Name: nomenclature_changes_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
---
-
-ALTER TABLE ONLY nomenclature_changes
-    ADD CONSTRAINT nomenclature_changes_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY oauth_applications
+    ADD CONSTRAINT oauth_applications_pkey PRIMARY KEY (id);
 
 
 --
@@ -11660,6 +11471,41 @@ CREATE INDEX index_listing_distributions_on_geo_entity_id ON listing_distributio
 --
 
 CREATE INDEX index_listing_distributions_on_listing_change_id ON listing_distributions USING btree (listing_change_id);
+
+
+--
+-- Name: index_oauth_access_grants_on_token; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE UNIQUE INDEX index_oauth_access_grants_on_token ON oauth_access_grants USING btree (token);
+
+
+--
+-- Name: index_oauth_access_tokens_on_refresh_token; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE UNIQUE INDEX index_oauth_access_tokens_on_refresh_token ON oauth_access_tokens USING btree (refresh_token);
+
+
+--
+-- Name: index_oauth_access_tokens_on_resource_owner_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX index_oauth_access_tokens_on_resource_owner_id ON oauth_access_tokens USING btree (resource_owner_id);
+
+
+--
+-- Name: index_oauth_access_tokens_on_token; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE UNIQUE INDEX index_oauth_access_tokens_on_token ON oauth_access_tokens USING btree (token);
+
+
+--
+-- Name: index_oauth_applications_on_uid; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE UNIQUE INDEX index_oauth_applications_on_uid ON oauth_applications USING btree (uid);
 
 
 --
@@ -12857,198 +12703,6 @@ ALTER TABLE ONLY listing_distributions
 
 
 --
--- Name: nomenclature_change_inputs_created_by_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY nomenclature_change_inputs
-    ADD CONSTRAINT nomenclature_change_inputs_created_by_id_fk FOREIGN KEY (created_by_id) REFERENCES users(id);
-
-
---
--- Name: nomenclature_change_inputs_nomenclature_change_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY nomenclature_change_inputs
-    ADD CONSTRAINT nomenclature_change_inputs_nomenclature_change_id_fk FOREIGN KEY (nomenclature_change_id) REFERENCES nomenclature_changes(id);
-
-
---
--- Name: nomenclature_change_inputs_taxon_concept_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY nomenclature_change_inputs
-    ADD CONSTRAINT nomenclature_change_inputs_taxon_concept_id_fk FOREIGN KEY (taxon_concept_id) REFERENCES taxon_concepts(id);
-
-
---
--- Name: nomenclature_change_inputs_updated_by_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY nomenclature_change_inputs
-    ADD CONSTRAINT nomenclature_change_inputs_updated_by_id_fk FOREIGN KEY (updated_by_id) REFERENCES users(id);
-
-
---
--- Name: nomenclature_change_output_reassignments_created_by_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY nomenclature_change_output_reassignments
-    ADD CONSTRAINT nomenclature_change_output_reassignments_created_by_id_fk FOREIGN KEY (created_by_id) REFERENCES users(id);
-
-
---
--- Name: nomenclature_change_output_reassignments_output_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY nomenclature_change_output_reassignments
-    ADD CONSTRAINT nomenclature_change_output_reassignments_output_id_fk FOREIGN KEY (nomenclature_change_output_id) REFERENCES nomenclature_change_outputs(id);
-
-
---
--- Name: nomenclature_change_output_reassignments_updated_by_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY nomenclature_change_output_reassignments
-    ADD CONSTRAINT nomenclature_change_output_reassignments_updated_by_id_fk FOREIGN KEY (updated_by_id) REFERENCES users(id);
-
-
---
--- Name: nomenclature_change_outputs_created_by_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY nomenclature_change_outputs
-    ADD CONSTRAINT nomenclature_change_outputs_created_by_id_fk FOREIGN KEY (created_by_id) REFERENCES users(id);
-
-
---
--- Name: nomenclature_change_outputs_new_parent_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY nomenclature_change_outputs
-    ADD CONSTRAINT nomenclature_change_outputs_new_parent_id_fk FOREIGN KEY (new_parent_id) REFERENCES taxon_concepts(id);
-
-
---
--- Name: nomenclature_change_outputs_new_rank_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY nomenclature_change_outputs
-    ADD CONSTRAINT nomenclature_change_outputs_new_rank_id_fk FOREIGN KEY (new_rank_id) REFERENCES ranks(id);
-
-
---
--- Name: nomenclature_change_outputs_new_taxon_concept_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY nomenclature_change_outputs
-    ADD CONSTRAINT nomenclature_change_outputs_new_taxon_concept_id_fk FOREIGN KEY (new_taxon_concept_id) REFERENCES taxon_concepts(id);
-
-
---
--- Name: nomenclature_change_outputs_nomenclature_change_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY nomenclature_change_outputs
-    ADD CONSTRAINT nomenclature_change_outputs_nomenclature_change_id_fk FOREIGN KEY (nomenclature_change_id) REFERENCES nomenclature_changes(id);
-
-
---
--- Name: nomenclature_change_outputs_taxon_concept_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY nomenclature_change_outputs
-    ADD CONSTRAINT nomenclature_change_outputs_taxon_concept_id_fk FOREIGN KEY (taxon_concept_id) REFERENCES taxon_concepts(id);
-
-
---
--- Name: nomenclature_change_outputs_updated_by_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY nomenclature_change_outputs
-    ADD CONSTRAINT nomenclature_change_outputs_updated_by_id_fk FOREIGN KEY (updated_by_id) REFERENCES users(id);
-
-
---
--- Name: nomenclature_change_reassignment_targets_created_by_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY nomenclature_change_reassignment_targets
-    ADD CONSTRAINT nomenclature_change_reassignment_targets_created_by_id_fk FOREIGN KEY (created_by_id) REFERENCES users(id);
-
-
---
--- Name: nomenclature_change_reassignment_targets_output_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY nomenclature_change_reassignment_targets
-    ADD CONSTRAINT nomenclature_change_reassignment_targets_output_id_fk FOREIGN KEY (nomenclature_change_output_id) REFERENCES nomenclature_change_outputs(id);
-
-
---
--- Name: nomenclature_change_reassignment_targets_reassignment_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY nomenclature_change_reassignment_targets
-    ADD CONSTRAINT nomenclature_change_reassignment_targets_reassignment_id_fk FOREIGN KEY (nomenclature_change_reassignment_id) REFERENCES nomenclature_change_reassignments(id);
-
-
---
--- Name: nomenclature_change_reassignment_targets_updated_by_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY nomenclature_change_reassignment_targets
-    ADD CONSTRAINT nomenclature_change_reassignment_targets_updated_by_id_fk FOREIGN KEY (updated_by_id) REFERENCES users(id);
-
-
---
--- Name: nomenclature_change_reassignments_created_by_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY nomenclature_change_reassignments
-    ADD CONSTRAINT nomenclature_change_reassignments_created_by_id_fk FOREIGN KEY (created_by_id) REFERENCES users(id);
-
-
---
--- Name: nomenclature_change_reassignments_input_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY nomenclature_change_reassignments
-    ADD CONSTRAINT nomenclature_change_reassignments_input_id_fk FOREIGN KEY (nomenclature_change_input_id) REFERENCES nomenclature_change_inputs(id);
-
-
---
--- Name: nomenclature_change_reassignments_updated_by_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY nomenclature_change_reassignments
-    ADD CONSTRAINT nomenclature_change_reassignments_updated_by_id_fk FOREIGN KEY (updated_by_id) REFERENCES users(id);
-
-
---
--- Name: nomenclature_changes_created_by_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY nomenclature_changes
-    ADD CONSTRAINT nomenclature_changes_created_by_id_fk FOREIGN KEY (created_by_id) REFERENCES users(id);
-
-
---
--- Name: nomenclature_changes_event_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY nomenclature_changes
-    ADD CONSTRAINT nomenclature_changes_event_id_fk FOREIGN KEY (event_id) REFERENCES events(id);
-
-
---
--- Name: nomenclature_changes_updated_by_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY nomenclature_changes
-    ADD CONSTRAINT nomenclature_changes_updated_by_id_fk FOREIGN KEY (updated_by_id) REFERENCES users(id);
-
-
---
 -- Name: proposal_details_document_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -13900,35 +13554,15 @@ INSERT INTO schema_migrations (version) VALUES ('20140530173241');
 
 INSERT INTO schema_migrations (version) VALUES ('20140604100410');
 
-INSERT INTO schema_migrations (version) VALUES ('20140606102740');
-
-INSERT INTO schema_migrations (version) VALUES ('20140606102741');
-
-INSERT INTO schema_migrations (version) VALUES ('20140606102742');
-
-INSERT INTO schema_migrations (version) VALUES ('20140606102743');
-
-INSERT INTO schema_migrations (version) VALUES ('20140606102744');
-
 INSERT INTO schema_migrations (version) VALUES ('20140611105359');
 
 INSERT INTO schema_migrations (version) VALUES ('20140612174934');
 
-INSERT INTO schema_migrations (version) VALUES ('20140618122418');
-
-INSERT INTO schema_migrations (version) VALUES ('20140624084138');
-
 INSERT INTO schema_migrations (version) VALUES ('20140625102632');
-
-INSERT INTO schema_migrations (version) VALUES ('20140703120106');
 
 INSERT INTO schema_migrations (version) VALUES ('20140709084707');
 
 INSERT INTO schema_migrations (version) VALUES ('20140709084708');
-
-INSERT INTO schema_migrations (version) VALUES ('20140718122508');
-
-INSERT INTO schema_migrations (version) VALUES ('20140721071654');
 
 INSERT INTO schema_migrations (version) VALUES ('20140730083216');
 
@@ -13966,10 +13600,6 @@ INSERT INTO schema_migrations (version) VALUES ('20140926121728');
 
 INSERT INTO schema_migrations (version) VALUES ('20140929092236');
 
-INSERT INTO schema_migrations (version) VALUES ('20141002065308');
-
-INSERT INTO schema_migrations (version) VALUES ('20141002104704');
-
 INSERT INTO schema_migrations (version) VALUES ('20141003104615');
 
 INSERT INTO schema_migrations (version) VALUES ('20141003155548');
@@ -13978,19 +13608,15 @@ INSERT INTO schema_migrations (version) VALUES ('20141004213258');
 
 INSERT INTO schema_migrations (version) VALUES ('20141004214703');
 
-INSERT INTO schema_migrations (version) VALUES ('20141007145503');
-
-INSERT INTO schema_migrations (version) VALUES ('20141008094314');
-
 INSERT INTO schema_migrations (version) VALUES ('20141014125738');
 
-INSERT INTO schema_migrations (version) VALUES ('20141113153137');
-
-INSERT INTO schema_migrations (version) VALUES ('20141120211023');
+INSERT INTO schema_migrations (version) VALUES ('20141119154955');
 
 INSERT INTO schema_migrations (version) VALUES ('20141124163355');
 
 INSERT INTO schema_migrations (version) VALUES ('20141128154019');
+
+INSERT INTO schema_migrations (version) VALUES ('20141202120154');
 
 INSERT INTO schema_migrations (version) VALUES ('20141202142048');
 

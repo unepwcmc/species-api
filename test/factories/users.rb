@@ -3,5 +3,6 @@ FactoryGirl.define do
     name "John"
     sequence(:email) { |n| "user#{n}@example.com" }
     password "test1234"
+    role 'api'
   end
 end

@@ -3,6 +3,8 @@ require 'test_helper'
 class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
   def setup
     @user = FactoryGirl.create(:user)
+    @admin = FactoryGirl.create(:user, role: 'admin')
+    @contributor = FactoryGirl.create(:user, role: 'default')
   end
 
   test "should return 401 with no token" do
@@ -15,6 +17,20 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
 
     get :index
     assert_response :success
+  end
+
+  test "admin user should be able to access api" do
+    @request.headers["X-Authentication-Token"] = @admin.authentication_token
+
+    get :index
+    assert_response :success
+  end
+
+  test "contributor should not be able to access api" do
+    @request.headers["X-Authentication-Token"] = @contributor.authentication_token
+
+    get :index
+    assert_response 401
   end
 
   test "should return page 1 with pagination headers" do
