@@ -1,32 +1,5 @@
-module Test
-  class Distribution < ActiveRecord::Base
-    self.table_name = :distributions
-    self.primary_key = :id
-  end
-
-  class GeoEntity < ActiveRecord::Base
-    self.table_name = :geo_entity
-    self.primary_key = :id
-  end
-
-  class GeoEntityType < ActiveRecord::Base
-    self.table_name = :geo_entity_type
-    self.primary_key = :id
-  end
-
-  class DistributionReference < ActiveRecord::Base
-    self.table_name = :distribution_reference
-    self.primary_key = :id
-  end
-
-  class Reference < ActiveRecord::Base
-    self.table_name = :reference
-    self.primary_key = :id
-  end
-end
-
 FactoryGirl.define do
-  factory :distribution, class: Test::Distribution do
+  factory :distribution, class: Distribution do
     association :taxon_concept
     association :geo_entity
     # created_at: datetime
@@ -36,7 +9,7 @@ FactoryGirl.define do
     internal_notes "Some notes go here"
   end
 
-  factory :geo_entity, class: Test::GeoEntity do
+  factory :geo_entity, class: GeoEntity do
     association :geo_entity_type
     sequence(:name_en) { |n| "name_en_#{n}"}
     sequence(:name_es) { |n| "name_es_#{n}"}
@@ -49,18 +22,18 @@ FactoryGirl.define do
     is_current true
   end
 
-  factory :geo_entity_type, class: Test::GeoEntityType do
+  factory :geo_entity_type, class: GeoEntityType do
     name "String"
   end
 
-  factory :distribution_reference, class: Test::DistributionReference do
+  factory :distribution_reference, class: DistributionReference do
     association :distribution
     association :reference
     #updated_by_id: integer
     #created_by_id: integer
   end
 
-  factory :reference, class: Test::Reference do
+  factory :reference, class: Reference do
     title "This is a title"
     year "1988"
     author "Jim Henson"
