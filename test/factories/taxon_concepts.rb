@@ -6,7 +6,7 @@ module Test
 end
 
 FactoryGirl.define do
-  factory :taxon_concept, class: Test::TaxonConcept do
+  factory :taxon_concept, class: TaxonConcept do
     sequence(:full_name) { |n| "Canis lupus#{n}" }
     name_status 'A'
     taxonomy_is_cites_eu true
