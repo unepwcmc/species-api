@@ -10,28 +10,28 @@ class Api::V1::DistributionsControllerTest < ActionController::TestCase
   end
 
   test "should return 401 with no token" do
-    get :index, id: @distribution.id
+    get :index, id: 1
     assert_response 401
   end
 
   test "should be successful with token" do
     @request.headers["X-Authentication-Token"] = @user.authentication_token
 
-    get :index, id: @distribution.id
+    get :index, id: "1"
     assert_response :success
   end
 
   test "admin user should be able to access api" do
     @request.headers["X-Authentication-Token"] = @admin.authentication_token
 
-    get :index, id: @distribution.id
+    get :index, id: "1"
     assert_response :success
   end
 
   test "contributor should not be able to access api" do
     @request.headers["X-Authentication-Token"] = @contributor.authentication_token
 
-    get :index, id: @distribution.id
+    get :index, id: "1"
     assert_response 401
   end
 end
