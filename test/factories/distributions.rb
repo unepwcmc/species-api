@@ -50,7 +50,7 @@ FactoryGirl.define do
   end
 
   factory :geo_entity_type, class: Test::GeoEntityType do
-    name string
+    name "String"
   end
 
   factory :distribution_reference, class: Test::DistributionReference do
