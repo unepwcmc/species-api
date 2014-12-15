@@ -2,6 +2,7 @@ require 'exception_notification/rails'
 require 'yaml'
 
 ExceptionNotification.configure do |config|
+  secrets = YAML.load(File.open('config/secrets.yml'))
   # Ignore additional exception types.
   # ActiveRecord::RecordNotFound, AbstractController::ActionNotFound and ActionController::RoutingError are already added.
   # config.ignored_exceptions += %w{ActionView::TemplateError CustomError}
@@ -34,11 +35,10 @@ ExceptionNotification.configure do |config|
   #   :room_name => 'my_room'
   # }
 
-    secrets = YAML.load(File.open('config/secrets.yml'))
+  config.add_notifier :slack, {
+    :team => "wcmc",
+    :token => secrets["slack_exception_notification_token"],
+    :channel => "#speciesplus"
+  }
 
-    config.add_notifier :slack, {
-     :team => "wcmc",
-     :token => secrets["slack_exception_notification_token"],
-     :channel => "#speciesplus
-   }
 end
