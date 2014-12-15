@@ -12,6 +12,7 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
   param :per_page, String, desc: 'Limit for how many objects returned per page for paginated responses. If not specificed it will default to the maximum value of 100', required: false
   param :updated_since, String, desc: 'Return taxa updated since', required: false
   param :name, String, desc: 'Filter taxon concepts by name', required: false
+  param :taxonomy, String, desc: 'Filter taxon concepts by taxonomy, accepts either CITES or CMS as its value. Defaults to CITES if no value is specified', required: false
   example <<-EOS
     [
       {
@@ -85,6 +86,17 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
 
     if params[:updated_since]
       @taxon_concepts = @taxon_concepts.where("updated_at >= ?", params[:updated_since])
+    end
+
+    if params[:taxonomy]
+      is_taxonomy = case params[:taxonomy].downcase
+                    when 'cms'
+                      false
+                    else
+                      true
+                    end
+
+      @taxon_concepts = @taxon_concept.where(is_taxonomy_cites_eu: is_taxonomy)
     end
 
     render 'api/v1/taxon_concepts/index'
