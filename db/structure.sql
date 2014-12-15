@@ -6235,71 +6235,22 @@ ALTER SEQUENCE annotations_id_seq OWNED BY annotations.id;
 
 
 --
--- Name: distributions; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: api_distributions_view; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
-CREATE TABLE distributions (
-    id integer NOT NULL,
-    taxon_concept_id integer NOT NULL,
-    geo_entity_id integer NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    created_by_id integer,
-    updated_by_id integer,
-    internal_notes text
-);
-
-
---
--- Name: geo_entities; Type: TABLE; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE TABLE geo_entities (
-    id integer NOT NULL,
-    geo_entity_type_id integer NOT NULL,
-    name_en character varying(255) NOT NULL,
-    name_fr character varying(255),
+CREATE TABLE api_distributions_view (
+    id integer,
+    taxon_concept_id integer,
+    name_en character varying(255),
     name_es character varying(255),
-    long_name character varying(255),
+    name_fr character varying(255),
     iso_code2 character varying(255),
-    iso_code3 character varying(255),
-    legacy_id integer,
-    legacy_type character varying(255),
-    is_current boolean DEFAULT true,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    geo_entity_type character varying(255),
+    tags character varying[],
+    citations text[],
+    created_at timestamp without time zone,
+    updated_at timestamp without time zone
 );
-
-
---
--- Name: geo_entity_types; Type: TABLE; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE TABLE geo_entity_types (
-    id integer NOT NULL,
-    name character varying(255) NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
-
-
---
--- Name: api_distributions_view; Type: VIEW; Schema: public; Owner: -
---
-
-CREATE VIEW api_distributions_view AS
- SELECT d.id,
-    d.taxon_concept_id,
-    g.name_en,
-    g.name_es,
-    g.name_fr,
-    g.iso_code2,
-    gt.name AS geo_entity_type,
-    d.created_at,
-    d.updated_at
-   FROM ((distributions d
-     JOIN geo_entities g ON ((g.id = d.geo_entity_id)))
-     JOIN geo_entity_types gt ON ((gt.id = g.geo_entity_type_id)));
 
 
 --
@@ -6668,6 +6619,22 @@ CREATE SEQUENCE distribution_references_id_seq
 --
 
 ALTER SEQUENCE distribution_references_id_seq OWNED BY distribution_references.id;
+
+
+--
+-- Name: distributions; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE distributions (
+    id integer NOT NULL,
+    taxon_concept_id integer NOT NULL,
+    geo_entity_id integer NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    created_by_id integer,
+    updated_by_id integer,
+    internal_notes text
+);
 
 
 --
@@ -7076,6 +7043,27 @@ CREATE TABLE events (
 
 
 --
+-- Name: geo_entities; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE geo_entities (
+    id integer NOT NULL,
+    geo_entity_type_id integer NOT NULL,
+    name_en character varying(255) NOT NULL,
+    name_fr character varying(255),
+    name_es character varying(255),
+    long_name character varying(255),
+    iso_code2 character varying(255),
+    iso_code3 character varying(255),
+    legacy_id integer,
+    legacy_type character varying(255),
+    is_current boolean DEFAULT true,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
 -- Name: trade_codes; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -7233,6 +7221,18 @@ CREATE SEQUENCE geo_entities_id_seq
 --
 
 ALTER SEQUENCE geo_entities_id_seq OWNED BY geo_entities.id;
+
+
+--
+-- Name: geo_entity_types; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE geo_entity_types (
+    id integer NOT NULL,
+    name character varying(255) NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
 
 
 --
@@ -11142,6 +11142,32 @@ UNION ALL
 
 
 --
+-- Name: _RETURN; Type: RULE; Schema: public; Owner: -
+--
+
+CREATE RULE "_RETURN" AS
+    ON SELECT TO api_distributions_view DO INSTEAD  SELECT d.id,
+    d.taxon_concept_id,
+    g.name_en,
+    g.name_es,
+    g.name_fr,
+    g.iso_code2,
+    gt.name AS geo_entity_type,
+    array_agg_notnull(tags.name ORDER BY tags.name) AS tags,
+    array_agg_notnull(r.citation ORDER BY r.citation) AS citations,
+    d.created_at,
+    d.updated_at
+   FROM ((((((distributions d
+     JOIN geo_entities g ON ((g.id = d.geo_entity_id)))
+     JOIN geo_entity_types gt ON ((gt.id = g.geo_entity_type_id)))
+     LEFT JOIN taggings ON ((((taggings.taggable_type)::text = 'Distribution'::text) AND (taggings.taggable_id = d.id))))
+     LEFT JOIN tags ON ((tags.id = taggings.tag_id)))
+     LEFT JOIN distribution_references dr ON ((dr.distribution_id = d.id)))
+     LEFT JOIN "references" r ON ((r.id = dr.reference_id)))
+  GROUP BY d.id, g.name_en, g.name_es, g.name_fr, g.iso_code2, gt.name;
+
+
+--
 -- Name: ahoy_events_user_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -12850,4 +12876,8 @@ INSERT INTO schema_migrations (version) VALUES ('20141209092341');
 INSERT INTO schema_migrations (version) VALUES ('20141209133037');
 
 INSERT INTO schema_migrations (version) VALUES ('20141215104216');
+
+INSERT INTO schema_migrations (version) VALUES ('20141215114028');
+
+INSERT INTO schema_migrations (version) VALUES ('20141215114029');
 
