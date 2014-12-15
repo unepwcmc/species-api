@@ -59,13 +59,22 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
   end
 
   test "filters results by name with 'name' params" do
-    FactoryGirl.create(:taxon_concept, full_name: "John Hammond")
-    FactoryGirl.create(:taxon_concept, full_name: "Ingen")
+    FactoryGirl.create(
+      :taxon_concept,
+      taxon_name: FactoryGirl.create(
+        :taxon_name, scientific_name: "John Hammond"
+      )
+    )
+    FactoryGirl.create(
+      :taxon_concept,
+      taxon_name: FactoryGirl.create(
+        :taxon_name, scientific_name: "Ingen"
+      )
+    )
     @request.headers["X-Authentication-Token"] = @user.authentication_token
 
     get :index, name: "John Hammond"
     results = JSON.parse(response.body)
-
     assert_equal "John Hammond", results.first["taxon_concept"]["full_name"]
     assert_equal 1, results.length
   end

@@ -23,6 +23,6 @@ class Api::V1::DistributionsController < Api::V1::BaseController
   EOS
 
   def index
-    Distribution.find(params[:id])
+    Distribution.where(taxon_concept_id: params[:id])
   end
 end

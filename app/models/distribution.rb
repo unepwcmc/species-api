@@ -5,6 +5,4 @@ class Distribution < ActiveRecord::Base
 
   belongs_to :geo_entity
   belongs_to :taxon_concept
-  has_many :distribution_references, :dependent => :destroy
-  has_many :references, :through => :distribution_references
 end
