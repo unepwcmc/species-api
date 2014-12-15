@@ -10,7 +10,12 @@ class Api::V1::DistributionsController < Api::V1::BaseController
     'distributions': [
       {
         'name' : 'Burundi',
-        'tags_list' : 'extinct'
+        'iso_code2': '...',
+        'type': 'COUNTRY',
+        'tags_list' : ['extinct','uncertain'],
+        'references' : [
+          citation1, citation2
+        ]
       }
     ]
   EOS
@@ -23,6 +28,6 @@ class Api::V1::DistributionsController < Api::V1::BaseController
   EOS
 
   def index
-    Distribution.where(taxon_concept_id: params[:id])
+    @distributions = TaxonConcept.find(params[:id]).distributions
   end
 end
