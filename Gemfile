@@ -10,6 +10,8 @@ gem 'compass'#, '>= 0.12.2'
 gem 'compass-rails'#, '>= 1.0.3'
 gem 'will_paginate' #, '~> 3.0.6'
 gem 'api_pagination_headers'
+gem 'exception_notification', :git => 'https://github.com/smartinez87/exception_notification.git'
+gem 'slack-notifier'
 
 group :test do
   gem 'shoulda'

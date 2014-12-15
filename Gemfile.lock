@@ -1,3 +1,11 @@
+GIT
+  remote: https://github.com/smartinez87/exception_notification.git
+  revision: f9dee5b5f6a1e1823bb274f719f1ae9c551e2f84
+  specs:
+    exception_notification (4.1.0.rc1)
+      actionmailer (>= 3.0.4)
+      activesupport (>= 3.0.4)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -180,6 +188,7 @@ GEM
       multi_json (~> 1.0)
       simplecov-html (~> 0.7.1)
     simplecov-html (0.7.1)
+    slack-notifier (1.0.0)
     spring (1.2.0)
     sprockets (2.12.3)
       hike (~> 1.2)
@@ -230,6 +239,7 @@ DEPENDENCIES
   compass-rails
   devise
   dotenv-rails
+  exception_notification!
   factory_girl_rails
   jquery-rails
   launchy
@@ -244,6 +254,7 @@ DEPENDENCIES
   sdoc (~> 0.4.0)
   shoulda
   simplecov
+  slack-notifier
   spring
   susy
   turbolinks
