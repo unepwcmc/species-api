@@ -69,4 +69,16 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     assert_equal "John Hammond", results.first["taxon_concept"]["full_name"]
     assert_equal 1, results.length
   end
+
+  test "filters results by name with 'taxonomy' params" do
+    FactoryGirl.create(:taxon_concept, is_taxonomy_cites_eu: true)
+    FactoryGirl.create(:taxon_concept, is_taxonomy_cites_eu: false)
+    @request.headers["X-Authentication-Token"] = @user.authentication_token
+    
+    get :index, taxonomy: "CMS"
+    results = JSON.parse(response.body)
+
+    assert_equal false, results.first["taxon_concept"]["is_taxonomy_cites_eu"]
+    assert_equal 1, results.length
+  end
 end
