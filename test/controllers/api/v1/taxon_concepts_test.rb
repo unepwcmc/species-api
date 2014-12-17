@@ -80,8 +80,10 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
   end
 
   test "filters results by name with 'taxonomy' params" do
-    cites_tc = FactoryGirl.create(:taxon_concept, taxonomy_is_cites_eu: true)
-    cms_tc = FactoryGirl.create(:taxon_concept, taxonomy_is_cites_eu: false)
+    cites = FactoryGirl.create(:taxonomy, name: 'CITES_EU')
+    cms = FactoryGirl.create(:taxonomy, name: 'CMS')
+    cites_tc = FactoryGirl.create(:taxon_concept, taxonomy: cites)
+    cms_tc = FactoryGirl.create(:taxon_concept, taxonomy: cms)
     @request.headers["X-Authentication-Token"] = @user.authentication_token
 
     get :index, taxonomy: "CMS"

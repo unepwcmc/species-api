@@ -7,7 +7,6 @@ FactoryGirl.define do
     rank
     sequence(:full_name) { |n| "Canis lupus#{n}" }
     name_status 'A'
-    taxonomy_is_cites_eu true
   end
 
   factory :taxonomy, class: Test::Taxonomy do
