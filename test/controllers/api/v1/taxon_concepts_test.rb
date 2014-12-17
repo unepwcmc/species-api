@@ -5,6 +5,7 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     @user = FactoryGirl.create(:user)
     @admin = FactoryGirl.create(:user, role: 'admin')
     @contributor = FactoryGirl.create(:user, role: 'default')
+    @cites = FactoryGirl.create(:taxonomy, name: 'CITES_EU')
   end
 
   test "should return 401 with no token" do
@@ -34,8 +35,8 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
   end
 
   test "should return page 1 with pagination headers" do
-    FactoryGirl.create(:taxon_concept)
-    FactoryGirl.create(:taxon_concept)
+    tc = FactoryGirl.create(:taxon_concept, taxonomy: @cites)
+    FactoryGirl.create(:taxon_concept, taxonomy: @cites)
 
     @request.headers["X-Authentication-Token"] = @user.authentication_token
     get :index, per_page: 1
@@ -49,8 +50,8 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
   end
 
   test "filters results by date with 'updated_since' params" do
-    FactoryGirl.create(:taxon_concept, updated_at: 1.year.ago)
-    FactoryGirl.create(:taxon_concept, updated_at: 1.month.ago)
+    FactoryGirl.create(:taxon_concept, taxonomy: @cites, updated_at: 1.year.ago)
+    FactoryGirl.create(:taxon_concept, taxonomy: @cites, updated_at: 1.month.ago)
     @request.headers["X-Authentication-Token"] = @user.authentication_token
 
     get :index, updated_since: 2.months.ago.to_s
@@ -59,20 +60,32 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
   end
 
   test "filters results by name with 'name' params" do
-    FactoryGirl.create(:taxon_concept, full_name: "John Hammond")
-    FactoryGirl.create(:taxon_concept, full_name: "Ingen")
+    FactoryGirl.create(
+      :taxon_concept,
+      taxon_name: FactoryGirl.create(
+        :taxon_name, scientific_name: "John Hammond"
+      ),
+      taxonomy: @cites
+    )
+    FactoryGirl.create(
+      :taxon_concept,
+      taxon_name: FactoryGirl.create(
+        :taxon_name, scientific_name: "Ingen"
+      ),
+      taxonomy: @cites
+    )
     @request.headers["X-Authentication-Token"] = @user.authentication_token
 
     get :index, name: "John Hammond"
     results = JSON.parse(response.body)
-
     assert_equal "John Hammond", results.first["taxon_concept"]["full_name"]
     assert_equal 1, results.length
   end
 
   test "filters results by name with 'taxonomy' params" do
-    cites_tc = FactoryGirl.create(:taxon_concept, taxonomy_is_cites_eu: true)
-    cms_tc = FactoryGirl.create(:taxon_concept, taxonomy_is_cites_eu: false)
+    cms = FactoryGirl.create(:taxonomy, name: 'CMS')
+    cites_tc = FactoryGirl.create(:taxon_concept, taxonomy: @cites)
+    cms_tc = FactoryGirl.create(:taxon_concept, taxonomy: cms)
     @request.headers["X-Authentication-Token"] = @user.authentication_token
 
     get :index, taxonomy: "CMS"
