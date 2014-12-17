@@ -12,5 +12,3 @@ language =  case @language
             end
 
 node(:name) { |distribution| distribution.read_attribute(language) }
-
-
