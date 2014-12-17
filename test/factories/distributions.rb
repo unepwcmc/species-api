@@ -7,9 +7,9 @@ FactoryGirl.define do
 
   factory :geo_entity, class: Test::GeoEntity do
     geo_entity_type
-    sequence(:name_en) { |n| "name_en_#{n}"}
-    sequence(:name_es) { |n| "name_es_#{n}"}
-    sequence(:name_fr) { |n| "name_fr_#{n}"}
+    sequence(:name_en) { |n| "name en"}
+    sequence(:name_es) { |n| "name es"}
+    sequence(:name_fr) { |n| "name fr"}
     long_name "Whatever"
     iso_code2 "GB"
     iso_code3 "Longer"
