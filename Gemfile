@@ -1,5 +1,6 @@
 source 'https://rubygems.org'
 
+gem 'rails', '4.1.3'
 gem 'apipie-rails' # Documentation
 gem 'devise'
 gem 'annotate'
@@ -27,8 +28,6 @@ group :staging, :production do
   gem 'slack-notifier'
 end
 
-# Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '4.1.1'
 # Use postgresql as the database for Active Record
 gem 'pg'
 gem 'schema_plus'
