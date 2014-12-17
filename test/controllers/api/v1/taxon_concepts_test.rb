@@ -62,7 +62,7 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     FactoryGirl.create(:taxon_concept, full_name: "John Hammond")
     FactoryGirl.create(:taxon_concept, full_name: "Ingen")
     @request.headers["X-Authentication-Token"] = @user.authentication_token
-    
+
     get :index, name: "John Hammond"
     results = JSON.parse(response.body)
 
@@ -71,14 +71,14 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
   end
 
   test "filters results by name with 'taxonomy' params" do
-    FactoryGirl.create(:taxon_concept, is_taxonomy_cites_eu: true)
-    FactoryGirl.create(:taxon_concept, is_taxonomy_cites_eu: false)
+    cites_tc = FactoryGirl.create(:taxon_concept, taxonomy_is_cites_eu: true)
+    cms_tc = FactoryGirl.create(:taxon_concept, taxonomy_is_cites_eu: false)
     @request.headers["X-Authentication-Token"] = @user.authentication_token
-    
+
     get :index, taxonomy: "CMS"
     results = JSON.parse(response.body)
 
-    assert_equal false, results.first["taxon_concept"]["is_taxonomy_cites_eu"]
+    assert_equal cms_tc.id, results.first["taxon_concept"]["id"]
     assert_equal 1, results.length
   end
 end

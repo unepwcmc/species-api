@@ -9,5 +9,6 @@ FactoryGirl.define do
   factory :taxon_concept, class: Test::TaxonConcept do
     sequence(:full_name) { |n| "Canis lupus#{n}" }
     name_status 'A'
+    taxonomy_is_cites_eu true
   end
 end

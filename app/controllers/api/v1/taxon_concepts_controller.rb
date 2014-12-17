@@ -88,17 +88,18 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
       @taxon_concepts = @taxon_concepts.where("updated_at >= ?", params[:updated_since])
     end
 
-    if params[:taxonomy]
-      is_taxonomy = case params[:taxonomy].downcase
-                    when 'cms'
-                      false
-                    else
-                      true
-                    end
-
-      @taxon_concepts = @taxon_concept.where(is_taxonomy_cites_eu: is_taxonomy)
+    taxonomy_is_cites_eu = if params[:taxonomy]
+      case params[:taxonomy].downcase
+        when 'cms'
+          false
+        else
+          true
+        end
+    else
+      true
     end
 
+    @taxon_concepts = @taxon_concepts.where(taxonomy_is_cites_eu: taxonomy_is_cites_eu)
     render 'api/v1/taxon_concepts/index'
   end
 end
