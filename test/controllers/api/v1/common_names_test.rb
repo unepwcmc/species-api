@@ -7,9 +7,13 @@ class Api::V1::CommonNamesControllerTest < ActionController::TestCase
     @contributor = FactoryGirl.create(:user, role: 'default')
     @taxon_concept = FactoryGirl.create(:taxon_concept)
     
-    FactoryGirl.create(:common_name, taxon_concept_id: @taxon_concept.id)
-    FactoryGirl.create(:common_name, taxon_concept_id: @taxon_concept.id, iso_code1: 'PL')
-    FactoryGirl.create(:common_name, taxon_concept_id: @taxon_concept.id, iso_code1: 'IT')
+    @lang_en = FactoryGirl.create(:language, iso_code1: 'EN')
+    @lang_pl = FactoryGirl.create(:language, iso_code1: 'PL')
+    @lang_itc = FactoryGirl.create(:language, iso_code1: 'IT')
+
+    FactoryGirl.create(:common_name, taxon_concept: @taxon_concept, language: @lang_en)
+    FactoryGirl.create(:common_name, taxon_concept: @taxon_concept, language: @lang_pl)
+    FactoryGirl.create(:common_name, taxon_concept: @taxon_concept, language: @lang_it)
   end
 
   test "should return 401 with no token" do
