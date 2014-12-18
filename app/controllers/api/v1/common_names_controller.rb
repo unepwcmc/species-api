@@ -6,8 +6,7 @@ class Api::V1::CommonNamesController < Api::V1::BaseController
 
   api :GET, '/:taxon_concept_id/common_names', 'Lists common names for a given taxon concept'
   param :taxon_concept_id, String, desc: 'Taxon Concept ID', required: true
-  param :language, String, desc: 'Filter languages returned for common names. Values accepted are either en or de. Defaults to showing all available languages if no language parameter is specified', required: false
-
+  param :language, String, desc: 'Filter languages returned for common names. Value should be a single country code or a comma separated array of country codes (e.g. language=EN,PL,IT). Defaults to showing all available languages if no language parameter is specified', required: false
 
   example <<-EOS
     'common_names': [
@@ -33,7 +32,9 @@ class Api::V1::CommonNamesController < Api::V1::BaseController
   EOS
 
   def index
+    languages = params[:language].split(',').map! { |lang| lang.upcase } unless params[:language].nil?
+
     @common_names = TaxonConcept.find(params[:taxon_concept_id]).common_names
-    @language = params[:language]
+    @common_names = @common_names.where(iso_code1: languages) unless languages.nil?
   end
 end
