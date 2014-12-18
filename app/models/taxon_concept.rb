@@ -5,4 +5,5 @@ class TaxonConcept < ActiveRecord::Base
   self.per_page = 100
 
   has_many :distributions
+  has_many :common_names
 end
