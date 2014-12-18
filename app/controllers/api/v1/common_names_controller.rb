@@ -4,29 +4,36 @@ class Api::V1::CommonNamesController < Api::V1::BaseController
     api_base_url 'api/v1/taxon_concepts'
   end
 
-  api :GET, '/:id/common_names', 'Lists common names for a given taxon concept'
-  param :id, Integer, desc: 'Taxon Concept ID', required: true
+  api :GET, '/:taxon_concept_id/common_names', 'Lists common names for a given taxon concept'
+  param :taxon_concept_id, String, desc: 'Taxon Concept ID', required: true
+  param :language, String, desc: 'Filter languages returned for common names. Values accepted are either en or de. Defaults to showing all available languages if no language parameter is specified', required: false
+
 
   example <<-EOS
     'common_names': [
       {
         'name': 'African Elephant',
-        'lng': 'EN'
+        'language': 'EN'
       },
       {
         'name': 'Afrikanischer Elefant',
-        'lng': 'DE'
+        'language': 'DE'
       }
     ]
   EOS
 
   example <<-EOS
-    <cites_legislation>
-      <taxon_concept_id>1</taxon_concept_id>
-      <is_current>true</is_current>
-    </cites_legislation>
+    <?xml version="1.0" encoding="UTF-8"?>
+    <common-names type="array">
+      <common-name>
+        <name>Common Goldeneye</name>
+        <language>EN</language>
+      </common-name>
+    </common-names>
   EOS
 
   def index
+    @common_names = TaxonConcept.find(params[:taxon_concept_id]).common_names
+    @language = params[:language]
   end
 end
