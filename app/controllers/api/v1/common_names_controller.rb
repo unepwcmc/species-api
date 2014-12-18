@@ -9,15 +9,13 @@ class Api::V1::CommonNamesController < Api::V1::BaseController
   param :language, String, desc: 'Filter languages returned for common names. Value should be a single country code or a comma separated array of country codes (e.g. language=EN,PL,IT). Defaults to showing all available languages if no language parameter is specified', required: false
 
   example <<-EOS
-    'common_names': [
+    [
       {
-        'name': 'African Elephant',
-        'language': 'EN'
+        "common_name" : {
+          "name" : "Common Goldeneye",
+          "language" : "EN"
+        }
       },
-      {
-        'name': 'Afrikanischer Elefant',
-        'language': 'DE'
-      }
     ]
   EOS
 
