@@ -3,10 +3,11 @@ FactoryGirl.define do
   factory :common_name, class: Test::CommonName do
     sequence(:name) { |n| "Common name #{n}" }
     language
-    taxon_concept
   end
 
   factory :taxon_common, class: Test::TaxonCommon do
+    taxon_concept
+    common_name
   end
 
   factory :language, class: Test::Language do
