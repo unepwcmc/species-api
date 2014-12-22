@@ -6,4 +6,5 @@ class TaxonConcept < ActiveRecord::Base
 
   has_many :distributions
   has_many :common_names
+  has_many :cites_suspensions
 end

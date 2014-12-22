@@ -6,7 +6,7 @@ class Api::V1::CitesLegislationController < Api::V1::BaseController
   end
 
   api :GET, '/:id/cites_legislation', 'Lists current CITES appendix listings and reservations, CITES quotas, and CITES suspensions for a given taxon concept'
-  param :id, Integer, :desc => "Taxon Concept ID", :required => true
+  param :taxon_concept_id, String, :desc => "Taxon Concept ID", :required => true
   example <<-EOS
     'cites_legislation': [
       {
@@ -80,5 +80,8 @@ class Api::V1::CitesLegislationController < Api::V1::BaseController
   EOS
 
   def index
+    @taxon_concept = TaxonConcept.find(params[:taxon_concept_id])
+    @cites_listings = TaxonConcept.find(params[:taxon_concept_id])
+    @cites_quotas = TaxonConcept.find(params[:taxon_concept_id])
   end
 end
