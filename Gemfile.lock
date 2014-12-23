@@ -254,7 +254,7 @@ DEPENDENCIES
   sdoc (~> 0.4.0)
   shoulda
   simplecov
-  slack-notifier
+  slack-notifier (~> 1.0)
   spring
   susy
   turbolinks
