@@ -6,5 +6,10 @@ class TaxonConcept < ActiveRecord::Base
 
   has_many :distributions
   has_many :common_names
-  has_many :cites_suspensions
+
+  def cites_suspensions_including_global
+    CitesSuspension.where(
+      'taxon_concept_id IS NULL OR taxon_concept_id = ?', self.id
+    )
+  end
 end

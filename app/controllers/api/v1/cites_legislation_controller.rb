@@ -81,7 +81,7 @@ class Api::V1::CitesLegislationController < Api::V1::BaseController
 
   def index
     @taxon_concept = TaxonConcept.find(params[:taxon_concept_id])
-    @cites_listings = TaxonConcept.find(params[:taxon_concept_id])
+    @cites_suspensions = @taxon_concept.cites_suspensions_including_global
     @cites_quotas = TaxonConcept.find(params[:taxon_concept_id])
   end
 end
