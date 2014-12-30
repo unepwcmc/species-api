@@ -3290,6 +3290,7 @@ CREATE FUNCTION rebuild_designation_listing_changes_mview(taxonomy taxonomies, d
     geo_entities.name_en AS party_full_name_en,
     geo_entities.name_es AS party_full_name_es,
     geo_entities.name_fr AS party_full_name_fr,
+    geo_entity_types.name AS geo_entity_type,
     annotations.symbol AS ann_symbol,
     annotations.full_note_en,
     annotations.full_note_es,
@@ -3385,6 +3386,8 @@ CREATE FUNCTION rebuild_designation_listing_changes_mview(taxonomy taxonomies, d
     ON listing_changes.species_listing_id = species_listings.id
     LEFT JOIN geo_entities ON
     geo_entities.id = tmp_lc.party_id
+    LEFT JOIN geo_entity_types ON
+    geo_entity_types.id = geo_entities.geo_entity_type_id
     LEFT JOIN annotations ON
     annotations.id = listing_changes.annotation_id
     LEFT JOIN annotations hash_annotations ON
@@ -6370,7 +6373,8 @@ CREATE TABLE cites_listing_changes_mview (
     excluded_taxon_concept_ids integer[],
     dirty boolean,
     expiry timestamp with time zone,
-    event_id integer
+    event_id integer,
+    geo_entity_type character varying(255)
 );
 
 
@@ -6401,19 +6405,19 @@ CREATE VIEW api_cites_listing_changes_view AS
     listing_changes_mview.party_id,
         CASE
             WHEN (listing_changes_mview.party_id IS NULL) THEN NULL::json
-            ELSE row_to_json(ROW((listing_changes_mview.party_iso_code)::text, (listing_changes_mview.party_full_name_en)::text, NULL::text)::api_geo_entity)
+            ELSE row_to_json(ROW((listing_changes_mview.party_iso_code)::text, (listing_changes_mview.party_full_name_en)::text, (listing_changes_mview.geo_entity_type)::text)::api_geo_entity)
         END AS party_en,
         CASE
             WHEN (listing_changes_mview.party_id IS NULL) THEN NULL::json
-            ELSE row_to_json(ROW((listing_changes_mview.party_iso_code)::text, (listing_changes_mview.party_full_name_es)::text, NULL::text)::api_geo_entity)
+            ELSE row_to_json(ROW((listing_changes_mview.party_iso_code)::text, (listing_changes_mview.party_full_name_es)::text, (listing_changes_mview.geo_entity_type)::text)::api_geo_entity)
         END AS party_es,
         CASE
             WHEN (listing_changes_mview.party_id IS NULL) THEN NULL::json
-            ELSE row_to_json(ROW((listing_changes_mview.party_iso_code)::text, (listing_changes_mview.party_full_name_fr)::text, NULL::text)::api_geo_entity)
+            ELSE row_to_json(ROW((listing_changes_mview.party_iso_code)::text, (listing_changes_mview.party_full_name_fr)::text, (listing_changes_mview.geo_entity_type)::text)::api_geo_entity)
         END AS party_fr,
         CASE
-            WHEN ((((((listing_changes_mview.auto_note_en IS NULL) AND (listing_changes_mview.inherited_full_note_en IS NULL)) AND (listing_changes_mview.inherited_short_note_en IS NULL)) AND (listing_changes_mview.full_note_en IS NULL)) AND (listing_changes_mview.short_note_en IS NULL)) AND (listing_changes_mview.nomenclature_note_en IS NULL)) THEN NULL::json
-            ELSE row_to_json(ROW(NULL::text, ((
+            WHEN ((((((listing_changes_mview.auto_note_en IS NULL) AND (listing_changes_mview.inherited_full_note_en IS NULL)) AND (listing_changes_mview.inherited_short_note_en IS NULL)) AND (listing_changes_mview.full_note_en IS NULL)) AND (listing_changes_mview.short_note_en IS NULL)) AND (listing_changes_mview.nomenclature_note_en IS NULL)) THEN NULL::text
+            ELSE ((
             CASE
                 WHEN (length(listing_changes_mview.auto_note_en) > 0) THEN (('['::text || listing_changes_mview.auto_note_en) || '] '::text)
                 ELSE ''::text
@@ -6422,16 +6426,17 @@ CREATE VIEW api_cites_listing_changes_view AS
                 WHEN (length(listing_changes_mview.inherited_full_note_en) > 0) THEN strip_tags(listing_changes_mview.inherited_full_note_en)
                 WHEN (length(listing_changes_mview.inherited_short_note_en) > 0) THEN strip_tags(listing_changes_mview.inherited_short_note_en)
                 WHEN (length(listing_changes_mview.full_note_en) > 0) THEN strip_tags(listing_changes_mview.full_note_en)
-                ELSE strip_tags(listing_changes_mview.short_note_en)
+                WHEN (length(listing_changes_mview.short_note_en) > 0) THEN strip_tags(listing_changes_mview.short_note_en)
+                ELSE ''::text
             END) ||
             CASE
                 WHEN (length(listing_changes_mview.nomenclature_note_en) > 0) THEN strip_tags(listing_changes_mview.nomenclature_note_en)
-                ELSE NULL::text
-            END))::api_annotation)
+                ELSE ''::text
+            END)
         END AS annotation_en,
         CASE
-            WHEN ((((((listing_changes_mview.auto_note_es IS NULL) AND (listing_changes_mview.inherited_full_note_es IS NULL)) AND (listing_changes_mview.inherited_short_note_es IS NULL)) AND (listing_changes_mview.full_note_es IS NULL)) AND (listing_changes_mview.short_note_es IS NULL)) AND (listing_changes_mview.nomenclature_note_es IS NULL)) THEN NULL::json
-            ELSE row_to_json(ROW(NULL::text, ((
+            WHEN ((((((listing_changes_mview.auto_note_es IS NULL) AND (listing_changes_mview.inherited_full_note_es IS NULL)) AND (listing_changes_mview.inherited_short_note_es IS NULL)) AND (listing_changes_mview.full_note_es IS NULL)) AND (listing_changes_mview.short_note_es IS NULL)) AND (listing_changes_mview.nomenclature_note_es IS NULL)) THEN NULL::text
+            ELSE ((
             CASE
                 WHEN (length(listing_changes_mview.auto_note_es) > 0) THEN (('['::text || listing_changes_mview.auto_note_es) || '] '::text)
                 ELSE ''::text
@@ -6440,16 +6445,17 @@ CREATE VIEW api_cites_listing_changes_view AS
                 WHEN (length(listing_changes_mview.inherited_full_note_es) > 0) THEN strip_tags(listing_changes_mview.inherited_full_note_es)
                 WHEN (length(listing_changes_mview.inherited_short_note_es) > 0) THEN strip_tags(listing_changes_mview.inherited_short_note_es)
                 WHEN (length(listing_changes_mview.full_note_es) > 0) THEN strip_tags(listing_changes_mview.full_note_es)
-                ELSE strip_tags(listing_changes_mview.short_note_es)
+                WHEN (length(listing_changes_mview.short_note_es) > 0) THEN strip_tags(listing_changes_mview.short_note_es)
+                ELSE ''::text
             END) ||
             CASE
                 WHEN (length(listing_changes_mview.nomenclature_note_en) > 0) THEN strip_tags(listing_changes_mview.nomenclature_note_en)
-                ELSE NULL::text
-            END))::api_annotation)
+                ELSE ''::text
+            END)
         END AS annotation_es,
         CASE
-            WHEN ((((((listing_changes_mview.auto_note_fr IS NULL) AND (listing_changes_mview.inherited_full_note_fr IS NULL)) AND (listing_changes_mview.inherited_short_note_fr IS NULL)) AND (listing_changes_mview.full_note_fr IS NULL)) AND (listing_changes_mview.short_note_fr IS NULL)) AND (listing_changes_mview.nomenclature_note_fr IS NULL)) THEN NULL::json
-            ELSE row_to_json(ROW(NULL::text, ((
+            WHEN ((((((listing_changes_mview.auto_note_fr IS NULL) AND (listing_changes_mview.inherited_full_note_fr IS NULL)) AND (listing_changes_mview.inherited_short_note_fr IS NULL)) AND (listing_changes_mview.full_note_fr IS NULL)) AND (listing_changes_mview.short_note_fr IS NULL)) AND (listing_changes_mview.nomenclature_note_fr IS NULL)) THEN NULL::text
+            ELSE ((
             CASE
                 WHEN (length(listing_changes_mview.auto_note_fr) > 0) THEN (('['::text || listing_changes_mview.auto_note_fr) || '] '::text)
                 ELSE ''::text
@@ -6458,12 +6464,13 @@ CREATE VIEW api_cites_listing_changes_view AS
                 WHEN (length(listing_changes_mview.inherited_full_note_fr) > 0) THEN strip_tags(listing_changes_mview.inherited_full_note_fr)
                 WHEN (length(listing_changes_mview.inherited_short_note_fr) > 0) THEN strip_tags(listing_changes_mview.inherited_short_note_fr)
                 WHEN (length(listing_changes_mview.full_note_fr) > 0) THEN strip_tags(listing_changes_mview.full_note_fr)
-                ELSE strip_tags(listing_changes_mview.short_note_fr)
+                WHEN (length(listing_changes_mview.short_note_fr) > 0) THEN strip_tags(listing_changes_mview.short_note_fr)
+                ELSE ''::text
             END) ||
             CASE
                 WHEN (length(listing_changes_mview.nomenclature_note_fr) > 0) THEN strip_tags(listing_changes_mview.nomenclature_note_fr)
-                ELSE NULL::text
-            END))::api_annotation)
+                ELSE ''::text
+            END)
         END AS annotation_fr,
         CASE
             WHEN ((listing_changes_mview.hash_ann_symbol IS NULL) AND (listing_changes_mview.hash_full_note_en IS NULL)) THEN NULL::json
@@ -7127,7 +7134,8 @@ CREATE TABLE eu_listing_changes_mview (
     excluded_taxon_concept_ids integer[],
     dirty boolean,
     expiry timestamp with time zone,
-    event_id integer
+    event_id integer,
+    geo_entity_type character varying(255)
 );
 
 
@@ -7156,19 +7164,19 @@ CREATE VIEW api_eu_listing_changes_view AS
     listing_changes_mview.party_id,
         CASE
             WHEN (listing_changes_mview.party_id IS NULL) THEN NULL::json
-            ELSE row_to_json(ROW((listing_changes_mview.party_iso_code)::text, (listing_changes_mview.party_full_name_en)::text, NULL::text)::api_geo_entity)
+            ELSE row_to_json(ROW((listing_changes_mview.party_iso_code)::text, (listing_changes_mview.party_full_name_en)::text, (listing_changes_mview.geo_entity_type)::text)::api_geo_entity)
         END AS party_en,
         CASE
             WHEN (listing_changes_mview.party_id IS NULL) THEN NULL::json
-            ELSE row_to_json(ROW((listing_changes_mview.party_iso_code)::text, (listing_changes_mview.party_full_name_es)::text, NULL::text)::api_geo_entity)
+            ELSE row_to_json(ROW((listing_changes_mview.party_iso_code)::text, (listing_changes_mview.party_full_name_es)::text, (listing_changes_mview.geo_entity_type)::text)::api_geo_entity)
         END AS party_es,
         CASE
             WHEN (listing_changes_mview.party_id IS NULL) THEN NULL::json
-            ELSE row_to_json(ROW((listing_changes_mview.party_iso_code)::text, (listing_changes_mview.party_full_name_fr)::text, NULL::text)::api_geo_entity)
+            ELSE row_to_json(ROW((listing_changes_mview.party_iso_code)::text, (listing_changes_mview.party_full_name_fr)::text, (listing_changes_mview.geo_entity_type)::text)::api_geo_entity)
         END AS party_fr,
         CASE
-            WHEN ((((((listing_changes_mview.auto_note_en IS NULL) AND (listing_changes_mview.inherited_full_note_en IS NULL)) AND (listing_changes_mview.inherited_short_note_en IS NULL)) AND (listing_changes_mview.full_note_en IS NULL)) AND (listing_changes_mview.short_note_en IS NULL)) AND (listing_changes_mview.nomenclature_note_en IS NULL)) THEN NULL::json
-            ELSE row_to_json(ROW(NULL::text, ((
+            WHEN ((((((listing_changes_mview.auto_note_en IS NULL) AND (listing_changes_mview.inherited_full_note_en IS NULL)) AND (listing_changes_mview.inherited_short_note_en IS NULL)) AND (listing_changes_mview.full_note_en IS NULL)) AND (listing_changes_mview.short_note_en IS NULL)) AND (listing_changes_mview.nomenclature_note_en IS NULL)) THEN NULL::text
+            ELSE ((
             CASE
                 WHEN (length(listing_changes_mview.auto_note_en) > 0) THEN (('['::text || listing_changes_mview.auto_note_en) || '] '::text)
                 ELSE ''::text
@@ -7177,16 +7185,17 @@ CREATE VIEW api_eu_listing_changes_view AS
                 WHEN (length(listing_changes_mview.inherited_full_note_en) > 0) THEN strip_tags(listing_changes_mview.inherited_full_note_en)
                 WHEN (length(listing_changes_mview.inherited_short_note_en) > 0) THEN strip_tags(listing_changes_mview.inherited_short_note_en)
                 WHEN (length(listing_changes_mview.full_note_en) > 0) THEN strip_tags(listing_changes_mview.full_note_en)
-                ELSE strip_tags(listing_changes_mview.short_note_en)
+                WHEN (length(listing_changes_mview.short_note_en) > 0) THEN strip_tags(listing_changes_mview.short_note_en)
+                ELSE ''::text
             END) ||
             CASE
                 WHEN (length(listing_changes_mview.nomenclature_note_en) > 0) THEN strip_tags(listing_changes_mview.nomenclature_note_en)
-                ELSE NULL::text
-            END))::api_annotation)
+                ELSE ''::text
+            END)
         END AS annotation_en,
         CASE
-            WHEN ((((((listing_changes_mview.auto_note_es IS NULL) AND (listing_changes_mview.inherited_full_note_es IS NULL)) AND (listing_changes_mview.inherited_short_note_es IS NULL)) AND (listing_changes_mview.full_note_es IS NULL)) AND (listing_changes_mview.short_note_es IS NULL)) AND (listing_changes_mview.nomenclature_note_es IS NULL)) THEN NULL::json
-            ELSE row_to_json(ROW(NULL::text, ((
+            WHEN ((((((listing_changes_mview.auto_note_es IS NULL) AND (listing_changes_mview.inherited_full_note_es IS NULL)) AND (listing_changes_mview.inherited_short_note_es IS NULL)) AND (listing_changes_mview.full_note_es IS NULL)) AND (listing_changes_mview.short_note_es IS NULL)) AND (listing_changes_mview.nomenclature_note_es IS NULL)) THEN NULL::text
+            ELSE ((
             CASE
                 WHEN (length(listing_changes_mview.auto_note_es) > 0) THEN (('['::text || listing_changes_mview.auto_note_es) || '] '::text)
                 ELSE ''::text
@@ -7195,16 +7204,17 @@ CREATE VIEW api_eu_listing_changes_view AS
                 WHEN (length(listing_changes_mview.inherited_full_note_es) > 0) THEN strip_tags(listing_changes_mview.inherited_full_note_es)
                 WHEN (length(listing_changes_mview.inherited_short_note_es) > 0) THEN strip_tags(listing_changes_mview.inherited_short_note_es)
                 WHEN (length(listing_changes_mview.full_note_es) > 0) THEN strip_tags(listing_changes_mview.full_note_es)
-                ELSE strip_tags(listing_changes_mview.short_note_es)
+                WHEN (length(listing_changes_mview.short_note_es) > 0) THEN strip_tags(listing_changes_mview.short_note_es)
+                ELSE ''::text
             END) ||
             CASE
                 WHEN (length(listing_changes_mview.nomenclature_note_en) > 0) THEN strip_tags(listing_changes_mview.nomenclature_note_en)
-                ELSE NULL::text
-            END))::api_annotation)
+                ELSE ''::text
+            END)
         END AS annotation_es,
         CASE
-            WHEN ((((((listing_changes_mview.auto_note_fr IS NULL) AND (listing_changes_mview.inherited_full_note_fr IS NULL)) AND (listing_changes_mview.inherited_short_note_fr IS NULL)) AND (listing_changes_mview.full_note_fr IS NULL)) AND (listing_changes_mview.short_note_fr IS NULL)) AND (listing_changes_mview.nomenclature_note_fr IS NULL)) THEN NULL::json
-            ELSE row_to_json(ROW(NULL::text, ((
+            WHEN ((((((listing_changes_mview.auto_note_fr IS NULL) AND (listing_changes_mview.inherited_full_note_fr IS NULL)) AND (listing_changes_mview.inherited_short_note_fr IS NULL)) AND (listing_changes_mview.full_note_fr IS NULL)) AND (listing_changes_mview.short_note_fr IS NULL)) AND (listing_changes_mview.nomenclature_note_fr IS NULL)) THEN NULL::text
+            ELSE ((
             CASE
                 WHEN (length(listing_changes_mview.auto_note_fr) > 0) THEN (('['::text || listing_changes_mview.auto_note_fr) || '] '::text)
                 ELSE ''::text
@@ -7213,12 +7223,13 @@ CREATE VIEW api_eu_listing_changes_view AS
                 WHEN (length(listing_changes_mview.inherited_full_note_fr) > 0) THEN strip_tags(listing_changes_mview.inherited_full_note_fr)
                 WHEN (length(listing_changes_mview.inherited_short_note_fr) > 0) THEN strip_tags(listing_changes_mview.inherited_short_note_fr)
                 WHEN (length(listing_changes_mview.full_note_fr) > 0) THEN strip_tags(listing_changes_mview.full_note_fr)
-                ELSE strip_tags(listing_changes_mview.short_note_fr)
+                WHEN (length(listing_changes_mview.short_note_fr) > 0) THEN strip_tags(listing_changes_mview.short_note_fr)
+                ELSE ''::text
             END) ||
             CASE
                 WHEN (length(listing_changes_mview.nomenclature_note_fr) > 0) THEN strip_tags(listing_changes_mview.nomenclature_note_fr)
-                ELSE NULL::text
-            END))::api_annotation)
+                ELSE ''::text
+            END)
         END AS annotation_fr,
         CASE
             WHEN ((listing_changes_mview.hash_ann_symbol IS NULL) AND (listing_changes_mview.hash_full_note_en IS NULL)) THEN NULL::json
@@ -7404,7 +7415,8 @@ CREATE TABLE cms_listing_changes_mview (
     excluded_taxon_concept_ids integer[],
     dirty boolean,
     expiry timestamp with time zone,
-    event_id integer
+    event_id integer,
+    geo_entity_type character varying(255)
 );
 
 
@@ -13755,6 +13767,8 @@ INSERT INTO schema_migrations (version) VALUES ('20141228094935');
 INSERT INTO schema_migrations (version) VALUES ('20141228101341');
 
 INSERT INTO schema_migrations (version) VALUES ('20141228224334');
+
+INSERT INTO schema_migrations (version) VALUES ('20141230193843');
 
 INSERT INTO schema_migrations (version) VALUES ('20141230193844');
 
