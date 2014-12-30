@@ -6,12 +6,12 @@ class Api::V1::DistributionsController < Api::V1::BaseController
 
   api :GET, '/:taxon_concept_id/distributions', 'Lists distributions for a given taxon concept'
   param :taxon_concept_id, String, desc: 'Taxon Concept ID', required: true
-  param :language, String, desc: 'Select language for the names of distributions. Select en, fr, or es. Defaults to en if no language parameter is specified', required: false
+  param :language, String, desc: 'Select language for the names of distributions. Select en, fr, or es. Defaults to en.', required: false
 
   example <<-EOS
     [
       {
-        "distribution": { 
+        "distribution": {
           "iso_code2" : "NI",
           "tags" : [],
           "type" : "COUNTRY",
@@ -40,11 +40,10 @@ class Api::V1::DistributionsController < Api::V1::BaseController
           <reference>Ridgely, R. S. and Gwynne, J. A. 1989. A guide to the birds of Panama with Costa Rica, Nicaragua, and Honduras. 2nd edition. Princeton University Press. Princeton, New Jersey.</reference>
         </references>
       </distribution>
-    </distributions>       
+    </distributions>
   EOS
 
   def index
     @distributions = TaxonConcept.find(params[:taxon_concept_id]).distributions
-    @language = params[:language]
   end
 end

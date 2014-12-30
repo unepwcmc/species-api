@@ -11,6 +11,7 @@ gem 'compass'#, '>= 0.12.2'
 gem 'compass-rails'#, '>= 1.0.3'
 gem 'will_paginate' #, '~> 3.0.6'
 gem 'api_pagination_headers'
+gem 'traco'
 
 group :test do
   gem 'shoulda'
@@ -55,4 +56,8 @@ group :development do
   gem 'capistrano-ext'
   gem 'rvm-capistrano'
   gem 'brightbox', '~> 2.4.4'
+end
+
+group :development, :test do
+  gem 'byebug'
 end

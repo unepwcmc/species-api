@@ -43,7 +43,7 @@ class Api::V1::DistributionsControllerTest < ActionController::TestCase
     assert_equal "name fr", results.first["distribution"]["name"]
   end
 
-  test "defaults to english name without language params" do
+  test "defaults to English name without language params" do
     @request.headers["X-Authentication-Token"] = @user.authentication_token
     get :index, taxon_concept_id: @taxon_concept.id
 

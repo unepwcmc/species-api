@@ -6,79 +6,250 @@ class Api::V1::CitesLegislationController < Api::V1::BaseController
   end
 
   api :GET, '/:id/cites_legislation', 'Lists current CITES appendix listings and reservations, CITES quotas, and CITES suspensions for a given taxon concept'
-  param :id, Integer, :desc => "Taxon Concept ID", :required => true
+  param :taxon_concept_id, String, :desc => "Taxon Concept ID", :required => true
+  param :scope, String, desc: 'Time scope of legislation. Select all, current or historic. Defaults to current.', required: false
+  param :language, String, desc: 'Select language for the text of legislation notes. Select en, fr, or es. Defaults to en.', required: false
   example <<-EOS
-    'cites_legislation': [
+{
+  "cites_legislation":{
+    "cites_listings":[
       {
-        'taxon_concept_id': 1,
-        'cites_listings' : [
-          {
-            'is_current' : true,
-            'appendix' : 'I',
-            'party_full_name' : null,
-            'effective_at_formatted' : '13/09/2007',
-            'short_note_en' : 'All populations except those of BW, NA, ZA, and ZW.',
-            'full_note_en' : 'Included in Appendix I except the population...',
-            'auto_note' : null,
-            'is_inclusion' : null,
-            'subspecies_info' : null,
-            'inherited_full_note_en' : null,
-            'inherited_short_note_en' : null,
-            'change_type' : 'a',
-            'is_addition' : true,
-            'hash_full_note_en' : null,
-            'hash_display' : ''
+        "cites_listing":{
+          "taxon_concept_id":4521,
+          "is_current":true,
+          "appendix":"II",
+          "change_type":"+",
+          "effective_at":"2007-09-13",
+          "annotation":"The populations of Botswana, Namibia, South Africa and Zimbabwe are listed in Appendix II for the exclusive purpose of allowing: [...]"
+        }
+      },
+      {
+        "cites_listing":{
+          "taxon_concept_id":4521,
+          "is_current":true,
+          "appendix":"I",
+          "change_type":"+",
+          "effective_at":"2007-09-13",
+          "annotation":"Included in Appendix I, except the populations of Botswana, Namibia, South Africa and Zimbabwe, which are included in Appendix II."
+        }
+      },
+      {
+        "cites_listing":{
+          "taxon_concept_id":4521,
+          "is_current":true,
+          "appendix":"I",
+          "change_type":"R+",
+          "effective_at":"1990-01-18",
+          "annotation":null,
+          "party":{
+            "iso_code2":"MW",
+            "name":"Malawi",
+            "type":"COUNTRY"
           }
-        ],
-        'cites_quotas' : [
-          {
-            'quota' : 0,
-            'year' : '2014',
-            'publication_date' : '14/03/2014',
-            'notes' : 'raw ivory',
-            'url' : 'http://www.cites.org/common/quotas/2013/ExportQuotas2013.pdf',
-            'public_display' : true,
-            'is_current' : true,
-            'unit_name' : '',
-            'subspecies_info' : null,
-            'geo_entity' : {
-              'id' : 105,
-              'name' : 'Angola',
-              'iso_code2' : 'AO',
-              'geo_entity_type' : 'COUNTRY'
-            }
+        }
+      }
+    ],
+    "cites_quotas":[
+      {
+        "cites_quota":{
+          "taxon_concept_id":4521,
+          "quota":180.0,
+          "publication_date":"2014-03-14",
+          "notes":"tusks as trophies from 90 animals",
+          "url":null,
+          "public_display":true,
+          "is_current":true,
+          "unit":null,
+          "geo_entity":{
+            "iso_code2":"NA",
+            "name":"Namibia",
+            "type":"COUNTRY"
           }
-        ],
-        'cites_suspensions' : [
-          {
-            'notes' : 'All trade in specimens of CITES-listed species',
-            'start_date' : '13/10/2014',
-            'is_current' : true,
-            'subspecies_info' : null
-            'geo_entity' : {
-              'id' : 49,
-              'name' : 'Gambia',
-              'iso_code2' : 'GM',
-              'geo_entity_type' : 'COUNTRY'
-            },
-            'start_notification' : {
-              'name' : 'CITES Notif. No. 2014/046',
-              'effective_at_formatted' : '13/10/2014',
-              'url' : 'http://cites.org/sites/default/files/notif/E-Notif-2014-046.pdf'
-            }
+        }
+      },
+      {
+        "cites_quota":{
+          "taxon_concept_id":4521,
+          "quota":160.0,
+          "publication_date":"2014-03-14",
+          "notes":"tusks as trophies from 80 animals",
+          "url":null,
+          "public_display":true,
+          "is_current":true,
+          "unit":null,
+          "geo_entity":{
+            "iso_code2":"CM",
+            "name":"Cameroon",
+            "type":"COUNTRY"
           }
-        ]
+        }
+      }
+    ],
+    "cites_suspensions":[
+      {
+        "cites_suspension":{
+          "taxon_concept_id":null,
+          "notes":"All commercial trade in specimens of CITES-listed species.",
+          "start_date":"2004-07-30",
+          "is_current":true,
+          "geo_entity":{
+            "iso_code2":"SO",
+            "name":"Somalia",
+            "type":"COUNTRY"
+          },
+          "start_notification":{
+            "name":"CITES Notif. No. 2004/055",
+            "date":"2004-07-30",
+            "url":"http://www.cites.org/eng/notif/2004/055.pdf"
+          }
+        }
+      },
+      {
+        "cites_suspension":{
+          "taxon_concept_id":4521,
+          "notes":"The United States has suspended imports of sport-hunted trophies of African elephant taken in Zimbabwe on or after 4 April 2014.",
+          "start_date":"2014-08-11",
+          "is_current":true,
+          "geo_entity":{
+            "iso_code2":"ZW",
+            "name":"Zimbabwe",
+            "type":"COUNTRY"
+          },
+          "start_notification":{
+            "name":"CITES Notif. No. 2014/037",
+            "date":"2014-08-11",
+            "url":"http://cites.org/sites/default/files/notif/E-Notif-2014-037.pdf"
+          }
+        }
       }
     ]
+  }
+}
   EOS
 
   example <<-EOS
-    <cites_legislation>
-      <taxon_concept_id>1</taxon_concept_id>
-      <is_current>true</is_current>
-    </cites_legislation>
+<?xml version="1.0" encoding="UTF-8"?>
+<cites-legislation>
+  <cites-listings type="array">
+    <cites-listing>
+      <taxon-concept-id type="integer">4521</taxon-concept-id>
+      <is-current type="boolean">true</is-current>
+      <appendix>II</appendix>
+      <change-type>+</change-type>
+      <effective-at type="date">2007-09-13</effective-at>
+      <annotation>The populations of Botswana, Namibia, South Africa and Zimbabwe are listed in Appendix II for the exclusive purpose of allowing: [...]</annotation>
+    </cites-listing>
+    <cites-listing>
+      <taxon-concept-id type="integer">4521</taxon-concept-id>
+      <is-current type="boolean">true</is-current>
+      <appendix>I</appendix>
+      <change-type>+</change-type>
+      <effective-at type="date">2007-09-13</effective-at>
+      <annotation>Included in Appendix I, except the populations of Botswana, Namibia, South Africa and Zimbabwe, which are included in Appendix II.</annotation>
+    </cites-listing>
+    <cites-listing>
+      <taxon-concept-id type="integer">4521</taxon-concept-id>
+      <is-current type="boolean">true</is-current>
+      <appendix>I</appendix>
+      <change-type>R+</change-type>
+      <effective-at type="date">1990-01-18</effective-at>
+      <annotation nil="true"/>
+      <party>
+        <iso-code2>MW</iso-code2>
+        <name>Malawi</name>
+        <type>COUNTRY</type>
+      </party>
+    </cites-listing>
+  </cites-listings>
+  <cites-quotas type="array">
+    <cites-quota>
+      <taxon-concept-id type="integer">4521</taxon-concept-id>
+      <quota type="float">180.0</quota>
+      <publication-date type="date">2014-03-14</publication-date>
+      <notes>tusks as trophies from 90 animals</notes>
+      <url nil="true"/>
+      <public-display type="boolean">true</public-display>
+      <is-current type="boolean">true</is-current>
+      <unit nil="true"/>
+      <geo-entity>
+        <iso-code2>NA</iso-code2>
+        <name>Namibia</name>
+        <type>COUNTRY</type>
+      </geo-entity>
+    </cites-quota>
+    <cites-quota>
+      <taxon-concept-id type="integer">4521</taxon-concept-id>
+      <quota type="float">160.0</quota>
+      <publication-date type="date">2014-03-14</publication-date>
+      <notes>tusks as trophies from 80 animals</notes>
+      <url nil="true"/>
+      <public-display type="boolean">true</public-display>
+      <is-current type="boolean">true</is-current>
+      <unit nil="true"/>
+      <geo-entity>
+        <iso-code2>CM</iso-code2>
+        <name>Cameroon</name>
+        <type>COUNTRY</type>
+      </geo-entity>
+    </cites-quota>
+    <cites-quota>
+      <taxon-concept-id type="integer">4521</taxon-concept-id>
+      <quota type="float">0.0</quota>
+      <publication-date type="date">2014-03-14</publication-date>
+      <notes>raw ivory</notes>
+      <url>http://www.cites.org/common/quotas/2013/ExportQuotas2013.pdf</url>
+      <public-display type="boolean">true</public-display>
+      <is-current type="boolean">true</is-current>
+      <unit nil="true"/>
+      <geo-entity>
+        <iso-code2>AO</iso-code2>
+        <name>Angola</name>
+        <type>COUNTRY</type>
+      </geo-entity>
+    </cites-quota>
+  </cites-quotas>
+  <cites-suspensions type="array">
+    <cites-suspension>
+      <taxon-concept-id nil="true"/>
+      <notes>All commercial trade in specimens of CITES-listed species.</notes>
+      <start-date type="date">2004-07-30</start-date>
+      <is-current type="boolean">true</is-current>
+      <geo-entity>
+        <iso-code2>SO</iso-code2>
+        <name>Somalia</name>
+        <type>COUNTRY</type>
+      </geo-entity>
+      <start-notification>
+        <name>CITES Notif. No. 2004/055</name>
+        <date>2004-07-30</date>
+        <url>http://www.cites.org/eng/notif/2004/055.pdf</url>
+      </start-notification>
+    </cites-suspension>
+    <cites-suspension>
+      <taxon-concept-id type="integer">4521</taxon-concept-id>
+      <notes>The United States has suspended imports of sport-hunted trophies of African elephant taken in Zimbabwe on or after 4 April 2014.</notes>
+      <start-date type="date">2014-08-11</start-date>
+      <is-current type="boolean">true</is-current>
+      <geo-entity>
+        <iso-code2>ZW</iso-code2>
+        <name>Zimbabwe</name>
+        <type>COUNTRY</type>
+      </geo-entity>
+      <start-notification>
+        <name>CITES Notif. No. 2014/037</name>
+        <date>2014-08-11</date>
+        <url>http://cites.org/sites/default/files/notif/E-Notif-2014-037.pdf</url>
+      </start-notification>
+    </cites-suspension>
+  </cites-suspensions>
+</cites-legislation>
   EOS
 
   def index
+    set_legislation_scope
+    @taxon_concept = TaxonConcept.find(params[:taxon_concept_id])
+    @cites_listings = @taxon_concept.cites_listings.in_scope(@legislation_scope)
+    @cites_suspensions = @taxon_concept.cites_suspensions_including_global.in_scope(@legislation_scope)
+    @cites_quotas = @taxon_concept.cites_quotas_including_global.in_scope(@legislation_scope)
   end
 end
