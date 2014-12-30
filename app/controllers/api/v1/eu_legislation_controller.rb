@@ -6,7 +6,9 @@ class Api::V1::EuLegislationController < Api::V1::BaseController
   end
 
   api :GET, '/:id/eu_legislation', 'Lists current EU annex listings, SRG opinions, and EU suspensions for a given taxon concept'
-  param :id, Integer, desc: 'Taxon Concept ID', required: true
+  param :taxon_concept_id, String, :desc => "Taxon Concept ID", :required => true
+  param :scope, String, desc: 'Time scope of legislation. Select all, current or historic. Defaults to current.', required: false
+  param :language, String, desc: 'Select language for the text of legislation notes. Select en, fr, or es. Defaults to en.', required: false
   example <<-EOS
     'eu_legislation': [
       {
@@ -70,5 +72,9 @@ class Api::V1::EuLegislationController < Api::V1::BaseController
   EOS
 
   def index
+    set_legislation_scope
+    @taxon_concept = TaxonConcept.find(params[:taxon_concept_id])
+    @eu_listings = @taxon_concept.eu_listings.in_scope(@legislation_scope)
+    @eu_decisions = @taxon_concept.eu_decisions.in_scope(@legislation_scope)
   end
 end
