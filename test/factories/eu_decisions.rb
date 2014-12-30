@@ -6,10 +6,14 @@ FactoryGirl.define do
     eu_decision_type
 
     factory :eu_opinion, class: Test::EuOpinion do
+      type 'EuOpinion'
       start_date Date.new(2013,1,1)
     end
 
-    factory :eu_suspension, class: Test::EuSuspension
+    factory :eu_suspension, class: Test::EuSuspension do
+      type 'EuSuspension'
+      start_event
+    end
   end
 
   factory :eu_decision_type, class: Test::EuDecisionType do

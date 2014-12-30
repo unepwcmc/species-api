@@ -1,0 +1,1 @@
+class EuSuspension < EuDecision; end

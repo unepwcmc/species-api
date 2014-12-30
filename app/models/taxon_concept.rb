@@ -8,6 +8,8 @@ class TaxonConcept < ActiveRecord::Base
   has_many :distributions
   has_many :common_names
   has_many :cites_listings
+  has_many :eu_listings
+  has_many :eu_decisions
 
   def cites_suspensions_including_global
     CitesSuspension.where(trade_restrictions_including_global_where_clause)

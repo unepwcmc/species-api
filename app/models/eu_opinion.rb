@@ -1,0 +1,1 @@
+class EuOpinion < EuDecision; end
