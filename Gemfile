@@ -57,3 +57,7 @@ group :development do
   gem 'rvm-capistrano'
   gem 'brightbox', '~> 2.4.4'
 end
+
+group :development, :test do
+  gem 'byebug'
+end
