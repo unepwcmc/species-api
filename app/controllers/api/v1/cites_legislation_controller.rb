@@ -7,6 +7,8 @@ class Api::V1::CitesLegislationController < Api::V1::BaseController
 
   api :GET, '/:id/cites_legislation', 'Lists current CITES appendix listings and reservations, CITES quotas, and CITES suspensions for a given taxon concept'
   param :taxon_concept_id, String, :desc => "Taxon Concept ID", :required => true
+  param :scope, String, desc: 'Time scope of legislation. Select all, current or historic. Defaults to current.', required: false
+  param :language, String, desc: 'Select language for the text of legislation notes. Select en, fr, or es. Defaults to en.', required: false
   example <<-EOS
     'cites_legislation': [
       {
@@ -80,8 +82,10 @@ class Api::V1::CitesLegislationController < Api::V1::BaseController
   EOS
 
   def index
+    set_legislation_scope
     @taxon_concept = TaxonConcept.find(params[:taxon_concept_id])
-    @cites_suspensions = @taxon_concept.cites_suspensions_including_global
-    @cites_quotas = TaxonConcept.find(params[:taxon_concept_id])
+    @cites_listings = @taxon_concept.cites_listings.in_scope(@legislation_scope)
+    @cites_suspensions = @taxon_concept.cites_suspensions_including_global.in_scope(@legislation_scope)
+    @cites_quotas = @taxon_concept.cites_quotas_including_global.in_scope(@legislation_scope)
   end
 end

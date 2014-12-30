@@ -1,26 +1,30 @@
 object @taxon_concept => :cites_legislation
-attributes :id => :taxon_concept_id
 
 child @cites_listings => :cites_listings do
-  attribute :id
+  attributes :taxon_concept_id, :is_current
+  attributes :species_listing_name => :appendix
+  attributes :change_type, :effective_at
+
+  node(:party, :if => lambda { |lc| lc.party }){ |lc| lc.party }
+
+  node(:annotation, :if => lambda { |lc| lc.annotation }){ |lc| lc.annotation }
+
+  node(:hash_annotation, :if => lambda { |lc| lc.hash_annotation }){ |lc| lc.hash_annotation }
 end
 
-child :cites_quotas => :cites_quotas do
-  attributes :quota, :publication_date, :notes, :url, :public_display, :is_current, :unit_name 
+child @cites_quotas => :cites_quotas do
+  attributes :taxon_concept_id, :quota, :publication_date, :notes, :url, :public_display, :is_current
 
-  child :geo_entity_id => :geo_entity do
-    attributes :id, :name, :iso_code2, :geo_entity_type
-  end
+  node(:unit){ |cs| cs.unit }
+
+  node(:geo_entity){ |cs| cs.geo_entity }
 end
 
-child :cites_suspensions => :cites_suspensions do
-  attributes :notes, :start_date, :is_current
+child @cites_suspensions => :cites_suspensions do
+  attributes :taxon_concept_id, :notes, :start_date, :is_current
 
-  child :geo_entity_id => :geo_entity do
-    attributes :id, :name, :iso_code2, :geo_entity_type
-  end
+  node(:geo_entity){ |cs| cs.geo_entity }
 
-  child :start_notification_id => :start_notification do
-    attributes :name, :effective_at_formatted, :url
-  end
+  node(:start_notification){ |cs| cs.start_notification }
+
 end

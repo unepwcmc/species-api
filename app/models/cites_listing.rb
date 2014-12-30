@@ -1,9 +1,9 @@
-class CitesSuspension < ActiveRecord::Base
+class CitesListing < ActiveRecord::Base
   after_initialize :readonly!
-  self.table_name = :api_cites_suspensions_view
+  self.table_name = :api_cites_listing_changes_view
   self.primary_key = :id
 
-  translates :geo_entity
+  translates :party, :annotation, :hash_annotation
 
   belongs_to :taxon_concept
   scope :in_scope, ->(scope) {
@@ -15,5 +15,4 @@ class CitesSuspension < ActiveRecord::Base
       where(nil)
     end
   }
-
 end

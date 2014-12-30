@@ -30,9 +30,15 @@ class Api::V1::CommonNamesController < Api::V1::BaseController
   EOS
 
   def index
-    languages = params[:language].split(',').map! { |lang| lang.upcase } unless params[:language].nil?
-
     @common_names = TaxonConcept.find(params[:taxon_concept_id]).common_names
-    @common_names = @common_names.where(iso_code1: languages) unless languages.nil?
+    @common_names = @common_names.where(iso_code1: @languages) unless @languages.nil?
   end
+
+  private
+
+  #overrides method from parent controller
+  def set_language
+    @languages = params[:language].split(',').map! { |lang| lang.upcase } unless params[:language].nil?
+  end
+
 end

@@ -26,9 +26,9 @@ class Test::TaxonConcept < ActiveRecord::Base
       rank_name = taxon_concept.rank.name
       parent_full_name = taxon_concept.parent.full_name
       name = taxon_concept.taxon_name && taxon_concept.taxon_name.scientific_name
-      if [Rank::SPECIES, Rank::SUBSPECIES].include? rank_name
-         "#{parent_full_name} #{name.downcase}"
-      elsif rank_name == Rank::VARIETY
+      if [Test::Rank::SPECIES, Test::Rank::SUBSPECIES].include? rank_name
+        "#{parent_full_name} #{name.downcase}"
+      elsif rank_name == Test::Rank::VARIETY
         "#{parent_full_name} var. #{name.downcase}"
       else
         name
