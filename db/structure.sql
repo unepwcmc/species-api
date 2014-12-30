@@ -68,7 +68,6 @@ CREATE TYPE api_annotation AS (
 --
 
 CREATE TYPE api_eu_decision_type AS (
-	id integer,
 	name text,
 	description text,
 	type text
@@ -91,7 +90,6 @@ CREATE TYPE api_event AS (
 --
 
 CREATE TYPE api_geo_entity AS (
-	id integer,
 	iso_code2 text,
 	name text,
 	type text
@@ -128,7 +126,6 @@ CREATE TYPE api_taxon_concept AS (
 --
 
 CREATE TYPE api_trade_code AS (
-	id integer,
 	code text,
 	name text
 );
@@ -6404,15 +6401,15 @@ CREATE VIEW api_cites_listing_changes_view AS
     listing_changes_mview.party_id,
         CASE
             WHEN (listing_changes_mview.party_id IS NULL) THEN NULL::json
-            ELSE row_to_json(ROW(listing_changes_mview.party_id, (listing_changes_mview.party_iso_code)::text, (listing_changes_mview.party_full_name_en)::text, NULL::text)::api_geo_entity)
+            ELSE row_to_json(ROW((listing_changes_mview.party_iso_code)::text, (listing_changes_mview.party_full_name_en)::text, NULL::text)::api_geo_entity)
         END AS party_en,
         CASE
             WHEN (listing_changes_mview.party_id IS NULL) THEN NULL::json
-            ELSE row_to_json(ROW(listing_changes_mview.party_id, (listing_changes_mview.party_iso_code)::text, (listing_changes_mview.party_full_name_es)::text, NULL::text)::api_geo_entity)
+            ELSE row_to_json(ROW((listing_changes_mview.party_iso_code)::text, (listing_changes_mview.party_full_name_es)::text, NULL::text)::api_geo_entity)
         END AS party_es,
         CASE
             WHEN (listing_changes_mview.party_id IS NULL) THEN NULL::json
-            ELSE row_to_json(ROW(listing_changes_mview.party_id, (listing_changes_mview.party_iso_code)::text, (listing_changes_mview.party_full_name_fr)::text, NULL::text)::api_geo_entity)
+            ELSE row_to_json(ROW((listing_changes_mview.party_iso_code)::text, (listing_changes_mview.party_full_name_fr)::text, NULL::text)::api_geo_entity)
         END AS party_fr,
         CASE
             WHEN ((((((listing_changes_mview.auto_note_en IS NULL) AND (listing_changes_mview.inherited_full_note_en IS NULL)) AND (listing_changes_mview.inherited_short_note_en IS NULL)) AND (listing_changes_mview.full_note_en IS NULL)) AND (listing_changes_mview.short_note_en IS NULL)) AND (listing_changes_mview.nomenclature_note_en IS NULL)) THEN NULL::json
@@ -6726,20 +6723,20 @@ CREATE VIEW api_cites_quotas_view AS
     tr.nomenclature_note_es,
     tr.taxon_concept,
     tr.matching_taxon_concept_ids,
-    row_to_json(ROW(geo_entities.id, (geo_entities.iso_code2)::text, (geo_entities.name_en)::text, (geo_entity_types.name)::text)::api_geo_entity) AS geo_entity_en,
-    row_to_json(ROW(geo_entities.id, (geo_entities.iso_code2)::text, (geo_entities.name_es)::text, (geo_entity_types.name)::text)::api_geo_entity) AS geo_entity_es,
-    row_to_json(ROW(geo_entities.id, (geo_entities.iso_code2)::text, (geo_entities.name_fr)::text, (geo_entity_types.name)::text)::api_geo_entity) AS geo_entity_fr,
+    row_to_json(ROW((geo_entities.iso_code2)::text, (geo_entities.name_en)::text, (geo_entity_types.name)::text)::api_geo_entity) AS geo_entity_en,
+    row_to_json(ROW((geo_entities.iso_code2)::text, (geo_entities.name_es)::text, (geo_entity_types.name)::text)::api_geo_entity) AS geo_entity_es,
+    row_to_json(ROW((geo_entities.iso_code2)::text, (geo_entities.name_fr)::text, (geo_entity_types.name)::text)::api_geo_entity) AS geo_entity_fr,
         CASE
             WHEN (tr.unit_id IS NULL) THEN NULL::json
-            ELSE row_to_json(ROW(units.id, (units.code)::text, (units.name_en)::text)::api_trade_code)
+            ELSE row_to_json(ROW((units.code)::text, (units.name_en)::text)::api_trade_code)
         END AS unit_en,
         CASE
             WHEN (tr.unit_id IS NULL) THEN NULL::json
-            ELSE row_to_json(ROW(units.id, (units.code)::text, (units.name_es)::text)::api_trade_code)
+            ELSE row_to_json(ROW((units.code)::text, (units.name_es)::text)::api_trade_code)
         END AS unit_es,
         CASE
             WHEN (tr.unit_id IS NULL) THEN NULL::json
-            ELSE row_to_json(ROW(units.id, (units.code)::text, (units.name_fr)::text)::api_trade_code)
+            ELSE row_to_json(ROW((units.code)::text, (units.name_fr)::text)::api_trade_code)
         END AS unit_fr
    FROM (((all_cites_quotas tr
      JOIN geo_entities ON ((geo_entities.id = tr.geo_entity_id)))
@@ -6883,9 +6880,9 @@ CREATE VIEW api_cites_suspensions_view AS
     tr.nomenclature_note_es,
     tr.taxon_concept,
     tr.matching_taxon_concept_ids,
-    row_to_json(ROW(geo_entities.id, (geo_entities.iso_code2)::text, (geo_entities.name_en)::text, (geo_entity_types.name)::text)::api_geo_entity) AS geo_entity_en,
-    row_to_json(ROW(geo_entities.id, (geo_entities.iso_code2)::text, (geo_entities.name_es)::text, (geo_entity_types.name)::text)::api_geo_entity) AS geo_entity_es,
-    row_to_json(ROW(geo_entities.id, (geo_entities.iso_code2)::text, (geo_entities.name_fr)::text, (geo_entity_types.name)::text)::api_geo_entity) AS geo_entity_fr,
+    row_to_json(ROW((geo_entities.iso_code2)::text, (geo_entities.name_en)::text, (geo_entity_types.name)::text)::api_geo_entity) AS geo_entity_en,
+    row_to_json(ROW((geo_entities.iso_code2)::text, (geo_entities.name_es)::text, (geo_entity_types.name)::text)::api_geo_entity) AS geo_entity_es,
+    row_to_json(ROW((geo_entities.iso_code2)::text, (geo_entities.name_fr)::text, (geo_entity_types.name)::text)::api_geo_entity) AS geo_entity_fr,
     row_to_json(ROW((events.name)::text, (events.effective_at)::date, events.url)::api_event) AS start_notification
    FROM (((all_cites_suspensions tr
      JOIN geo_entities ON ((geo_entities.id = tr.geo_entity_id)))
@@ -7026,9 +7023,9 @@ CREATE VIEW api_eu_decisions_view AS
     row_to_json(ROW(eu_decisions.taxon_concept_id, (taxon_concepts.full_name)::text, (taxon_concepts.author_year)::text, (taxon_concepts.data -> 'rank_name'::text))::api_taxon_concept) AS taxon_concept,
     eu_decisions.notes,
         CASE
-            WHEN ((eu_decisions.type)::text = 'EuOpinion'::text) THEN eu_decisions.start_date
-            WHEN ((eu_decisions.type)::text = 'EuSuspension'::text) THEN start_event.effective_at
-            ELSE NULL::timestamp without time zone
+            WHEN ((eu_decisions.type)::text = 'EuOpinion'::text) THEN (eu_decisions.start_date)::date
+            WHEN ((eu_decisions.type)::text = 'EuSuspension'::text) THEN (start_event.effective_at)::date
+            ELSE NULL::date
         END AS start_date,
         CASE
             WHEN ((eu_decisions.type)::text = 'EuOpinion'::text) THEN eu_decisions.is_current
@@ -7040,23 +7037,23 @@ CREATE VIEW api_eu_decisions_view AS
             ELSE NULL::boolean
         END AS is_current,
     eu_decisions.geo_entity_id,
-    row_to_json(ROW(geo_entities.id, (geo_entities.iso_code2)::text, (geo_entities.name_en)::text, (geo_entity_types.name)::text)::api_geo_entity) AS geo_entity_en,
-    row_to_json(ROW(geo_entities.id, (geo_entities.iso_code2)::text, (geo_entities.name_es)::text, (geo_entity_types.name)::text)::api_geo_entity) AS geo_entity_es,
-    row_to_json(ROW(geo_entities.id, (geo_entities.iso_code2)::text, (geo_entities.name_fr)::text, (geo_entity_types.name)::text)::api_geo_entity) AS geo_entity_fr,
+    row_to_json(ROW((geo_entities.iso_code2)::text, (geo_entities.name_en)::text, (geo_entity_types.name)::text)::api_geo_entity) AS geo_entity_en,
+    row_to_json(ROW((geo_entities.iso_code2)::text, (geo_entities.name_es)::text, (geo_entity_types.name)::text)::api_geo_entity) AS geo_entity_es,
+    row_to_json(ROW((geo_entities.iso_code2)::text, (geo_entities.name_fr)::text, (geo_entity_types.name)::text)::api_geo_entity) AS geo_entity_fr,
     eu_decisions.start_event_id,
     row_to_json(ROW((start_event.name)::text, (start_event.effective_at)::date, start_event.url)::api_event) AS start_event,
     eu_decisions.end_event_id,
     row_to_json(ROW((end_event.name)::text, (end_event.effective_at)::date, end_event.url)::api_event) AS end_event,
     eu_decisions.term_id,
-    row_to_json(ROW(terms.id, (terms.code)::text, (terms.name_en)::text)::api_trade_code) AS term_en,
-    row_to_json(ROW(terms.id, (terms.code)::text, (terms.name_es)::text)::api_trade_code) AS term_es,
-    row_to_json(ROW(terms.id, (terms.code)::text, (terms.name_fr)::text)::api_trade_code) AS term_fr,
-    row_to_json(ROW(sources.id, (sources.code)::text, (sources.name_en)::text)::api_trade_code) AS source_en,
-    row_to_json(ROW(sources.id, (sources.code)::text, (sources.name_es)::text)::api_trade_code) AS source_es,
-    row_to_json(ROW(sources.id, (sources.code)::text, (sources.name_fr)::text)::api_trade_code) AS source_fr,
+    row_to_json(ROW((terms.code)::text, (terms.name_en)::text)::api_trade_code) AS term_en,
+    row_to_json(ROW((terms.code)::text, (terms.name_es)::text)::api_trade_code) AS term_es,
+    row_to_json(ROW((terms.code)::text, (terms.name_fr)::text)::api_trade_code) AS term_fr,
+    row_to_json(ROW((sources.code)::text, (sources.name_en)::text)::api_trade_code) AS source_en,
+    row_to_json(ROW((sources.code)::text, (sources.name_es)::text)::api_trade_code) AS source_es,
+    row_to_json(ROW((sources.code)::text, (sources.name_fr)::text)::api_trade_code) AS source_fr,
     eu_decisions.source_id,
     eu_decisions.eu_decision_type_id,
-    row_to_json(ROW(eu_decision_types.id, (eu_decision_types.name)::text, (eu_decision_types.tooltip)::text, (eu_decision_types.decision_type)::text)::api_eu_decision_type) AS eu_decision_type,
+    row_to_json(ROW((eu_decision_types.name)::text, (eu_decision_types.tooltip)::text, (eu_decision_types.decision_type)::text)::api_eu_decision_type) AS eu_decision_type,
     eu_decisions.nomenclature_note_en,
     eu_decisions.nomenclature_note_fr,
     eu_decisions.nomenclature_note_es
@@ -7159,15 +7156,15 @@ CREATE VIEW api_eu_listing_changes_view AS
     listing_changes_mview.party_id,
         CASE
             WHEN (listing_changes_mview.party_id IS NULL) THEN NULL::json
-            ELSE row_to_json(ROW(listing_changes_mview.party_id, (listing_changes_mview.party_iso_code)::text, (listing_changes_mview.party_full_name_en)::text, NULL::text)::api_geo_entity)
+            ELSE row_to_json(ROW((listing_changes_mview.party_iso_code)::text, (listing_changes_mview.party_full_name_en)::text, NULL::text)::api_geo_entity)
         END AS party_en,
         CASE
             WHEN (listing_changes_mview.party_id IS NULL) THEN NULL::json
-            ELSE row_to_json(ROW(listing_changes_mview.party_id, (listing_changes_mview.party_iso_code)::text, (listing_changes_mview.party_full_name_es)::text, NULL::text)::api_geo_entity)
+            ELSE row_to_json(ROW((listing_changes_mview.party_iso_code)::text, (listing_changes_mview.party_full_name_es)::text, NULL::text)::api_geo_entity)
         END AS party_es,
         CASE
             WHEN (listing_changes_mview.party_id IS NULL) THEN NULL::json
-            ELSE row_to_json(ROW(listing_changes_mview.party_id, (listing_changes_mview.party_iso_code)::text, (listing_changes_mview.party_full_name_fr)::text, NULL::text)::api_geo_entity)
+            ELSE row_to_json(ROW((listing_changes_mview.party_iso_code)::text, (listing_changes_mview.party_full_name_fr)::text, NULL::text)::api_geo_entity)
         END AS party_fr,
         CASE
             WHEN ((((((listing_changes_mview.auto_note_en IS NULL) AND (listing_changes_mview.inherited_full_note_en IS NULL)) AND (listing_changes_mview.inherited_short_note_en IS NULL)) AND (listing_changes_mview.full_note_en IS NULL)) AND (listing_changes_mview.short_note_en IS NULL)) AND (listing_changes_mview.nomenclature_note_en IS NULL)) THEN NULL::json
@@ -13758,4 +13755,6 @@ INSERT INTO schema_migrations (version) VALUES ('20141228094935');
 INSERT INTO schema_migrations (version) VALUES ('20141228101341');
 
 INSERT INTO schema_migrations (version) VALUES ('20141228224334');
+
+INSERT INTO schema_migrations (version) VALUES ('20141230193844');
 
