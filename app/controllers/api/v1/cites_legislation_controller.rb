@@ -5,7 +5,7 @@ class Api::V1::CitesLegislationController < Api::V1::BaseController
     name 'CITES Legislation'
   end
 
-  api :GET, '/:id/cites_legislation', 'Lists current CITES appendix listings and reservations, CITES quotas, and CITES suspensions for a given taxon concept'
+  api :GET, '/:taxon_concept_id/cites_legislation', 'Lists current CITES appendix listings and reservations, CITES quotas, and CITES suspensions for a given taxon concept'
   param :taxon_concept_id, String, :desc => "Taxon Concept ID", :required => true
   param :scope, String, desc: 'Time scope of legislation. Select all, current or historic. Defaults to current.', required: false
   param :language, String, desc: 'Select language for the text of legislation notes. Select en, fr, or es. Defaults to en.', required: false
