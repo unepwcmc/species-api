@@ -83,11 +83,11 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
 
     if params[:include_descendants] == true
       @taxon_concepts = @taxon_concepts.where('full_name = ? 
-                                              OR higher_taxa['kingdom'] = ? 
-                                              OR higher_taxa['phylum'] = ? 
-                                              OR higher_taxa['order'] = ? 
-                                              OR higher_taxa['family'] = ? 
-                                              OR higher_taxa['genus'] = ?', params[:name])
+                                              OR higher_taxa["kingdom"] = ? 
+                                              OR higher_taxa["phylum"] = ? 
+                                              OR higher_taxa["order"] = ? 
+                                              OR higher_taxa["family"] = ? 
+                                              OR higher_taxa["genus"] = ?', params[:name])
     elsif params[:name]
       @taxon_concepts = @taxon_concepts.where(full_name: params[:name])
     end

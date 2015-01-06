@@ -82,6 +82,21 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     assert_equal 1, results.length
   end
 
+  test "filters results by name including higher taxa fields with 'with_descendants' params set to true" do
+    higher_taxa_1 = {"kingdom"=>"Herp", "phylum"=>nil, "class"=>nil, "order"=>nil, "family"=>nil}
+    higher_taxa_2 = {"kingdom"=>"Derp", "phylum"=>nil, "class"=>nil, "order"=>nil, "family"=>nil}
+
+    FactoryGirl.create(:taxon_concept, higher_taxa: higher_taxa_1)
+    FactoryGirl.create(:taxon_concept, higher_taxa: higher_taxa_2)
+
+    @request.headers["X-Authentication-Token"] = @user.authentication_token
+    get :index, name: "Herp", with_descendants: 'true'
+
+    results = JSON.parse(response.body)
+    #assert_equal "Herp", results.first["taxon_concept"]["higher_taxa"]["kingdom"]
+    assert_equal 1, results.length
+  end
+
   test "filters results by name with 'taxonomy' params" do
     cms = FactoryGirl.create(:taxonomy, name: 'CMS')
     cites_tc = FactoryGirl.create(:taxon_concept, taxonomy: @cites)
