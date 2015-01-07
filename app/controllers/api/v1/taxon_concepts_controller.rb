@@ -12,7 +12,7 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
   param :per_page, String, desc: 'Limit for how many objects returned per page for paginated responses. If not specificed it will default to the maximum value of 100', required: false
   param :updated_since, String, desc: 'Return taxa updated since', required: false
   param :name, String, desc: 'Filter taxon concepts by name', required: false
-  param :include_descendants, String, desc: 'Broadens the above search by name to include higher taxa. Value must be true or false', required: false
+  param :with_descendants, String, desc: 'Broadens the above search by name to include higher taxa. Value must be true or false', required: false
   param :taxonomy, String, desc: 'Filter taxon concepts by taxonomy, accepts either CITES or CMS as its value. Defaults to CITES if no value is specified', required: false
   example <<-EOS
     [
@@ -81,13 +81,14 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
       ).
       order('full_name')
 
-    if params[:include_descendants] == true
-      @taxon_concepts = @taxon_concepts.where('full_name = ? 
-                                              OR higher_taxa["kingdom"] = ? 
-                                              OR higher_taxa["phylum"] = ? 
-                                              OR higher_taxa["order"] = ? 
-                                              OR higher_taxa["family"] = ? 
-                                              OR higher_taxa["genus"] = ?', params[:name])
+    if params[:with_descendants] == "true" && params[:name]
+      @taxon_concepts = @taxon_concepts.where("full_name = :name 
+                                              OR higher_taxa ->> 'kingdom' = :name 
+                                              OR higher_taxa ->> 'phylum' = :name 
+                                              OR higher_taxa ->> 'order' = :name 
+                                              OR higher_taxa ->> 'family' = :name 
+                                              OR higher_taxa ->> 'genus' = :name
+                                              OR higher_taxa ->> 'class' = :name", name: params[:name])
     elsif params[:name]
       @taxon_concepts = @taxon_concepts.where(full_name: params[:name])
     end

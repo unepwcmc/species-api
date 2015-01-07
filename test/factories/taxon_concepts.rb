@@ -6,7 +6,6 @@ FactoryGirl.define do
     rank
     sequence(:full_name) { |n| "Canis lupus#{n}" }
     name_status 'A'
-    higher_taxa ''
   end
 
   factory :taxonomy, class: Test::Taxonomy do
