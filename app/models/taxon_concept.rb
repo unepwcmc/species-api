@@ -1,3 +1,23 @@
+# == Schema Information
+#
+# Table name: api_taxon_concepts_view
+#
+#  id                   :integer          primary key
+#  parent_id            :integer
+#  name                 :string(255)
+#  taxonomy_is_cites_eu :boolean
+#  full_name            :string(255)
+#  author_year          :string(255)
+#  name_status          :text
+#  rank                 :string(255)
+#  taxonomic_position   :string
+#  higher_taxa          :json
+#  synonyms             :json
+#  accepted_names       :json
+#  created_at           :datetime
+#  updated_at           :datetime
+#
+
 class TaxonConcept < ActiveRecord::Base
   after_initialize :readonly!
   self.table_name = :api_taxon_concepts_view
