@@ -89,6 +89,13 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     FactoryGirl.create(:taxon_concept, higher_taxa: higher_taxa_1)
     FactoryGirl.create(:taxon_concept, higher_taxa: higher_taxa_2)
 
+    # @taxon_concept = FactoryGirl.create(:taxon_concept,
+    #   parent: FactoryGirl.create(:higher_taxa,
+    #     family: FactoryGirl.create(:rank, name: 'GENUS', display_name_en: 'Genus'),
+    #     order: FactoryGirl.create(:taxon_name, scientific_name: 'Canis')
+    #   )
+    # )
+
     @request.headers["X-Authentication-Token"] = @user.authentication_token
     get :index, name: "Herp", with_descendants: 'true'
 
