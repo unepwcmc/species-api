@@ -14,6 +14,8 @@ gem 'api_pagination_headers'
 gem 'traco'
 gem 'httparty'
 gem 'select2-rails'
+gem 'groupdate'
+gem "chartkick"
 
 group :test do
   gem 'shoulda'
