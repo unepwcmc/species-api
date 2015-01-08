@@ -8,6 +8,40 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     @cites = FactoryGirl.create(:taxonomy, name: 'CITES_EU')
   end
 
+  def create_taxon_concept_tree
+    kingdom = FactoryGirl.create(:taxon_concept, taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'Animalia'), 
+      rank: FactoryGirl.create(:rank, name: 'KINGDOM', display_name_en: 'Kingdom'))
+
+    phylum = FactoryGirl.create(:taxon_concept, parent: kingdom,
+      taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'Chordata'), rank: FactoryGirl.create(:rank, name: 'PHYLUM', display_name_en: 'Phylum')) 
+    klass = FactoryGirl.create(:taxon_concept, parent: phylum,
+      taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'Mammalia'),
+      rank: FactoryGirl.create(:rank, name: 'CLASS', display_name_en: 'Class')
+    )
+    order = FactoryGirl.create(:taxon_concept, parent: klass,
+      taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'Psittaciformes'),
+      rank: FactoryGirl.create(:rank, name: 'ORDER', display_name_en: 'Order')
+    )
+    family = FactoryGirl.create(:taxon_concept, parent: order,
+      taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'Psittacidae'),
+      rank: FactoryGirl.create(:rank, name: 'FAMILY', display_name_en: 'Family')
+    )
+    genus = FactoryGirl.create(:taxon_concept, parent: family,
+      taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'Psittacus'),
+      rank: FactoryGirl.create(:rank, name: 'GENUS', display_name_en: 'Genus')
+    )
+
+    taxon_concept = FactoryGirl.create(:taxon_concept,
+      parent: genus, taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'WRGTEH'),
+      rank: FactoryGirl.create(:rank, name: 'SPECIES', display_name_en: "Species")
+    )
+
+    ActiveRecord::Base.connection.execute(<<-SQL
+      SELECT * FROM rebuild_taxonomy();
+    SQL
+    )
+  end
+
   test "should return 401 with no token" do
     get :index
     assert_response 401
@@ -79,6 +113,26 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     get :index, name: "John Hammond"
     results = JSON.parse(response.body)
     assert_equal "John Hammond", results.first["taxon_concept"]["full_name"]
+    assert_equal 1, results.length
+  end
+
+  test "filters results by name including higher taxa fields with 'with_descendants' params set to true" do
+    create_taxon_concept_tree
+
+    @request.headers["X-Authentication-Token"] = @user.authentication_token
+    get :index, name: "Mammalia", with_descendants: 'true'
+
+    results = JSON.parse(response.body)
+    assert_equal 5, results.length
+  end
+
+  test "filters results by name without 'with_descendants' params does not return tree" do
+    create_taxon_concept_tree
+
+    @request.headers["X-Authentication-Token"] = @user.authentication_token
+    get :index, name: "Mammalia"
+
+    results = JSON.parse(response.body)
     assert_equal 1, results.length
   end
 
