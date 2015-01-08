@@ -1,10 +1,6 @@
 class Api::V1::TaxonConceptsController < Api::V1::BaseController
   after_action only: [:index] { set_pagination_headers(:taxon_concepts) }
 
-  # Add these two lines to record analytics on api requests and errors on a controller
-  after_action :track_this_request
-  rescue_from StandardError, with: :track_this_error
-
   resource_description do
     formats ['JSON', 'XML']
     api_base_url 'api/v1/taxon_concepts'
