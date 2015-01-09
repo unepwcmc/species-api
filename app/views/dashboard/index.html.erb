@@ -13,24 +13,27 @@
 <div class="row">
   <div class="col-lg-12">
     <% if current_user.api_requests.any? %>
-      <%= area_chart current_user.api_requests.group(:response_status)
-        .group_by_day(:created_at, range: 30.days.ago.midnight..Time.now).count, library: { title: 'Requests by HTTP Status', titlePosition: 'center' } %>
+      <%= line_chart sanitise_hash_for_line_graph(@users_last_30_days_requests), library: { 
+          title: 'Requests by HTTP Status', 
+          titlePosition: 'out', 
+          curveType: 'function'
+           } %>
     <% else %>
       <h4>You have not yet made any API requests</h4>
     <% end %>
   </div>
 </div>
 
-<h1>All Activity</h1>
+<h1>Total Activity (All Time)</h1>
 <% if current_user.api_requests.any? %>
   <div class="row">
     <div class="col-lg-6">
-      <h4>Successful Requests</h4>
-      <h1><%= @successful_requests.count %>
+      <h4>Successful Requests to Date</h4>
+      <h1><%= @all_users_successful_requests.count %>
     </div>
     <div class="col-lg-6">
-      <h4>Unsuccessful Requests</h4>
-      <h1><%= @unsuccessful_requests.count %>
+      <h4>Unsuccessful Requests to Date</h4>
+      <h1><%= @all_users_unsuccessful_requests.count %>
     </div>
   </div>
 <% else %>

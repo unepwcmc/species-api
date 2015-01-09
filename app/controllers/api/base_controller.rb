@@ -31,7 +31,6 @@ class Api::BaseController < ApplicationController
   # rescue_from method for recording API Metrics on 500 errors
   def track_this_error(exception)
     head status: 500 # Manually set this again because we're rescuing from rails magic
-    puts "creating error"
     ApiRequest.create(
       user_id: @user.try(:id),
       controller: params[:controller],
