@@ -9,12 +9,12 @@
   </div>
 </div>
 
-
 <h1>Last 30 Days Activity</h1>
 <div class="row">
   <div class="col-lg-12">
     <% if current_user.api_requests.any? %>
-      <%= line_chart current_user.api_requests.group_by_day(:created_at, range: 30.days.ago.midnight..Time.now).count %>
+      <%= area_chart current_user.api_requests.group(:response_status)
+        .group_by_day(:created_at, range: 30.days.ago.midnight..Time.now).count, library: { title: 'Requests by HTTP Status', titlePosition: 'center' } %>
     <% else %>
       <h4>You have not yet made any API requests</h4>
     <% end %>
