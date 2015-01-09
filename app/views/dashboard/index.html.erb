@@ -15,9 +15,9 @@
     <% if current_user.api_requests.any? %>
       <%= line_chart sanitise_hash_for_line_graph(@users_last_30_days_requests), library: { 
           title: 'Requests by HTTP Status', 
-          titlePosition: 'out', 
-          curveType: 'function'
-           } %>
+          titlePosition: 'out',
+          colors: ["#4DBD33", "red"]
+        } %>
     <% else %>
       <h4>You have not yet made any API requests</h4>
     <% end %>
@@ -29,11 +29,13 @@
   <div class="row">
     <div class="col-lg-6">
       <h4>Successful Requests to Date</h4>
-      <h1><%= @all_users_successful_requests.count %>
+      <h1><%= number_with_delimiter(@all_users_successful_requests.count, :delimiter => ',')
+       %></h1>
     </div>
     <div class="col-lg-6">
       <h4>Unsuccessful Requests to Date</h4>
-      <h1><%= @all_users_unsuccessful_requests.count %>
+      <h1><%= number_with_delimiter(@all_users_unsuccessful_requests.count, :delimiter => ',')
+       %></h1>
     </div>
   </div>
 <% else %>
