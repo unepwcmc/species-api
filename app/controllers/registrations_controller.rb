@@ -13,7 +13,7 @@ class RegistrationsController < Devise::RegistrationsController
 
   private
     def countries
-      @countries = HTTParty.get("http://www.speciesplus.net/api/v1/geo_entities.json")
+      @countries = HTTParty.get("http://www.speciesplus.net/api/v1/geo_entities.json?geo_entity_types_set=2&locale=en")
       if @countries.code != 200
         @countries = []
       else
@@ -22,7 +22,7 @@ class RegistrationsController < Devise::RegistrationsController
     end
 
     def organisations
-      @organisations = User.where("organisation IS NOT NULL").select("organisation").map{|o| o.organisation}.uniq
+      @organisations = User.where("organisation IS NOT NULL").pluck("organisation").uniq
       if @organisations.empty?
         @organisations = []
       end
