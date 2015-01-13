@@ -7290,6 +7290,76 @@ CREATE TABLE api_taxon_concepts_view (
 
 
 --
+-- Name: references; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE "references" (
+    id integer NOT NULL,
+    title text,
+    year character varying(255),
+    author character varying(255),
+    citation text NOT NULL,
+    publisher text,
+    legacy_id integer,
+    legacy_type character varying(255),
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    updated_by_id integer,
+    created_by_id integer
+);
+
+
+--
+-- Name: taxon_concept_references; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE taxon_concept_references (
+    id integer NOT NULL,
+    taxon_concept_id integer NOT NULL,
+    reference_id integer NOT NULL,
+    is_standard boolean DEFAULT false NOT NULL,
+    is_cascaded boolean DEFAULT false NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    excluded_taxon_concepts_ids integer[],
+    created_by_id integer,
+    updated_by_id integer
+);
+
+
+--
+-- Name: api_taxon_references_view; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW api_taxon_references_view AS
+ WITH RECURSIVE all_tc_refs AS (
+         SELECT taxon_concept_references.id,
+            taxon_concept_references.taxon_concept_id,
+            taxon_concept_references.reference_id,
+            taxon_concept_references.excluded_taxon_concepts_ids AS exclusions,
+            taxon_concept_references.is_cascaded,
+            taxon_concept_references.is_standard
+           FROM taxon_concept_references
+        UNION
+         SELECT h.id,
+            hi.id,
+            h.reference_id,
+            h.exclusions,
+            h.is_cascaded,
+            h.is_standard
+           FROM (taxon_concepts hi
+             JOIN all_tc_refs h ON (((((h.taxon_concept_id = hi.parent_id) AND (NOT (COALESCE(h.exclusions, ARRAY[]::integer[]) @> ARRAY[hi.id]))) AND h.is_cascaded) AND h.is_standard)))
+        )
+ SELECT all_tc_refs.id,
+    all_tc_refs.taxon_concept_id,
+    all_tc_refs.reference_id,
+    all_tc_refs.is_standard,
+    refs.citation
+   FROM (all_tc_refs
+     JOIN "references" refs ON ((refs.id = all_tc_refs.reference_id)));
+
+
+--
 -- Name: change_types; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -8869,26 +8939,6 @@ ALTER SEQUENCE ranks_id_seq OWNED BY ranks.id;
 
 
 --
--- Name: references; Type: TABLE; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE TABLE "references" (
-    id integer NOT NULL,
-    title text,
-    year character varying(255),
-    author character varying(255),
-    citation text NOT NULL,
-    publisher text,
-    legacy_id integer,
-    legacy_type character varying(255),
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    updated_by_id integer,
-    created_by_id integer
-);
-
-
---
 -- Name: references_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -8998,24 +9048,6 @@ CREATE SEQUENCE species_listings_id_seq
 --
 
 ALTER SEQUENCE species_listings_id_seq OWNED BY species_listings.id;
-
-
---
--- Name: taxon_concept_references; Type: TABLE; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE TABLE taxon_concept_references (
-    id integer NOT NULL,
-    taxon_concept_id integer NOT NULL,
-    reference_id integer NOT NULL,
-    is_standard boolean DEFAULT false NOT NULL,
-    is_cascaded boolean DEFAULT false NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    excluded_taxon_concepts_ids integer[],
-    created_by_id integer,
-    updated_by_id integer
-);
 
 
 --
@@ -13771,4 +13803,6 @@ INSERT INTO schema_migrations (version) VALUES ('20141228224334');
 INSERT INTO schema_migrations (version) VALUES ('20141230193843');
 
 INSERT INTO schema_migrations (version) VALUES ('20141230193844');
+
+INSERT INTO schema_migrations (version) VALUES ('20150106100040');
 
