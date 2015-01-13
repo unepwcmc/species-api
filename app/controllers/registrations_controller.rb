@@ -23,8 +23,5 @@ class RegistrationsController < Devise::RegistrationsController
 
     def organisations
       @organisations = User.where("organisation IS NOT NULL").pluck("organisation").uniq
-      if @organisations.empty?
-        @organisations = []
-      end
     end
 end
