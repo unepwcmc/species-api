@@ -13,5 +13,7 @@
  *= require_self
  *= require ./species/all
  *= require base
+ *= require select2
+ *= require select2-bootstrap
  *= require custom_bootstrap
  */

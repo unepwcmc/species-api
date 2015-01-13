@@ -2598,6 +2598,7 @@ SELECT
       END
       || CASE
           WHEN LENGTH(listing_changes_mview.nomenclature_note_en) > 0 THEN strip_tags(listing_changes_mview.nomenclature_note_en)
+          ELSE ''
       END
       ORDER BY listing_changes_mview.species_listing_name
     ),
@@ -2912,6 +2913,7 @@ SELECT
       END
       || CASE
           WHEN LENGTH(listing_changes_mview.nomenclature_note_en) > 0 THEN strip_tags(listing_changes_mview.nomenclature_note_en)
+          ELSE ''
       END
       ORDER BY listing_changes_mview.species_listing_name
     ),
@@ -3884,6 +3886,7 @@ SELECT
       END
       || CASE
           WHEN LENGTH(listing_changes_mview.nomenclature_note_en) > 0 THEN strip_tags(listing_changes_mview.nomenclature_note_en)
+          ELSE ''
       END
       ORDER BY listing_changes_mview.species_listing_name
     ),
@@ -5573,7 +5576,7 @@ CREATE FUNCTION rebuild_taxonomy_taxon_concepts_and_ancestors_mview(taxonomy tax
     )::INT AS ancestor_taxon_concept_id,
     GENERATE_SUBSCRIPTS(higher_or_equal_ranks_names(data->''rank_name''), 1) - 1 AS tree_distance
     FROM taxon_concepts
-    WHERE taxonomy_id = ' || taxonomy.id;
+    WHERE name_status IN (''A'', ''N'') AND taxonomy_id = ' || taxonomy.id;
 
     EXECUTE sql;
 
@@ -7290,76 +7293,6 @@ CREATE TABLE api_taxon_concepts_view (
 
 
 --
--- Name: references; Type: TABLE; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE TABLE "references" (
-    id integer NOT NULL,
-    title text,
-    year character varying(255),
-    author character varying(255),
-    citation text NOT NULL,
-    publisher text,
-    legacy_id integer,
-    legacy_type character varying(255),
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    updated_by_id integer,
-    created_by_id integer
-);
-
-
---
--- Name: taxon_concept_references; Type: TABLE; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE TABLE taxon_concept_references (
-    id integer NOT NULL,
-    taxon_concept_id integer NOT NULL,
-    reference_id integer NOT NULL,
-    is_standard boolean DEFAULT false NOT NULL,
-    is_cascaded boolean DEFAULT false NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    excluded_taxon_concepts_ids integer[],
-    created_by_id integer,
-    updated_by_id integer
-);
-
-
---
--- Name: api_taxon_references_view; Type: VIEW; Schema: public; Owner: -
---
-
-CREATE VIEW api_taxon_references_view AS
- WITH RECURSIVE all_tc_refs AS (
-         SELECT taxon_concept_references.id,
-            taxon_concept_references.taxon_concept_id,
-            taxon_concept_references.reference_id,
-            taxon_concept_references.excluded_taxon_concepts_ids AS exclusions,
-            taxon_concept_references.is_cascaded,
-            taxon_concept_references.is_standard
-           FROM taxon_concept_references
-        UNION
-         SELECT h.id,
-            hi.id,
-            h.reference_id,
-            h.exclusions,
-            h.is_cascaded,
-            h.is_standard
-           FROM (taxon_concepts hi
-             JOIN all_tc_refs h ON (((((h.taxon_concept_id = hi.parent_id) AND (NOT (COALESCE(h.exclusions, ARRAY[]::integer[]) @> ARRAY[hi.id]))) AND h.is_cascaded) AND h.is_standard)))
-        )
- SELECT all_tc_refs.id,
-    all_tc_refs.taxon_concept_id,
-    all_tc_refs.reference_id,
-    all_tc_refs.is_standard,
-    refs.citation
-   FROM (all_tc_refs
-     JOIN "references" refs ON ((refs.id = all_tc_refs.reference_id)));
-
-
---
 -- Name: change_types; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -7601,6 +7534,8 @@ CREATE TABLE users (
     current_sign_in_ip character varying(255),
     last_sign_in_ip character varying(255),
     role character varying(255) DEFAULT 'default'::character varying NOT NULL,
+    organisation character varying(255),
+    geo_entity_id integer,
     authentication_token character varying(255)
 );
 
@@ -8109,12 +8044,12 @@ CREATE VIEW eu_decisions_view AS
         END AS ordering_date,
     (
         CASE
-            WHEN (length(eu_decisions.notes) > 0) THEN (strip_tags(eu_decisions.notes) || '
-'::text)
+            WHEN (length(eu_decisions.notes) > 0) THEN strip_tags(eu_decisions.notes)
             ELSE ''::text
         END ||
         CASE
-            WHEN (length(eu_decisions.nomenclature_note_en) > 0) THEN strip_tags(eu_decisions.nomenclature_note_en)
+            WHEN (length(eu_decisions.nomenclature_note_en) > 0) THEN ('
+'::text || strip_tags(eu_decisions.nomenclature_note_en))
             ELSE ''::text
         END) AS full_note_en
    FROM (((((((eu_decisions
@@ -8939,6 +8874,26 @@ ALTER SEQUENCE ranks_id_seq OWNED BY ranks.id;
 
 
 --
+-- Name: references; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE "references" (
+    id integer NOT NULL,
+    title text,
+    year character varying(255),
+    author character varying(255),
+    citation text NOT NULL,
+    publisher text,
+    legacy_id integer,
+    legacy_type character varying(255),
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    updated_by_id integer,
+    created_by_id integer
+);
+
+
+--
 -- Name: references_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -9048,6 +9003,24 @@ CREATE SEQUENCE species_listings_id_seq
 --
 
 ALTER SEQUENCE species_listings_id_seq OWNED BY species_listings.id;
+
+
+--
+-- Name: taxon_concept_references; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE taxon_concept_references (
+    id integer NOT NULL,
+    taxon_concept_id integer NOT NULL,
+    reference_id integer NOT NULL,
+    is_standard boolean DEFAULT false NOT NULL,
+    is_cascaded boolean DEFAULT false NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    excluded_taxon_concepts_ids integer[],
+    created_by_id integer,
+    updated_by_id integer
+);
 
 
 --
@@ -13804,5 +13777,7 @@ INSERT INTO schema_migrations (version) VALUES ('20141230193843');
 
 INSERT INTO schema_migrations (version) VALUES ('20141230193844');
 
-INSERT INTO schema_migrations (version) VALUES ('20150106100040');
+INSERT INTO schema_migrations (version) VALUES ('20150107171940');
+
+INSERT INTO schema_migrations (version) VALUES ('20150109134326');
 

@@ -12,6 +12,8 @@ gem 'compass-rails'#, '>= 1.0.3'
 gem 'will_paginate' #, '~> 3.0.6'
 gem 'api_pagination_headers'
 gem 'traco'
+gem 'httparty'
+gem 'select2-rails'
 
 group :test do
   gem 'shoulda'
