@@ -6,7 +6,7 @@ class Api::V1::CommonNamesController < Api::V1::BaseController
 
   api :GET, '/:taxon_concept_id/common_names', 'Lists common names for a given taxon concept'
   param :taxon_concept_id, String, desc: 'Taxon Concept ID', required: true
-  param :language, String, desc: 'Filter languages returned for common names. Value should be a single country code or a comma separated array of country codes (e.g. language=EN,PL,IT). Defaults to showing all available languages if no language parameter is specified', required: false
+  param :language, String, desc: 'Filter languages returned for common names. Value should be a single country code or a comma separated string of country codes (e.g. language=EN,PL,IT). Defaults to showing all available languages if no language parameter is specified', required: false
 
   example <<-EOS
     [
@@ -38,7 +38,7 @@ class Api::V1::CommonNamesController < Api::V1::BaseController
 
   #overrides method from parent controller
   def set_language
-    @languages = params[:language].split(',').map! { |lang| lang.upcase } unless params[:language].nil?
+    @languages = params[:language].delete(' ').split(',').map! { |lang| lang.upcase } unless params[:language].nil?
   end
 
 end
