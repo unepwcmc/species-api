@@ -6613,109 +6613,6 @@ CREATE TABLE trade_restrictions (
 --
 
 CREATE VIEW api_cites_quotas_view AS
- WITH cites_quotas AS (
-         SELECT tr_1.id,
-            tr_1.type,
-            tr_1.taxon_concept_id,
-            tr_1.notes,
-            tr_1.url,
-            tr_1.start_date,
-            (tr_1.publication_date)::date AS publication_date,
-            tr_1.is_current,
-            tr_1.geo_entity_id,
-            tr_1.unit_id,
-                CASE
-                    WHEN (tr_1.quota = ((-1))::double precision) THEN NULL::double precision
-                    ELSE tr_1.quota
-                END AS quota,
-            tr_1.public_display,
-            tr_1.nomenclature_note_en,
-            tr_1.nomenclature_note_fr,
-            tr_1.nomenclature_note_es
-           FROM trade_restrictions tr_1
-          WHERE ((tr_1.type)::text = 'Quota'::text)
-        ), cites_quotas_with_taxon_concept AS (
-         SELECT tr_1.id,
-            tr_1.type,
-            tr_1.taxon_concept_id,
-            tr_1.notes,
-            tr_1.url,
-            tr_1.start_date,
-            tr_1.publication_date,
-            tr_1.is_current,
-            tr_1.geo_entity_id,
-            tr_1.unit_id,
-            tr_1.quota,
-            tr_1.public_display,
-            tr_1.nomenclature_note_en,
-            tr_1.nomenclature_note_fr,
-            tr_1.nomenclature_note_es,
-            row_to_json(ROW(tr_1.taxon_concept_id, (taxon_concepts.full_name)::text, (taxon_concepts.author_year)::text, (taxon_concepts.data -> 'rank_name'::text))::api_taxon_concept) AS taxon_concept,
-            ARRAY[]::integer[] AS matching_taxon_concept_ids
-           FROM (cites_quotas tr_1
-             JOIN taxon_concepts ON ((taxon_concepts.id = tr_1.taxon_concept_id)))
-          WHERE (tr_1.taxon_concept_id IS NOT NULL)
-        ), cites_quotas_without_taxon_concept AS (
-         SELECT tr_1.id,
-            tr_1.type,
-            tr_1.taxon_concept_id,
-            tr_1.notes,
-            tr_1.url,
-            tr_1.start_date,
-            tr_1.publication_date,
-            tr_1.is_current,
-            tr_1.geo_entity_id,
-            tr_1.unit_id,
-            tr_1.quota,
-            tr_1.public_display,
-            tr_1.nomenclature_note_en,
-            tr_1.nomenclature_note_fr,
-            tr_1.nomenclature_note_es,
-            NULL::json AS taxon_concept,
-            array_agg_notnull(distributions.taxon_concept_id) AS matching_taxon_concept_ids
-           FROM (cites_quotas tr_1
-             JOIN distributions ON ((distributions.geo_entity_id = tr_1.geo_entity_id)))
-          WHERE (tr_1.taxon_concept_id IS NULL)
-          GROUP BY tr_1.id, tr_1.type, tr_1.taxon_concept_id, tr_1.notes, tr_1.url, tr_1.start_date, tr_1.publication_date, tr_1.is_current, tr_1.geo_entity_id, tr_1.unit_id, tr_1.quota, tr_1.public_display, tr_1.nomenclature_note_en, tr_1.nomenclature_note_fr, tr_1.nomenclature_note_es
-        ), all_cites_quotas AS (
-         SELECT cites_quotas_with_taxon_concept.id,
-            cites_quotas_with_taxon_concept.type,
-            cites_quotas_with_taxon_concept.taxon_concept_id,
-            cites_quotas_with_taxon_concept.notes,
-            cites_quotas_with_taxon_concept.url,
-            cites_quotas_with_taxon_concept.start_date,
-            cites_quotas_with_taxon_concept.publication_date,
-            cites_quotas_with_taxon_concept.is_current,
-            cites_quotas_with_taxon_concept.geo_entity_id,
-            cites_quotas_with_taxon_concept.unit_id,
-            cites_quotas_with_taxon_concept.quota,
-            cites_quotas_with_taxon_concept.public_display,
-            cites_quotas_with_taxon_concept.nomenclature_note_en,
-            cites_quotas_with_taxon_concept.nomenclature_note_fr,
-            cites_quotas_with_taxon_concept.nomenclature_note_es,
-            cites_quotas_with_taxon_concept.taxon_concept,
-            cites_quotas_with_taxon_concept.matching_taxon_concept_ids
-           FROM cites_quotas_with_taxon_concept
-        UNION ALL
-         SELECT cites_quotas_without_taxon_concept.id,
-            cites_quotas_without_taxon_concept.type,
-            cites_quotas_without_taxon_concept.taxon_concept_id,
-            cites_quotas_without_taxon_concept.notes,
-            cites_quotas_without_taxon_concept.url,
-            cites_quotas_without_taxon_concept.start_date,
-            cites_quotas_without_taxon_concept.publication_date,
-            cites_quotas_without_taxon_concept.is_current,
-            cites_quotas_without_taxon_concept.geo_entity_id,
-            cites_quotas_without_taxon_concept.unit_id,
-            cites_quotas_without_taxon_concept.quota,
-            cites_quotas_without_taxon_concept.public_display,
-            cites_quotas_without_taxon_concept.nomenclature_note_en,
-            cites_quotas_without_taxon_concept.nomenclature_note_fr,
-            cites_quotas_without_taxon_concept.nomenclature_note_es,
-            cites_quotas_without_taxon_concept.taxon_concept,
-            cites_quotas_without_taxon_concept.matching_taxon_concept_ids
-           FROM cites_quotas_without_taxon_concept
-        )
  SELECT tr.id,
     tr.type,
     tr.taxon_concept_id,
@@ -6748,7 +6645,120 @@ CREATE VIEW api_cites_quotas_view AS
             WHEN (tr.unit_id IS NULL) THEN NULL::json
             ELSE row_to_json(ROW((units.code)::text, (units.name_fr)::text)::api_trade_code)
         END AS unit_fr
-   FROM (((all_cites_quotas tr
+   FROM (((( SELECT cites_quotas_with_taxon_concept.id,
+            cites_quotas_with_taxon_concept.type,
+            cites_quotas_with_taxon_concept.taxon_concept_id,
+            cites_quotas_with_taxon_concept.notes,
+            cites_quotas_with_taxon_concept.url,
+            cites_quotas_with_taxon_concept.start_date,
+            cites_quotas_with_taxon_concept.publication_date,
+            cites_quotas_with_taxon_concept.is_current,
+            cites_quotas_with_taxon_concept.geo_entity_id,
+            cites_quotas_with_taxon_concept.unit_id,
+            cites_quotas_with_taxon_concept.quota,
+            cites_quotas_with_taxon_concept.public_display,
+            cites_quotas_with_taxon_concept.nomenclature_note_en,
+            cites_quotas_with_taxon_concept.nomenclature_note_fr,
+            cites_quotas_with_taxon_concept.nomenclature_note_es,
+            cites_quotas_with_taxon_concept.taxon_concept,
+            cites_quotas_with_taxon_concept.matching_taxon_concept_ids
+           FROM ( SELECT tr_1.id,
+                    tr_1.type,
+                    tr_1.taxon_concept_id,
+                    tr_1.notes,
+                    tr_1.url,
+                    tr_1.start_date,
+                    tr_1.publication_date,
+                    tr_1.is_current,
+                    tr_1.geo_entity_id,
+                    tr_1.unit_id,
+                    tr_1.quota,
+                    tr_1.public_display,
+                    tr_1.nomenclature_note_en,
+                    tr_1.nomenclature_note_fr,
+                    tr_1.nomenclature_note_es,
+                    row_to_json(ROW(tr_1.taxon_concept_id, (taxon_concepts.full_name)::text, (taxon_concepts.author_year)::text, (taxon_concepts.data -> 'rank_name'::text))::api_taxon_concept) AS taxon_concept,
+                    ARRAY[]::integer[] AS matching_taxon_concept_ids
+                   FROM (( SELECT tr_2.id,
+                            tr_2.type,
+                            tr_2.taxon_concept_id,
+                            tr_2.notes,
+                            tr_2.url,
+                            tr_2.start_date,
+                            (tr_2.publication_date)::date AS publication_date,
+                            tr_2.is_current,
+                            tr_2.geo_entity_id,
+                            tr_2.unit_id,
+                                CASE
+                                    WHEN (tr_2.quota = ((-1))::double precision) THEN NULL::double precision
+                                    ELSE tr_2.quota
+                                END AS quota,
+                            tr_2.public_display,
+                            tr_2.nomenclature_note_en,
+                            tr_2.nomenclature_note_fr,
+                            tr_2.nomenclature_note_es
+                           FROM trade_restrictions tr_2
+                          WHERE ((tr_2.type)::text = 'Quota'::text)) tr_1
+                     JOIN taxon_concepts ON ((taxon_concepts.id = tr_1.taxon_concept_id)))
+                  WHERE (tr_1.taxon_concept_id IS NOT NULL)) cites_quotas_with_taxon_concept
+        UNION ALL
+         SELECT cites_quotas_without_taxon_concept.id,
+            cites_quotas_without_taxon_concept.type,
+            cites_quotas_without_taxon_concept.taxon_concept_id,
+            cites_quotas_without_taxon_concept.notes,
+            cites_quotas_without_taxon_concept.url,
+            cites_quotas_without_taxon_concept.start_date,
+            cites_quotas_without_taxon_concept.publication_date,
+            cites_quotas_without_taxon_concept.is_current,
+            cites_quotas_without_taxon_concept.geo_entity_id,
+            cites_quotas_without_taxon_concept.unit_id,
+            cites_quotas_without_taxon_concept.quota,
+            cites_quotas_without_taxon_concept.public_display,
+            cites_quotas_without_taxon_concept.nomenclature_note_en,
+            cites_quotas_without_taxon_concept.nomenclature_note_fr,
+            cites_quotas_without_taxon_concept.nomenclature_note_es,
+            cites_quotas_without_taxon_concept.taxon_concept,
+            cites_quotas_without_taxon_concept.matching_taxon_concept_ids
+           FROM ( SELECT tr_1.id,
+                    tr_1.type,
+                    tr_1.taxon_concept_id,
+                    tr_1.notes,
+                    tr_1.url,
+                    tr_1.start_date,
+                    tr_1.publication_date,
+                    tr_1.is_current,
+                    tr_1.geo_entity_id,
+                    tr_1.unit_id,
+                    tr_1.quota,
+                    tr_1.public_display,
+                    tr_1.nomenclature_note_en,
+                    tr_1.nomenclature_note_fr,
+                    tr_1.nomenclature_note_es,
+                    NULL::json AS taxon_concept,
+                    array_agg_notnull(distributions.taxon_concept_id) AS matching_taxon_concept_ids
+                   FROM (( SELECT tr_2.id,
+                            tr_2.type,
+                            tr_2.taxon_concept_id,
+                            tr_2.notes,
+                            tr_2.url,
+                            tr_2.start_date,
+                            (tr_2.publication_date)::date AS publication_date,
+                            tr_2.is_current,
+                            tr_2.geo_entity_id,
+                            tr_2.unit_id,
+                                CASE
+                                    WHEN (tr_2.quota = ((-1))::double precision) THEN NULL::double precision
+                                    ELSE tr_2.quota
+                                END AS quota,
+                            tr_2.public_display,
+                            tr_2.nomenclature_note_en,
+                            tr_2.nomenclature_note_fr,
+                            tr_2.nomenclature_note_es
+                           FROM trade_restrictions tr_2
+                          WHERE ((tr_2.type)::text = 'Quota'::text)) tr_1
+                     JOIN distributions ON ((distributions.geo_entity_id = tr_1.geo_entity_id)))
+                  WHERE (tr_1.taxon_concept_id IS NULL)
+                  GROUP BY tr_1.id, tr_1.type, tr_1.taxon_concept_id, tr_1.notes, tr_1.url, tr_1.start_date, tr_1.publication_date, tr_1.is_current, tr_1.geo_entity_id, tr_1.unit_id, tr_1.quota, tr_1.public_display, tr_1.nomenclature_note_en, tr_1.nomenclature_note_fr, tr_1.nomenclature_note_es) cites_quotas_without_taxon_concept) tr
      JOIN geo_entities ON ((geo_entities.id = tr.geo_entity_id)))
      JOIN geo_entity_types ON ((geo_entities.geo_entity_type_id = geo_entity_types.id)))
      LEFT JOIN trade_codes units ON (((units.id = tr.unit_id) AND ((units.type)::text = 'Unit'::text))));
@@ -6785,96 +6795,6 @@ CREATE TABLE events (
 --
 
 CREATE VIEW api_cites_suspensions_view AS
- WITH cites_suspensions AS (
-         SELECT tr_1.id,
-            tr_1.type,
-            tr_1.taxon_concept_id,
-            tr_1.notes,
-            (tr_1.start_date)::date AS start_date,
-            (tr_1.end_date)::date AS end_date,
-            tr_1.is_current,
-            tr_1.geo_entity_id,
-            tr_1.start_notification_id,
-            tr_1.end_notification_id,
-            tr_1.nomenclature_note_en,
-            tr_1.nomenclature_note_fr,
-            tr_1.nomenclature_note_es
-           FROM trade_restrictions tr_1
-          WHERE ((tr_1.type)::text = 'CitesSuspension'::text)
-        ), cites_suspensions_with_taxon_concept AS (
-         SELECT tr_1.id,
-            tr_1.type,
-            tr_1.taxon_concept_id,
-            tr_1.notes,
-            tr_1.start_date,
-            tr_1.end_date,
-            tr_1.is_current,
-            tr_1.geo_entity_id,
-            tr_1.start_notification_id,
-            tr_1.end_notification_id,
-            tr_1.nomenclature_note_en,
-            tr_1.nomenclature_note_fr,
-            tr_1.nomenclature_note_es,
-            row_to_json(ROW(tr_1.taxon_concept_id, (taxon_concepts.full_name)::text, (taxon_concepts.author_year)::text, (taxon_concepts.data -> 'rank_name'::text))::api_taxon_concept) AS taxon_concept,
-            ARRAY[]::integer[] AS matching_taxon_concept_ids
-           FROM (cites_suspensions tr_1
-             JOIN taxon_concepts ON ((taxon_concepts.id = tr_1.taxon_concept_id)))
-          WHERE (tr_1.taxon_concept_id IS NOT NULL)
-        ), cites_suspensions_without_taxon_concept AS (
-         SELECT tr_1.id,
-            tr_1.type,
-            tr_1.taxon_concept_id,
-            tr_1.notes,
-            tr_1.start_date,
-            tr_1.end_date,
-            tr_1.is_current,
-            tr_1.geo_entity_id,
-            tr_1.start_notification_id,
-            tr_1.end_notification_id,
-            tr_1.nomenclature_note_en,
-            tr_1.nomenclature_note_fr,
-            tr_1.nomenclature_note_es,
-            NULL::json AS taxon_concept,
-            array_agg_notnull(distributions.taxon_concept_id) AS matching_taxon_concept_ids
-           FROM (cites_suspensions tr_1
-             JOIN distributions ON ((distributions.geo_entity_id = tr_1.geo_entity_id)))
-          WHERE (tr_1.taxon_concept_id IS NULL)
-          GROUP BY tr_1.id, tr_1.type, tr_1.taxon_concept_id, tr_1.notes, tr_1.start_date, tr_1.end_date, tr_1.is_current, tr_1.geo_entity_id, tr_1.start_notification_id, tr_1.end_notification_id, tr_1.nomenclature_note_en, tr_1.nomenclature_note_fr, tr_1.nomenclature_note_es
-        ), all_cites_suspensions AS (
-         SELECT cites_suspensions_with_taxon_concept.id,
-            cites_suspensions_with_taxon_concept.type,
-            cites_suspensions_with_taxon_concept.taxon_concept_id,
-            cites_suspensions_with_taxon_concept.notes,
-            cites_suspensions_with_taxon_concept.start_date,
-            cites_suspensions_with_taxon_concept.end_date,
-            cites_suspensions_with_taxon_concept.is_current,
-            cites_suspensions_with_taxon_concept.geo_entity_id,
-            cites_suspensions_with_taxon_concept.start_notification_id,
-            cites_suspensions_with_taxon_concept.end_notification_id,
-            cites_suspensions_with_taxon_concept.nomenclature_note_en,
-            cites_suspensions_with_taxon_concept.nomenclature_note_fr,
-            cites_suspensions_with_taxon_concept.nomenclature_note_es,
-            cites_suspensions_with_taxon_concept.taxon_concept,
-            cites_suspensions_with_taxon_concept.matching_taxon_concept_ids
-           FROM cites_suspensions_with_taxon_concept
-        UNION ALL
-         SELECT cites_suspensions_without_taxon_concept.id,
-            cites_suspensions_without_taxon_concept.type,
-            cites_suspensions_without_taxon_concept.taxon_concept_id,
-            cites_suspensions_without_taxon_concept.notes,
-            cites_suspensions_without_taxon_concept.start_date,
-            cites_suspensions_without_taxon_concept.end_date,
-            cites_suspensions_without_taxon_concept.is_current,
-            cites_suspensions_without_taxon_concept.geo_entity_id,
-            cites_suspensions_without_taxon_concept.start_notification_id,
-            cites_suspensions_without_taxon_concept.end_notification_id,
-            cites_suspensions_without_taxon_concept.nomenclature_note_en,
-            cites_suspensions_without_taxon_concept.nomenclature_note_fr,
-            cites_suspensions_without_taxon_concept.nomenclature_note_es,
-            cites_suspensions_without_taxon_concept.taxon_concept,
-            cites_suspensions_without_taxon_concept.matching_taxon_concept_ids
-           FROM cites_suspensions_without_taxon_concept
-        )
  SELECT tr.id,
     tr.type,
     tr.taxon_concept_id,
@@ -6894,7 +6814,102 @@ CREATE VIEW api_cites_suspensions_view AS
     row_to_json(ROW((geo_entities.iso_code2)::text, (geo_entities.name_es)::text, (geo_entity_types.name)::text)::api_geo_entity) AS geo_entity_es,
     row_to_json(ROW((geo_entities.iso_code2)::text, (geo_entities.name_fr)::text, (geo_entity_types.name)::text)::api_geo_entity) AS geo_entity_fr,
     row_to_json(ROW((events.name)::text, (events.effective_at)::date, events.url)::api_event) AS start_notification
-   FROM (((all_cites_suspensions tr
+   FROM (((( SELECT cites_suspensions_with_taxon_concept.id,
+            cites_suspensions_with_taxon_concept.type,
+            cites_suspensions_with_taxon_concept.taxon_concept_id,
+            cites_suspensions_with_taxon_concept.notes,
+            cites_suspensions_with_taxon_concept.start_date,
+            cites_suspensions_with_taxon_concept.end_date,
+            cites_suspensions_with_taxon_concept.is_current,
+            cites_suspensions_with_taxon_concept.geo_entity_id,
+            cites_suspensions_with_taxon_concept.start_notification_id,
+            cites_suspensions_with_taxon_concept.end_notification_id,
+            cites_suspensions_with_taxon_concept.nomenclature_note_en,
+            cites_suspensions_with_taxon_concept.nomenclature_note_fr,
+            cites_suspensions_with_taxon_concept.nomenclature_note_es,
+            cites_suspensions_with_taxon_concept.taxon_concept,
+            cites_suspensions_with_taxon_concept.matching_taxon_concept_ids
+           FROM ( SELECT tr_1.id,
+                    tr_1.type,
+                    tr_1.taxon_concept_id,
+                    tr_1.notes,
+                    tr_1.start_date,
+                    tr_1.end_date,
+                    tr_1.is_current,
+                    tr_1.geo_entity_id,
+                    tr_1.start_notification_id,
+                    tr_1.end_notification_id,
+                    tr_1.nomenclature_note_en,
+                    tr_1.nomenclature_note_fr,
+                    tr_1.nomenclature_note_es,
+                    row_to_json(ROW(tr_1.taxon_concept_id, (taxon_concepts.full_name)::text, (taxon_concepts.author_year)::text, (taxon_concepts.data -> 'rank_name'::text))::api_taxon_concept) AS taxon_concept,
+                    ARRAY[]::integer[] AS matching_taxon_concept_ids
+                   FROM (( SELECT tr_2.id,
+                            tr_2.type,
+                            tr_2.taxon_concept_id,
+                            tr_2.notes,
+                            (tr_2.start_date)::date AS start_date,
+                            (tr_2.end_date)::date AS end_date,
+                            tr_2.is_current,
+                            tr_2.geo_entity_id,
+                            tr_2.start_notification_id,
+                            tr_2.end_notification_id,
+                            tr_2.nomenclature_note_en,
+                            tr_2.nomenclature_note_fr,
+                            tr_2.nomenclature_note_es
+                           FROM trade_restrictions tr_2
+                          WHERE ((tr_2.type)::text = 'CitesSuspension'::text)) tr_1
+                     JOIN taxon_concepts ON ((taxon_concepts.id = tr_1.taxon_concept_id)))
+                  WHERE (tr_1.taxon_concept_id IS NOT NULL)) cites_suspensions_with_taxon_concept
+        UNION ALL
+         SELECT cites_suspensions_without_taxon_concept.id,
+            cites_suspensions_without_taxon_concept.type,
+            cites_suspensions_without_taxon_concept.taxon_concept_id,
+            cites_suspensions_without_taxon_concept.notes,
+            cites_suspensions_without_taxon_concept.start_date,
+            cites_suspensions_without_taxon_concept.end_date,
+            cites_suspensions_without_taxon_concept.is_current,
+            cites_suspensions_without_taxon_concept.geo_entity_id,
+            cites_suspensions_without_taxon_concept.start_notification_id,
+            cites_suspensions_without_taxon_concept.end_notification_id,
+            cites_suspensions_without_taxon_concept.nomenclature_note_en,
+            cites_suspensions_without_taxon_concept.nomenclature_note_fr,
+            cites_suspensions_without_taxon_concept.nomenclature_note_es,
+            cites_suspensions_without_taxon_concept.taxon_concept,
+            cites_suspensions_without_taxon_concept.matching_taxon_concept_ids
+           FROM ( SELECT tr_1.id,
+                    tr_1.type,
+                    tr_1.taxon_concept_id,
+                    tr_1.notes,
+                    tr_1.start_date,
+                    tr_1.end_date,
+                    tr_1.is_current,
+                    tr_1.geo_entity_id,
+                    tr_1.start_notification_id,
+                    tr_1.end_notification_id,
+                    tr_1.nomenclature_note_en,
+                    tr_1.nomenclature_note_fr,
+                    tr_1.nomenclature_note_es,
+                    NULL::json AS taxon_concept,
+                    array_agg_notnull(distributions.taxon_concept_id) AS matching_taxon_concept_ids
+                   FROM (( SELECT tr_2.id,
+                            tr_2.type,
+                            tr_2.taxon_concept_id,
+                            tr_2.notes,
+                            (tr_2.start_date)::date AS start_date,
+                            (tr_2.end_date)::date AS end_date,
+                            tr_2.is_current,
+                            tr_2.geo_entity_id,
+                            tr_2.start_notification_id,
+                            tr_2.end_notification_id,
+                            tr_2.nomenclature_note_en,
+                            tr_2.nomenclature_note_fr,
+                            tr_2.nomenclature_note_es
+                           FROM trade_restrictions tr_2
+                          WHERE ((tr_2.type)::text = 'CitesSuspension'::text)) tr_1
+                     JOIN distributions ON ((distributions.geo_entity_id = tr_1.geo_entity_id)))
+                  WHERE (tr_1.taxon_concept_id IS NULL)
+                  GROUP BY tr_1.id, tr_1.type, tr_1.taxon_concept_id, tr_1.notes, tr_1.start_date, tr_1.end_date, tr_1.is_current, tr_1.geo_entity_id, tr_1.start_notification_id, tr_1.end_notification_id, tr_1.nomenclature_note_en, tr_1.nomenclature_note_fr, tr_1.nomenclature_note_es) cites_suspensions_without_taxon_concept) tr
      JOIN geo_entities ON ((geo_entities.id = tr.geo_entity_id)))
      JOIN geo_entity_types ON ((geo_entities.geo_entity_type_id = geo_entity_types.id)))
      JOIN events ON (((events.id = tr.start_notification_id) AND ((events.type)::text = 'CitesSuspensionNotification'::text))));
@@ -6954,6 +6969,9 @@ CREATE VIEW api_common_names_view AS
  SELECT taxon_commons.id,
     taxon_commons.taxon_concept_id,
     languages.iso_code1,
+    languages.name_en AS language_name_en,
+    languages.name_es AS language_name_es,
+    languages.name_fr AS language_name_fr,
     common_names.name
    FROM ((taxon_commons
      JOIN common_names ON ((common_names.id = taxon_commons.common_name_id)))
@@ -6961,22 +6979,94 @@ CREATE VIEW api_common_names_view AS
 
 
 --
--- Name: api_distributions_view; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: distribution_references; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
-CREATE TABLE api_distributions_view (
-    id integer,
-    taxon_concept_id integer,
-    name_en character varying(255),
-    name_es character varying(255),
-    name_fr character varying(255),
-    iso_code2 character varying(255),
-    geo_entity_type character varying(255),
-    tags character varying[],
-    citations text[],
-    created_at timestamp without time zone,
-    updated_at timestamp without time zone
+CREATE TABLE distribution_references (
+    id integer NOT NULL,
+    distribution_id integer NOT NULL,
+    reference_id integer NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    updated_by_id integer,
+    created_by_id integer
 );
+
+
+--
+-- Name: references; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE "references" (
+    id integer NOT NULL,
+    title text,
+    year character varying(255),
+    author character varying(255),
+    citation text NOT NULL,
+    publisher text,
+    legacy_id integer,
+    legacy_type character varying(255),
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    updated_by_id integer,
+    created_by_id integer
+);
+
+
+--
+-- Name: taggings; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE taggings (
+    id integer NOT NULL,
+    tag_id integer,
+    taggable_id integer,
+    taggable_type character varying(255),
+    tagger_id integer,
+    tagger_type character varying(255),
+    context character varying(128),
+    created_at timestamp without time zone
+);
+
+
+--
+-- Name: tags; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE tags (
+    id integer NOT NULL,
+    name character varying(255)
+);
+
+
+--
+-- Name: api_distributions_view; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW api_distributions_view AS
+ SELECT d.id,
+    d.taxon_concept_id,
+    d.geo_entity_id,
+    d.tags,
+    g.name_en,
+    g.name_es,
+    g.name_fr,
+    g.iso_code2,
+    gt.name AS geo_entity_type,
+    array_agg_notnull(r.citation ORDER BY r.citation) AS citations
+   FROM ((((( SELECT d_1.id,
+            d_1.taxon_concept_id,
+            d_1.geo_entity_id,
+            array_agg_notnull(tags.name ORDER BY tags.name) AS tags
+           FROM ((distributions d_1
+             LEFT JOIN taggings ON ((((taggings.taggable_type)::text = 'Distribution'::text) AND (taggings.taggable_id = d_1.id))))
+             LEFT JOIN tags ON ((tags.id = taggings.tag_id)))
+          GROUP BY d_1.id, d_1.taxon_concept_id, d_1.geo_entity_id) d
+     JOIN geo_entities g ON ((g.id = d.geo_entity_id)))
+     JOIN geo_entity_types gt ON ((gt.id = g.geo_entity_type_id)))
+     LEFT JOIN distribution_references dr ON ((dr.distribution_id = d.id)))
+     LEFT JOIN "references" r ON ((r.id = dr.reference_id)))
+  GROUP BY d.id, d.taxon_concept_id, d.geo_entity_id, d.tags, g.name_en, g.name_es, g.name_fr, g.iso_code2, gt.name;
 
 
 --
@@ -7290,6 +7380,56 @@ CREATE TABLE api_taxon_concepts_view (
     created_at timestamp without time zone,
     updated_at timestamp without time zone
 );
+
+
+--
+-- Name: taxon_concept_references; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE taxon_concept_references (
+    id integer NOT NULL,
+    taxon_concept_id integer NOT NULL,
+    reference_id integer NOT NULL,
+    is_standard boolean DEFAULT false NOT NULL,
+    is_cascaded boolean DEFAULT false NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    excluded_taxon_concepts_ids integer[],
+    created_by_id integer,
+    updated_by_id integer
+);
+
+
+--
+-- Name: api_taxon_references_view; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW api_taxon_references_view AS
+ WITH RECURSIVE all_tc_refs AS (
+         SELECT taxon_concept_references.id,
+            taxon_concept_references.taxon_concept_id,
+            taxon_concept_references.reference_id,
+            taxon_concept_references.excluded_taxon_concepts_ids AS exclusions,
+            taxon_concept_references.is_cascaded,
+            taxon_concept_references.is_standard
+           FROM taxon_concept_references
+        UNION
+         SELECT h.id,
+            hi.id,
+            h.reference_id,
+            h.exclusions,
+            h.is_cascaded,
+            h.is_standard
+           FROM (taxon_concepts hi
+             JOIN all_tc_refs h ON (((((h.taxon_concept_id = hi.parent_id) AND (NOT (COALESCE(h.exclusions, ARRAY[]::integer[]) @> ARRAY[hi.id]))) AND h.is_cascaded) AND h.is_standard)))
+        )
+ SELECT all_tc_refs.id,
+    all_tc_refs.taxon_concept_id,
+    all_tc_refs.reference_id,
+    all_tc_refs.is_standard,
+    refs.citation
+   FROM (all_tc_refs
+     JOIN "references" refs ON ((refs.id = all_tc_refs.reference_id)));
 
 
 --
@@ -7622,21 +7762,6 @@ CREATE SEQUENCE designations_id_seq
 --
 
 ALTER SEQUENCE designations_id_seq OWNED BY designations.id;
-
-
---
--- Name: distribution_references; Type: TABLE; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE TABLE distribution_references (
-    id integer NOT NULL,
-    distribution_id integer NOT NULL,
-    reference_id integer NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    updated_by_id integer,
-    created_by_id integer
-);
 
 
 --
@@ -8874,26 +8999,6 @@ ALTER SEQUENCE ranks_id_seq OWNED BY ranks.id;
 
 
 --
--- Name: references; Type: TABLE; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE TABLE "references" (
-    id integer NOT NULL,
-    title text,
-    year character varying(255),
-    author character varying(255),
-    citation text NOT NULL,
-    publisher text,
-    legacy_id integer,
-    legacy_type character varying(255),
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    updated_by_id integer,
-    created_by_id integer
-);
-
-
---
 -- Name: references_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -9003,24 +9108,6 @@ CREATE SEQUENCE species_listings_id_seq
 --
 
 ALTER SEQUENCE species_listings_id_seq OWNED BY species_listings.id;
-
-
---
--- Name: taxon_concept_references; Type: TABLE; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE TABLE taxon_concept_references (
-    id integer NOT NULL,
-    taxon_concept_id integer NOT NULL,
-    reference_id integer NOT NULL,
-    is_standard boolean DEFAULT false NOT NULL,
-    is_cascaded boolean DEFAULT false NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    excluded_taxon_concepts_ids integer[],
-    created_by_id integer,
-    updated_by_id integer
-);
 
 
 --
@@ -9173,22 +9260,6 @@ CREATE VIEW synonyms_and_trade_names_view AS
 
 
 --
--- Name: taggings; Type: TABLE; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE TABLE taggings (
-    id integer NOT NULL,
-    tag_id integer,
-    taggable_id integer,
-    taggable_type character varying(255),
-    tagger_id integer,
-    tagger_type character varying(255),
-    context character varying(128),
-    created_at timestamp without time zone
-);
-
-
---
 -- Name: taggings_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -9205,16 +9276,6 @@ CREATE SEQUENCE taggings_id_seq
 --
 
 ALTER SEQUENCE taggings_id_seq OWNED BY taggings.id;
-
-
---
--- Name: tags; Type: TABLE; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE TABLE tags (
-    id integer NOT NULL,
-    name character varying(255)
-);
 
 
 --
@@ -11962,32 +12023,6 @@ CREATE RULE "_RETURN" AS
 --
 
 CREATE RULE "_RETURN" AS
-    ON SELECT TO api_distributions_view DO INSTEAD  SELECT d.id,
-    d.taxon_concept_id,
-    g.name_en,
-    g.name_es,
-    g.name_fr,
-    g.iso_code2,
-    gt.name AS geo_entity_type,
-    array_agg_notnull(tags.name ORDER BY tags.name) AS tags,
-    array_agg_notnull(r.citation ORDER BY r.citation) AS citations,
-    d.created_at,
-    d.updated_at
-   FROM ((((((distributions d
-     JOIN geo_entities g ON ((g.id = d.geo_entity_id)))
-     JOIN geo_entity_types gt ON ((gt.id = g.geo_entity_type_id)))
-     LEFT JOIN taggings ON ((((taggings.taggable_type)::text = 'Distribution'::text) AND (taggings.taggable_id = d.id))))
-     LEFT JOIN tags ON ((tags.id = taggings.tag_id)))
-     LEFT JOIN distribution_references dr ON ((dr.distribution_id = d.id)))
-     LEFT JOIN "references" r ON ((r.id = dr.reference_id)))
-  GROUP BY d.id, g.name_en, g.name_es, g.name_fr, g.iso_code2, gt.name;
-
-
---
--- Name: _RETURN; Type: RULE; Schema: public; Owner: -
---
-
-CREATE RULE "_RETURN" AS
     ON SELECT TO api_taxon_concepts_view DO INSTEAD  SELECT tc.id,
     tc.parent_id,
     taxonomies.name,
@@ -13777,7 +13812,17 @@ INSERT INTO schema_migrations (version) VALUES ('20141230193843');
 
 INSERT INTO schema_migrations (version) VALUES ('20141230193844');
 
+INSERT INTO schema_migrations (version) VALUES ('20150106100040');
+
 INSERT INTO schema_migrations (version) VALUES ('20150107171940');
 
 INSERT INTO schema_migrations (version) VALUES ('20150109134326');
+
+INSERT INTO schema_migrations (version) VALUES ('20150112080319');
+
+INSERT INTO schema_migrations (version) VALUES ('20150112093954');
+
+INSERT INTO schema_migrations (version) VALUES ('20150112113519');
+
+INSERT INTO schema_migrations (version) VALUES ('20150112124146');
 
