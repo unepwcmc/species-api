@@ -16,8 +16,6 @@ class RegistrationsController < Devise::RegistrationsController
       @countries = HTTParty.get("http://www.speciesplus.net/api/v1/geo_entities.json?geo_entity_types_set=2&locale=en")
       if @countries.code != 200
         @countries = []
-      else
-        @countries.select{|c| c["geo_entity_type"] == "COUNTRY"}
       end
     end
 
