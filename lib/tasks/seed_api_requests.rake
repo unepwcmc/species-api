@@ -11,7 +11,7 @@ namespace :db do
             user_id: user.id, 
             response_status: [200, 200, 200, 500].sample,
             created_at: DateTime.now - n+1,
-            controller: ['api/v1/taxon_concepts', 'api/v1/taxon_concepts/1/common_names', 'api/v1/taxon_concepts/1/distributions', 'api/v1/taxon_concepts/1/eu_legislation'].sample
+            controller: ['taxon_concepts', 'common_names', 'distributions', 'eu_legislation'].sample
           )
         end
       end

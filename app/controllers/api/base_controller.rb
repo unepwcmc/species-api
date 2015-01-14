@@ -17,9 +17,10 @@ class Api::BaseController < ApplicationController
 
   # after_action method for recording API Metrics
   def track_this_request
+    puts params
     ApiRequest.create(
       user_id: @user.try(:id),
-      controller: params[:controller],
+      controller: params[:controller].split('/').last,
       action: params[:action],
       params: params.except(:controller, :action, :format),
       format: params[:format],
@@ -33,7 +34,7 @@ class Api::BaseController < ApplicationController
     head status: 500 # Manually set this again because we're rescuing from rails magic
     ApiRequest.create(
       user_id: @user.try(:id),
-      controller: params[:controller],
+      controller: params[:controller].split('/').last,
       action: params[:action],
       params: params.except(:controller, :action, :format),
       format: params[:format],
