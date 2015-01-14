@@ -80,7 +80,7 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
       paginate(
         page: params[:page],
         per_page: new_per_page
-      ).order('full_name')
+      ).order(:taxonomic_position)
 
     if params[:with_descendants] == "true" && params[:name]
       @taxon_concepts = @taxon_concepts.where("full_name = :name
