@@ -1,4 +1,5 @@
 class CitesSuspension < ActiveRecord::Base
+  include Scope
   after_initialize :readonly!
   self.table_name = :api_cites_suspensions_view
   self.primary_key = :id
@@ -6,14 +7,4 @@ class CitesSuspension < ActiveRecord::Base
   translates :geo_entity
 
   belongs_to :taxon_concept
-  scope :in_scope, ->(scope) {
-    if scope == :current
-      where(is_current: true)
-    elsif scope == :historic
-      where(is_current: false)
-    else
-      where(nil)
-    end
-  }
-
 end

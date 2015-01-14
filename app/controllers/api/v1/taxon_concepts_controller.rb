@@ -74,19 +74,20 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
   EOS
 
   def index
+    taxon_per_page = TaxonConcept.per_page
+    new_per_page = params[:per_page] && params[:per_page].to_i < taxon_per_page ? params[:per_page] : taxon_per_page
     @taxon_concepts = TaxonConcept.
       paginate(
         page: params[:page],
-        per_page: (params[:per_page] && params[:per_page].to_i < TaxonConcept.per_page ? params[:per_page] : TaxonConcept.per_page)
-      ).
-      order('full_name')
+        per_page: new_per_page
+      ).order(:taxonomic_position)
 
     if params[:with_descendants] == "true" && params[:name]
-      @taxon_concepts = @taxon_concepts.where("full_name = :name 
-                                              OR higher_taxa ->> 'kingdom' = :name 
-                                              OR higher_taxa ->> 'phylum' = :name 
-                                              OR higher_taxa ->> 'order' = :name 
-                                              OR higher_taxa ->> 'family' = :name 
+      @taxon_concepts = @taxon_concepts.where("full_name = :name
+                                              OR higher_taxa ->> 'kingdom' = :name
+                                              OR higher_taxa ->> 'phylum' = :name
+                                              OR higher_taxa ->> 'order' = :name
+                                              OR higher_taxa ->> 'family' = :name
                                               OR higher_taxa ->> 'genus' = :name
                                               OR higher_taxa ->> 'class' = :name", name: params[:name])
     elsif params[:name]

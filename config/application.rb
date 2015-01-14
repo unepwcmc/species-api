@@ -22,5 +22,6 @@ module SpeciesPlusAPI
     # config.i18n.default_locale = :de
     config.active_record.schema_format = :sql
     config.autoload_paths += %W(#{config.root}/test/support/models)
+    config.autoload_paths += %W(#{config.root}/lib)
   end
 end
