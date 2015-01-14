@@ -1,6 +1,6 @@
 class RegistrationsController < Devise::RegistrationsController
-  before_action :countries, :only => [:new, :create]
-  before_action :organisations, :only => [:new, :create]
+  before_action :countries, :only => [:new, :create, :edit, :update]
+  before_action :organisations, :only => [:new, :create, :edit, :update]
 
   def create
     super { |resource| resource.role = 'api' }
