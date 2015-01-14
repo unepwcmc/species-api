@@ -85,7 +85,6 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
 
     if params[:with_descendants] == "true" && params[:name]
       @taxon_concepts = @taxon_concepts.where("full_name = :name
-                                              OR species_name = :name
                                               OR genus_name = :name
                                               OR family_name = :name
                                               OR order_name = :name
