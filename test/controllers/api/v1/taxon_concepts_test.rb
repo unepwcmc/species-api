@@ -14,11 +14,11 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
 
     phylum = FactoryGirl.create(:taxon_concept, parent: kingdom,
       taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'Chordata'), rank: FactoryGirl.create(:rank, name: 'PHYLUM', display_name_en: 'Phylum')) 
-    klass = FactoryGirl.create(:taxon_concept, parent: phylum,
+    @klass = FactoryGirl.create(:taxon_concept, parent: phylum,
       taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'Mammalia'),
       rank: FactoryGirl.create(:rank, name: 'CLASS', display_name_en: 'Class')
     )
-    order = FactoryGirl.create(:taxon_concept, parent: klass,
+    order = FactoryGirl.create(:taxon_concept, parent: @klass,
       taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'Psittaciformes'),
       rank: FactoryGirl.create(:rank, name: 'ORDER', display_name_en: 'Order')
     )
@@ -34,6 +34,46 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     taxon_concept = FactoryGirl.create(:taxon_concept,
       parent: genus, taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'WRGTEH'),
       rank: FactoryGirl.create(:rank, name: 'SPECIES', display_name_en: "Species")
+    )
+
+    ActiveRecord::Base.connection.execute(<<-SQL
+      SELECT * FROM rebuild_taxonomy();
+    SQL
+    )
+  end
+
+  def create_canis_tree_and_taxon_concepts
+    order = FactoryGirl.create(:taxon_concept, parent: @klass,
+      taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'Carnivora'),
+      rank: FactoryGirl.create(:rank, name: 'ORDER', display_name_en: 'Order')
+    )
+    family = FactoryGirl.create(:taxon_concept, parent: order,
+      taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'Canidae'),
+      rank: FactoryGirl.create(:rank, name: 'FAMILY', display_name_en: 'Family')
+    )
+
+    genus_rank = FactoryGirl.create(:rank, name: 'GENUS', display_name_en: 'Genus')
+
+    genus = FactoryGirl.create(:taxon_concept, parent: family,
+      taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'Canis'),
+      rank: genus_rank
+    )
+
+    other_genus = FactoryGirl.create(:taxon_concept, parent: family,
+      taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'Testus'),
+      rank: genus_rank
+    )
+
+    species_rank = FactoryGirl.create(:rank, name: 'SPECIES', display_name_en: "Species")
+
+    taxon_concept = FactoryGirl.create(:taxon_concept,
+      parent: genus, taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'lupus'),
+      rank: species_rank
+    )
+
+    other_taxon_concept = FactoryGirl.create(:taxon_concept,
+      parent: other_genus, taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'Canis'),
+      rank: species_rank
     )
 
     ActiveRecord::Base.connection.execute(<<-SQL
@@ -124,6 +164,13 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
 
     results = JSON.parse(response.body)
     assert_equal 5, results.length
+
+    create_canis_tree_and_taxon_concepts
+
+    get :index, name: "Canis", with_descendants: 'true'
+    results = JSON.parse(response.body)
+    assert_equal 3, results.length
+
   end
 
   test "filters results by name without 'with_descendants' params does not return tree" do
