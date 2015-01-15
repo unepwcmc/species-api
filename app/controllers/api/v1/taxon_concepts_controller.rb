@@ -109,8 +109,11 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
       true
     end
 
-    @taxon_concepts = @taxon_concepts.where(taxonomy_is_cites_eu: taxonomy_is_cites_eu)
+    @taxon_concepts = @taxon_concepts.where(taxonomy_is_cites_eu: taxonomy_is_cites_eu)    
 
-    render 'api/v1/taxon_concepts/index'
+    respond_to do |format|
+      format.json { render :index, content_type: 'application/json' }
+      format.xml { render :index, content_type: 'application/xml' }
+    end
   end
 end
