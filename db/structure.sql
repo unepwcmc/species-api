@@ -7365,6 +7365,44 @@ CREATE VIEW api_eu_listing_changes_view AS
 
 
 --
+-- Name: api_requests; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE api_requests (
+    id integer NOT NULL,
+    user_id integer,
+    controller character varying(255),
+    action character varying(255),
+    format character varying(255),
+    params text,
+    ip character varying(255),
+    response_status integer,
+    error_message text,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: api_requests_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE api_requests_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: api_requests_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE api_requests_id_seq OWNED BY api_requests.id;
+
+
+--
 -- Name: api_taxon_concepts_view; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -7685,9 +7723,9 @@ CREATE TABLE users (
     current_sign_in_ip character varying(255),
     last_sign_in_ip character varying(255),
     role character varying(255) DEFAULT 'default'::character varying NOT NULL,
+    authentication_token character varying(255),
     organisation character varying(255),
-    geo_entity_id integer,
-    authentication_token character varying(255)
+    geo_entity_id integer
 );
 
 
@@ -10394,6 +10432,13 @@ ALTER TABLE ONLY annotations ALTER COLUMN id SET DEFAULT nextval('annotations_id
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY api_requests ALTER COLUMN id SET DEFAULT nextval('api_requests_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY change_types ALTER COLUMN id SET DEFAULT nextval('change_types_id_seq'::regclass);
 
 
@@ -10867,6 +10912,14 @@ ALTER TABLE ONLY ahoy_visits
 
 ALTER TABLE ONLY annotations
     ADD CONSTRAINT annotations_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: api_requests_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY api_requests
+    ADD CONSTRAINT api_requests_pkey PRIMARY KEY (id);
 
 
 --
@@ -13413,6 +13466,8 @@ INSERT INTO schema_migrations (version) VALUES ('20141230193844');
 INSERT INTO schema_migrations (version) VALUES ('20150106100040');
 
 INSERT INTO schema_migrations (version) VALUES ('20150107171940');
+
+INSERT INTO schema_migrations (version) VALUES ('20150107173809');
 
 INSERT INTO schema_migrations (version) VALUES ('20150109134326');
 
