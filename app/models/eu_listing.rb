@@ -47,3 +47,4 @@ class EuListing < ActiveRecord::Base
   translates :party, :annotation, :hash_annotation
 
   belongs_to :taxon_concept
+end

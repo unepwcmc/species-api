@@ -40,3 +40,4 @@ class EuDecision < ActiveRecord::Base
   translates :geo_entity, :source, :term
 
   belongs_to :taxon_concept
+end
