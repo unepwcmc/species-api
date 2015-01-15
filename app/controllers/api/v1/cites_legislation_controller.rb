@@ -251,5 +251,10 @@ class Api::V1::CitesLegislationController < Api::V1::BaseController
     @cites_listings = @taxon_concept.cites_listings.in_scope(@legislation_scope)
     @cites_suspensions = @taxon_concept.cites_suspensions_including_global.in_scope(@legislation_scope)
     @cites_quotas = @taxon_concept.cites_quotas_including_global.in_scope(@legislation_scope)
+
+    respond_to do |format|
+      format.json { render :index, content_type: 'application/json' }
+      format.xml { render :index, content_type: 'application/xml' }
+    end
   end
 end
