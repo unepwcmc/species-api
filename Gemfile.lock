@@ -259,8 +259,8 @@ DEPENDENCIES
   dotenv-rails
   exception_notification!
   factory_girl_rails
-  httparty
   groupdate
+  httparty
   jquery-rails
   launchy
   link_header
