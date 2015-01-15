@@ -48,7 +48,6 @@ class Api::V1::ReferencesControllerTest < ActionController::TestCase
     get :index, taxon_concept_id: @taxon_concept.id
 
     results = JSON.parse(response.body)
-    puts results
     assert_equal 2, results.size
   end
 end
