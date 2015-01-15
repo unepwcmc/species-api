@@ -11,6 +11,10 @@ class RegistrationsController < Devise::RegistrationsController
       dashboard_path
     end
 
+    def after_update_path_for(resource)
+      dashboard_path
+    end
+
   private
     def countries
       @countries = HTTParty.get("http://www.speciesplus.net/api/v1/geo_entities.json?geo_entity_types_set=2&locale=en")
