@@ -30,7 +30,7 @@ class Api::V1::CommonNamesController < Api::V1::BaseController
   EOS
 
   def index
-    @common_names = TaxonConcept.find(params[:taxon_concept_id]).common_names
+    @common_names = TaxonConcept.find(params[:taxon_concept_id]).common_names.where("iso_code1 IS NOT NULL")
     @common_names = @common_names.where(iso_code1: @languages) unless @languages.nil?
   end
 
