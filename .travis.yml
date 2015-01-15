@@ -7,6 +7,7 @@ addons:
 # uncomment this line if your project needs to run something other than `rake`:
 before_script:
   - psql -c 'create database sapi_test' -U postgres
+  - RAILS_ENV=test rake db:structure:load
 script:
   - CODECLIMATE_REPO_TOKEN=7ee3093908aa296e3db98e6e00cd28db3f8dd802d932f2dc218eb954c73c6402 bundle exec rake
 notifications:
