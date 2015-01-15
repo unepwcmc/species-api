@@ -7416,6 +7416,13 @@ CREATE TABLE api_taxon_concepts_view (
     name_status text,
     rank character varying(255),
     taxonomic_position character varying,
+    kingdom_name text,
+    phylum_name text,
+    class_name text,
+    order_name text,
+    family_name text,
+    genus_name text,
+    species_name text,
     higher_taxa json,
     synonyms json,
     accepted_names json,
@@ -7716,9 +7723,9 @@ CREATE TABLE users (
     current_sign_in_ip character varying(255),
     last_sign_in_ip character varying(255),
     role character varying(255) DEFAULT 'default'::character varying NOT NULL,
+    authentication_token character varying(255),
     organisation character varying(255),
-    geo_entity_id integer,
-    authentication_token character varying(255)
+    geo_entity_id integer
 );
 
 
@@ -11903,6 +11910,13 @@ CREATE RULE "_RETURN" AS
     'A'::text AS name_status,
     ranks.name AS rank,
     tc.taxonomic_position,
+    (tc.data -> 'kingdom_name'::text) AS kingdom_name,
+    (tc.data -> 'phylum_name'::text) AS phylum_name,
+    (tc.data -> 'class_name'::text) AS class_name,
+    (tc.data -> 'order_name'::text) AS order_name,
+    (tc.data -> 'family_name'::text) AS family_name,
+    (tc.data -> 'genus_name'::text) AS genus_name,
+    (tc.data -> 'species_name'::text) AS species_name,
     row_to_json(ROW((tc.data -> 'kingdom_name'::text), (tc.data -> 'phylum_name'::text), (tc.data -> 'class_name'::text), (tc.data -> 'order_name'::text), (tc.data -> 'family_name'::text))::api_higher_taxa) AS higher_taxa,
     array_to_json(array_agg_notnull(ROW(synonyms.id, (synonyms.full_name)::text, (synonyms.author_year)::text, (synonyms.data -> 'rank_name'::text))::api_taxon_concept)) AS synonyms,
     NULL::json AS accepted_names,
@@ -11929,6 +11943,13 @@ UNION ALL
     'S'::text AS name_status,
     ranks.name AS rank,
     NULL::character varying AS taxonomic_position,
+    NULL::text AS kingdom_name,
+    NULL::text AS phylum_name,
+    NULL::text AS class_name,
+    NULL::text AS order_name,
+    NULL::text AS family_name,
+    NULL::text AS genus_name,
+    NULL::text AS species_name,
     NULL::json AS higher_taxa,
     NULL::json AS synonyms,
     array_to_json(array_agg_notnull(ROW(accepted_names.id, (accepted_names.full_name)::text, (accepted_names.author_year)::text, (accepted_names.data -> 'rank_name'::text))::api_taxon_concept)) AS accepted_names,
@@ -13459,4 +13480,6 @@ INSERT INTO schema_migrations (version) VALUES ('20150112113519');
 INSERT INTO schema_migrations (version) VALUES ('20150112124146');
 
 INSERT INTO schema_migrations (version) VALUES ('20150114084537');
+
+INSERT INTO schema_migrations (version) VALUES ('20150114105024');
 
