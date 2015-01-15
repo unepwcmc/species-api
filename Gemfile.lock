@@ -67,6 +67,7 @@ GEM
       rack (>= 1.0.0)
       rack-test (>= 0.5.4)
       xpath (~> 2.0)
+    chartkick (1.3.2)
     chunky_png (1.3.3)
     codeclimate-test-reporter (0.1.1)
       simplecov (>= 0.7.1, < 1.0.0)
@@ -111,6 +112,8 @@ GEM
       factory_girl (~> 4.4.0)
       railties (>= 3.0.0)
     ffi (1.9.6)
+    groupdate (2.4.0)
+      activesupport (>= 3)
     highline (1.6.21)
     hike (1.2.3)
     httparty (0.13.3)
@@ -247,6 +250,7 @@ DEPENDENCIES
   capistrano (~> 2.15.5)
   capistrano-ext
   capybara
+  chartkick
   codeclimate-test-reporter
   coffee-rails (~> 4.0.0)
   compass
@@ -256,6 +260,7 @@ DEPENDENCIES
   exception_notification!
   factory_girl_rails
   httparty
+  groupdate
   jquery-rails
   launchy
   link_header

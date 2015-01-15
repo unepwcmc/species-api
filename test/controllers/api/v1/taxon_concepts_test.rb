@@ -148,4 +148,34 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     assert_equal cms_tc.id, results.first["taxon_concept"]["id"]
     assert_equal 1, results.length
   end
+
+  test "it records a request with params" do
+    FactoryGirl.create(:taxon_concept, taxonomy: @cites, updated_at: 1.year.ago)
+    FactoryGirl.create(:taxon_concept, taxonomy: @cites, updated_at: 1.month.ago)
+    @request.headers["X-Authentication-Token"] = @user.authentication_token
+
+    assert_difference 'ApiRequest.count' do
+      get :index, updated_since: 2.months.ago.to_s    
+    end
+
+    assert_not_nil ApiRequest.last.params
+  end
+
+  test "it records an unauthorised request" do
+    assert_difference 'ApiRequest.count' do
+      get :index
+    end
+
+    assert_equal 401, ApiRequest.last.response_status
+  end
+
+  # test "it records a failed request" do
+  #   @request.headers["X-Authentication-Token"] = @user.authentication_token
+
+  #   assert_difference 'ApiRequest.count' do
+  #     get :index, updated_since: '33'
+  #   end
+
+  #   assert_equal 500, ApiRequest.last.response_status
+  # end
 end

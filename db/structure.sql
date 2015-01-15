@@ -6597,10 +6597,10 @@ CREATE TABLE trade_restrictions (
     updated_at timestamp without time zone NOT NULL,
     start_notification_id integer,
     end_notification_id integer,
-    excluded_taxon_concepts_ids integer[],
     original_id integer,
     updated_by_id integer,
     created_by_id integer,
+    excluded_taxon_concepts_ids integer[],
     nomenclature_note_en text,
     internal_notes text,
     nomenclature_note_es text,
@@ -6736,7 +6736,7 @@ CREATE VIEW api_cites_quotas_view AS
                     tr_1.nomenclature_note_es,
                     NULL::json AS taxon_concept,
                     array_agg_notnull(distributions.taxon_concept_id) AS matching_taxon_concept_ids
-                   FROM (( SELECT tr_2.id,
+                   FROM (((( SELECT tr_2.id,
                             tr_2.type,
                             tr_2.taxon_concept_id,
                             tr_2.notes,
@@ -6757,6 +6757,8 @@ CREATE VIEW api_cites_quotas_view AS
                            FROM trade_restrictions tr_2
                           WHERE ((tr_2.type)::text = 'Quota'::text)) tr_1
                      JOIN distributions ON ((distributions.geo_entity_id = tr_1.geo_entity_id)))
+                     JOIN taxon_concepts ON ((distributions.taxon_concept_id = taxon_concepts.id)))
+                     JOIN taxonomies ON (((taxonomies.id = taxon_concepts.taxonomy_id) AND ((taxonomies.name)::text = 'CITES_EU'::text))))
                   WHERE (tr_1.taxon_concept_id IS NULL)
                   GROUP BY tr_1.id, tr_1.type, tr_1.taxon_concept_id, tr_1.notes, tr_1.url, tr_1.start_date, tr_1.publication_date, tr_1.is_current, tr_1.geo_entity_id, tr_1.unit_id, tr_1.quota, tr_1.public_display, tr_1.nomenclature_note_en, tr_1.nomenclature_note_fr, tr_1.nomenclature_note_es) cites_quotas_without_taxon_concept) tr
      JOIN geo_entities ON ((geo_entities.id = tr.geo_entity_id)))
@@ -6892,7 +6894,7 @@ CREATE VIEW api_cites_suspensions_view AS
                     tr_1.nomenclature_note_es,
                     NULL::json AS taxon_concept,
                     array_agg_notnull(distributions.taxon_concept_id) AS matching_taxon_concept_ids
-                   FROM (( SELECT tr_2.id,
+                   FROM (((( SELECT tr_2.id,
                             tr_2.type,
                             tr_2.taxon_concept_id,
                             tr_2.notes,
@@ -6908,6 +6910,8 @@ CREATE VIEW api_cites_suspensions_view AS
                            FROM trade_restrictions tr_2
                           WHERE ((tr_2.type)::text = 'CitesSuspension'::text)) tr_1
                      JOIN distributions ON ((distributions.geo_entity_id = tr_1.geo_entity_id)))
+                     JOIN taxon_concepts ON ((distributions.taxon_concept_id = taxon_concepts.id)))
+                     JOIN taxonomies ON (((taxonomies.id = taxon_concepts.taxonomy_id) AND ((taxonomies.name)::text = 'CITES_EU'::text))))
                   WHERE (tr_1.taxon_concept_id IS NULL)
                   GROUP BY tr_1.id, tr_1.type, tr_1.taxon_concept_id, tr_1.notes, tr_1.start_date, tr_1.end_date, tr_1.is_current, tr_1.geo_entity_id, tr_1.start_notification_id, tr_1.end_notification_id, tr_1.nomenclature_note_en, tr_1.nomenclature_note_fr, tr_1.nomenclature_note_es) cites_suspensions_without_taxon_concept) tr
      JOIN geo_entities ON ((geo_entities.id = tr.geo_entity_id)))
@@ -7361,6 +7365,44 @@ CREATE VIEW api_eu_listing_changes_view AS
 
 
 --
+-- Name: api_requests; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE api_requests (
+    id integer NOT NULL,
+    user_id integer,
+    controller character varying(255),
+    action character varying(255),
+    format character varying(255),
+    params text,
+    ip character varying(255),
+    response_status integer,
+    error_message text,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: api_requests_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE api_requests_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: api_requests_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE api_requests_id_seq OWNED BY api_requests.id;
+
+
+--
 -- Name: api_taxon_concepts_view; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -7394,9 +7436,9 @@ CREATE TABLE taxon_concept_references (
     is_cascaded boolean DEFAULT false NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    excluded_taxon_concepts_ids integer[],
     created_by_id integer,
-    updated_by_id integer
+    updated_by_id integer,
+    excluded_taxon_concepts_ids integer[]
 );
 
 
@@ -8494,9 +8536,9 @@ CREATE TABLE listing_changes_mview (
     hash_full_note_fr text,
     is_current boolean,
     explicit_change boolean,
-    countries_ids_ary integer[],
+    countries_ids_ary character varying(255),
     dirty boolean,
-    expiry timestamp with time zone,
+    expiry timestamp without time zone,
     nomenclature_note_en text,
     nomenclature_note_fr text,
     nomenclature_note_es text
@@ -8518,77 +8560,6 @@ CREATE TABLE listing_distributions (
     created_by_id integer,
     updated_by_id integer
 );
-
-
---
--- Name: species_listings; Type: TABLE; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE TABLE species_listings (
-    id integer NOT NULL,
-    designation_id integer NOT NULL,
-    name character varying(255) NOT NULL,
-    abbreviation character varying(255),
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
-
-
---
--- Name: listing_changes_view; Type: VIEW; Schema: public; Owner: -
---
-
-CREATE VIEW listing_changes_view AS
- SELECT listing_changes.id,
-    listing_changes.taxon_concept_id,
-    listing_changes.effective_at,
-    listing_changes.species_listing_id,
-    species_listings.abbreviation AS species_listing_name,
-    listing_changes.change_type_id,
-    change_types.name AS change_type_name,
-    change_types.designation_id,
-    designations.name AS designation_name,
-    listing_distributions.geo_entity_id AS party_id,
-    geo_entities.iso_code2 AS party_iso_code,
-    annotations.symbol AS ann_symbol,
-    annotations.full_note_en,
-    annotations.full_note_es,
-    annotations.full_note_fr,
-    annotations.short_note_en,
-    annotations.short_note_es,
-    annotations.short_note_fr,
-    annotations.display_in_index,
-    annotations.display_in_footnote,
-    hash_annotations.symbol AS hash_ann_symbol,
-    hash_annotations.parent_symbol AS hash_ann_parent_symbol,
-    hash_annotations.full_note_en AS hash_full_note_en,
-    hash_annotations.full_note_es AS hash_full_note_es,
-    hash_annotations.full_note_fr AS hash_full_note_fr,
-    listing_changes.is_current,
-    listing_changes.explicit_change,
-    populations.countries_ids_ary
-   FROM ((((((((listing_changes
-     JOIN change_types ON ((listing_changes.change_type_id = change_types.id)))
-     JOIN designations ON ((change_types.designation_id = designations.id)))
-     LEFT JOIN species_listings ON ((listing_changes.species_listing_id = species_listings.id)))
-     LEFT JOIN listing_distributions ON (((listing_changes.id = listing_distributions.listing_change_id) AND (listing_distributions.is_party = true))))
-     LEFT JOIN geo_entities ON ((geo_entities.id = listing_distributions.geo_entity_id)))
-     LEFT JOIN annotations ON ((annotations.id = listing_changes.annotation_id)))
-     LEFT JOIN annotations hash_annotations ON ((hash_annotations.id = listing_changes.hash_annotation_id)))
-     LEFT JOIN ( SELECT listing_distributions_1.listing_change_id,
-            array_agg(geo_entities_1.id) AS countries_ids_ary
-           FROM (listing_distributions listing_distributions_1
-             JOIN geo_entities geo_entities_1 ON ((geo_entities_1.id = listing_distributions_1.geo_entity_id)))
-          WHERE (NOT listing_distributions_1.is_party)
-          GROUP BY listing_distributions_1.listing_change_id) populations ON ((populations.listing_change_id = listing_changes.id)))
-  ORDER BY listing_changes.taxon_concept_id, listing_changes.effective_at,
-        CASE
-            WHEN ((change_types.name)::text = 'ADDITION'::text) THEN 0
-            WHEN ((change_types.name)::text = 'RESERVATION'::text) THEN 1
-            WHEN ((change_types.name)::text = 'RESERVATION_WITHDRAWAL'::text) THEN 2
-            WHEN ((change_types.name)::text = 'DELETION'::text) THEN 3
-            ELSE NULL::integer
-        END;
 
 
 --
@@ -9092,6 +9063,20 @@ CREATE TABLE schema_migrations (
 
 
 --
+-- Name: species_listings; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE species_listings (
+    id integer NOT NULL,
+    designation_id integer NOT NULL,
+    name character varying(255) NOT NULL,
+    abbreviation character varying(255),
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
 -- Name: species_listings_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -9440,21 +9425,21 @@ CREATE TABLE taxon_concepts_mview (
     eu_listing text,
     eu_closest_listed_ancestor_id integer,
     eu_listing_updated_at timestamp without time zone,
-    species_listings_ids integer[],
-    species_listings_ids_aggregated integer[],
+    species_listings_ids character varying(255),
+    species_listings_ids_aggregated character varying(255),
     author_year character varying(255),
     created_at timestamp without time zone,
     updated_at timestamp without time zone,
     taxon_concept_id_com integer,
-    english_names_ary character varying[],
-    spanish_names_ary character varying[],
-    french_names_ary character varying[],
+    english_names_ary character varying(255),
+    spanish_names_ary character varying(255),
+    french_names_ary character varying(255),
     taxon_concept_id_syn integer,
-    synonyms_ary character varying[],
-    synonyms_author_years_ary character varying[],
-    countries_ids_ary integer[],
+    synonyms_ary character varying(255),
+    synonyms_author_years_ary character varying(255),
+    countries_ids_ary character varying(255),
     dirty boolean,
-    expiry timestamp with time zone
+    expiry timestamp without time zone
 );
 
 
@@ -9492,145 +9477,6 @@ CREATE VIEW taxon_concepts_names_view AS
      LEFT JOIN comments distribution_note ON ((((distribution_note.commentable_id = taxon_concepts.id) AND ((distribution_note.commentable_type)::text = 'TaxonConcept'::text)) AND ((distribution_note.comment_type)::text = 'Distribution'::text))))
      LEFT JOIN users uc ON ((taxon_concepts.created_by_id = uc.id)))
      LEFT JOIN users uu ON ((taxon_concepts.updated_by_id = uu.id)));
-
-
---
--- Name: taxon_relationship_types; Type: TABLE; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE TABLE taxon_relationship_types (
-    id integer NOT NULL,
-    name character varying(255) NOT NULL,
-    is_intertaxonomic boolean DEFAULT false NOT NULL,
-    is_bidirectional boolean DEFAULT false NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
-
-
---
--- Name: taxon_concepts_view; Type: VIEW; Schema: public; Owner: -
---
-
-CREATE VIEW taxon_concepts_view AS
- SELECT taxon_concepts.id,
-    taxon_concepts.parent_id,
-        CASE
-            WHEN ((taxonomies.name)::text = 'CITES_EU'::text) THEN true
-            ELSE false
-        END AS taxonomy_is_cites_eu,
-    taxon_concepts.full_name,
-    taxon_concepts.name_status,
-    (taxon_concepts.data -> 'rank_name'::text) AS rank_name,
-    ((taxon_concepts.data -> 'spp'::text))::boolean AS spp,
-    ((taxon_concepts.data -> 'cites_accepted'::text))::boolean AS cites_accepted,
-        CASE
-            WHEN ((taxon_concepts.data -> 'kingdom_name'::text) = 'Animalia'::text) THEN 0
-            ELSE 1
-        END AS kingdom_position,
-    taxon_concepts.taxonomic_position,
-    (taxon_concepts.data -> 'kingdom_name'::text) AS kingdom_name,
-    (taxon_concepts.data -> 'phylum_name'::text) AS phylum_name,
-    (taxon_concepts.data -> 'class_name'::text) AS class_name,
-    (taxon_concepts.data -> 'order_name'::text) AS order_name,
-    (taxon_concepts.data -> 'subfamily_name'::text) AS subfamily_name,
-    (taxon_concepts.data -> 'family_name'::text) AS family_name,
-    (taxon_concepts.data -> 'genus_name'::text) AS genus_name,
-    (taxon_concepts.data -> 'species_name'::text) AS species_name,
-    (taxon_concepts.data -> 'subspecies_name'::text) AS subspecies_name,
-    ((taxon_concepts.data -> 'kingdom_id'::text))::integer AS kingdom_id,
-    ((taxon_concepts.data -> 'phylum_id'::text))::integer AS phylum_id,
-    ((taxon_concepts.data -> 'class_id'::text))::integer AS class_id,
-    ((taxon_concepts.data -> 'order_id'::text))::integer AS order_id,
-    ((taxon_concepts.data -> 'subfamily_id'::text))::integer AS subfamily_id,
-    ((taxon_concepts.data -> 'family_id'::text))::integer AS family_id,
-    ((taxon_concepts.data -> 'genus_id'::text))::integer AS genus_id,
-    ((taxon_concepts.data -> 'species_id'::text))::integer AS species_id,
-    ((taxon_concepts.data -> 'subspecies_id'::text))::integer AS subspecies_id,
-        CASE
-            WHEN ((taxon_concepts.listing -> 'cites_I'::text) = 'I'::text) THEN true
-            ELSE false
-        END AS cites_i,
-        CASE
-            WHEN ((taxon_concepts.listing -> 'cites_II'::text) = 'II'::text) THEN true
-            ELSE false
-        END AS cites_ii,
-        CASE
-            WHEN ((taxon_concepts.listing -> 'cites_III'::text) = 'III'::text) THEN true
-            ELSE false
-        END AS cites_iii,
-        CASE
-            WHEN (((taxon_concepts.listing -> 'cites_status'::text) = 'LISTED'::text) AND ((taxon_concepts.listing -> 'cites_status_original'::text) = 't'::text)) THEN true
-            WHEN ((taxon_concepts.listing -> 'cites_status'::text) = 'LISTED'::text) THEN false
-            ELSE NULL::boolean
-        END AS cites_listed,
-    ((taxon_concepts.listing -> 'cites_show'::text))::boolean AS cites_show,
-    ((taxon_concepts.listing -> 'cites_status_original'::text))::boolean AS cites_status_original,
-    (taxon_concepts.listing -> 'cites_status'::text) AS cites_status,
-    (taxon_concepts.listing -> 'cites_listing_original'::text) AS cites_listing_original,
-    (taxon_concepts.listing -> 'cites_listing'::text) AS cites_listing,
-    ((taxon_concepts.listing -> 'cites_closest_listed_ancestor_id'::text))::integer AS cites_closest_listed_ancestor_id,
-    ((taxon_concepts.listing -> 'cites_listing_updated_at'::text))::timestamp without time zone AS cites_listing_updated_at,
-    (taxon_concepts.listing -> 'ann_symbol'::text) AS ann_symbol,
-    (taxon_concepts.listing -> 'hash_ann_symbol'::text) AS hash_ann_symbol,
-    (taxon_concepts.listing -> 'hash_ann_parent_symbol'::text) AS hash_ann_parent_symbol,
-        CASE
-            WHEN (((taxon_concepts.listing -> 'eu_status'::text) = 'LISTED'::text) AND ((taxon_concepts.listing -> 'eu_status_original'::text) = 't'::text)) THEN true
-            WHEN ((taxon_concepts.listing -> 'eu_status'::text) = 'LISTED'::text) THEN false
-            ELSE NULL::boolean
-        END AS eu_listed,
-    ((taxon_concepts.listing -> 'eu_show'::text))::boolean AS eu_show,
-    ((taxon_concepts.listing -> 'eu_status_original'::text))::boolean AS eu_status_original,
-    (taxon_concepts.listing -> 'eu_status'::text) AS eu_status,
-    (taxon_concepts.listing -> 'eu_listing_original'::text) AS eu_listing_original,
-    (taxon_concepts.listing -> 'eu_listing'::text) AS eu_listing,
-    ((taxon_concepts.listing -> 'eu_closest_listed_ancestor_id'::text))::integer AS eu_closest_listed_ancestor_id,
-    ((taxon_concepts.listing -> 'eu_listing_updated_at'::text))::timestamp without time zone AS eu_listing_updated_at,
-    ((taxon_concepts.listing -> 'species_listings_ids'::text))::integer[] AS species_listings_ids,
-    ((taxon_concepts.listing -> 'species_listings_ids_aggregated'::text))::integer[] AS species_listings_ids_aggregated,
-    taxon_concepts.author_year,
-    taxon_concepts.created_at,
-    taxon_concepts.updated_at,
-    common_names.taxon_concept_id_com,
-    common_names.english_names_ary,
-    common_names.spanish_names_ary,
-    common_names.french_names_ary,
-    synonyms.taxon_concept_id_syn,
-    synonyms.synonyms_ary,
-    synonyms.synonyms_author_years_ary,
-    countries_ids.countries_ids_ary
-   FROM ((((taxon_concepts
-     LEFT JOIN taxonomies ON ((taxonomies.id = taxon_concepts.taxonomy_id)))
-     LEFT JOIN ( SELECT ct.taxon_concept_id_com,
-            ct.english_names_ary,
-            ct.spanish_names_ary,
-            ct.french_names_ary
-           FROM crosstab('SELECT taxon_concepts.id AS taxon_concept_id_com, languages.iso_code1 AS lng,
-      ARRAY_AGG(common_names.name ORDER BY common_names.name) AS common_names_ary
-      FROM "taxon_concepts"
-      INNER JOIN "taxon_commons"
-      ON "taxon_commons"."taxon_concept_id" = "taxon_concepts"."id"
-      INNER JOIN "common_names"
-      ON "common_names"."id" = "taxon_commons"."common_name_id"
-      INNER JOIN "languages"
-      ON "languages"."id" = "common_names"."language_id" AND UPPER(languages.iso_code1) IN (''EN'', ''FR'', ''ES'')
-      GROUP BY taxon_concepts.id, languages.iso_code1
-      ORDER BY 1,2'::text, 'SELECT DISTINCT languages.iso_code1 FROM languages WHERE UPPER(languages.iso_code1) IN (''EN'', ''FR'', ''ES'') order by 1'::text) ct(taxon_concept_id_com integer, english_names_ary character varying[], spanish_names_ary character varying[], french_names_ary character varying[])) common_names ON ((taxon_concepts.id = common_names.taxon_concept_id_com)))
-     LEFT JOIN ( SELECT taxon_concepts_1.id AS taxon_concept_id_syn,
-            array_agg(synonym_tc.full_name) AS synonyms_ary,
-            array_agg(synonym_tc.author_year) AS synonyms_author_years_ary
-           FROM (((taxon_concepts taxon_concepts_1
-             LEFT JOIN taxon_relationships ON ((taxon_relationships.taxon_concept_id = taxon_concepts_1.id)))
-             LEFT JOIN taxon_relationship_types ON ((taxon_relationship_types.id = taxon_relationships.taxon_relationship_type_id)))
-             LEFT JOIN taxon_concepts synonym_tc ON ((synonym_tc.id = taxon_relationships.other_taxon_concept_id)))
-          GROUP BY taxon_concepts_1.id) synonyms ON ((taxon_concepts.id = synonyms.taxon_concept_id_syn)))
-     LEFT JOIN ( SELECT taxon_concepts_1.id AS taxon_concept_id_cnt,
-            array_agg(geo_entities.id ORDER BY geo_entities.name_en) AS countries_ids_ary
-           FROM (((taxon_concepts taxon_concepts_1
-             LEFT JOIN distributions ON ((distributions.taxon_concept_id = taxon_concepts_1.id)))
-             LEFT JOIN geo_entities ON ((distributions.geo_entity_id = geo_entities.id)))
-             LEFT JOIN geo_entity_types ON (((geo_entity_types.id = geo_entities.geo_entity_type_id) AND ((geo_entity_types.name)::text = 'COUNTRY'::text))))
-          GROUP BY taxon_concepts_1.id) countries_ids ON ((taxon_concepts.id = countries_ids.taxon_concept_id_cnt)));
 
 
 --
@@ -9697,6 +9543,20 @@ CREATE SEQUENCE taxon_names_id_seq
 --
 
 ALTER SEQUENCE taxon_names_id_seq OWNED BY taxon_names.id;
+
+
+--
+-- Name: taxon_relationship_types; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE taxon_relationship_types (
+    id integer NOT NULL,
+    name character varying(255) NOT NULL,
+    is_intertaxonomic boolean DEFAULT false NOT NULL,
+    is_bidirectional boolean DEFAULT false NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
 
 
 --
@@ -10069,11 +9929,11 @@ CREATE TABLE trade_shipments (
     export_permit_number text,
     origin_permit_number text,
     legacy_shipment_number integer,
+    updated_by_id integer,
+    created_by_id integer,
     import_permits_ids integer[],
     export_permits_ids integer[],
-    origin_permits_ids integer[],
-    updated_by_id integer,
-    created_by_id integer
+    origin_permits_ids integer[]
 );
 
 
@@ -10123,11 +9983,11 @@ CREATE VIEW trade_shipments_with_taxa_view AS
     shipments.export_permit_number,
     shipments.origin_permit_number,
     shipments.legacy_shipment_number,
+    shipments.updated_by_id,
+    shipments.created_by_id,
     shipments.import_permits_ids,
     shipments.export_permits_ids,
     shipments.origin_permits_ids,
-    shipments.updated_by_id,
-    shipments.created_by_id,
     taxon_concepts.full_name AS taxon_concept_full_name,
     taxon_concepts.author_year AS taxon_concept_author_year,
     taxon_concepts.name_status AS taxon_concept_name_status,
@@ -10212,9 +10072,9 @@ CREATE TABLE trade_trade_data_downloads (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     number_of_rows integer,
-    city character varying,
-    country character varying,
-    organization character varying
+    city character varying(255),
+    country character varying(255),
+    organization character varying(255)
 );
 
 
@@ -10249,7 +10109,7 @@ CREATE TABLE trade_validation_rules (
     updated_at timestamp without time zone NOT NULL,
     format_re character varying(255),
     run_order integer NOT NULL,
-    column_names character varying(255)[],
+    column_names character varying(255),
     is_primary boolean DEFAULT true NOT NULL,
     scope hstore,
     is_strict boolean DEFAULT false NOT NULL
@@ -10559,6 +10419,13 @@ CREATE VIEW year_annual_reports_by_countries AS
 --
 
 ALTER TABLE ONLY annotations ALTER COLUMN id SET DEFAULT nextval('annotations_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY api_requests ALTER COLUMN id SET DEFAULT nextval('api_requests_id_seq'::regclass);
 
 
 --
@@ -11017,14 +10884,6 @@ ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regcl
 
 
 --
--- Name: admin_iucn_mappings_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
---
-
-ALTER TABLE ONLY iucn_mappings
-    ADD CONSTRAINT admin_iucn_mappings_pkey PRIMARY KEY (id);
-
-
---
 -- Name: ahoy_events_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -11046,6 +10905,14 @@ ALTER TABLE ONLY ahoy_visits
 
 ALTER TABLE ONLY annotations
     ADD CONSTRAINT annotations_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: api_requests_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY api_requests
+    ADD CONSTRAINT api_requests_pkey PRIMARY KEY (id);
 
 
 --
@@ -11238,6 +11105,14 @@ ALTER TABLE ONLY geo_relationships
 
 ALTER TABLE ONLY instruments
     ADD CONSTRAINT instruments_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: iucn_mappings_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY iucn_mappings
+    ADD CONSTRAINT iucn_mappings_pkey PRIMARY KEY (id);
 
 
 --
@@ -11529,11 +11404,11 @@ ALTER TABLE ONLY trade_shipments
 
 
 --
--- Name: trade_taxon_concept_code_pairs_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: trade_taxon_concept_term_pairs_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
 ALTER TABLE ONLY trade_taxon_concept_term_pairs
-    ADD CONSTRAINT trade_taxon_concept_code_pairs_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT trade_taxon_concept_term_pairs_pkey PRIMARY KEY (id);
 
 
 --
@@ -11760,7 +11635,7 @@ CREATE INDEX index_trade_shipments_on_country_of_origin_id ON trade_shipments US
 -- Name: index_trade_shipments_on_export_permits_ids; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
-CREATE INDEX index_trade_shipments_on_export_permits_ids ON trade_shipments USING gin (export_permits_ids);
+CREATE INDEX index_trade_shipments_on_export_permits_ids ON trade_shipments USING btree (export_permits_ids);
 
 
 --
@@ -11774,7 +11649,7 @@ CREATE INDEX index_trade_shipments_on_exporter_id ON trade_shipments USING btree
 -- Name: index_trade_shipments_on_import_permits_ids; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
-CREATE INDEX index_trade_shipments_on_import_permits_ids ON trade_shipments USING gin (import_permits_ids);
+CREATE INDEX index_trade_shipments_on_import_permits_ids ON trade_shipments USING btree (import_permits_ids);
 
 
 --
@@ -11795,7 +11670,7 @@ CREATE INDEX index_trade_shipments_on_legacy_shipment_number ON trade_shipments 
 -- Name: index_trade_shipments_on_origin_permits_ids; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
-CREATE INDEX index_trade_shipments_on_origin_permits_ids ON trade_shipments USING gin (origin_permits_ids);
+CREATE INDEX index_trade_shipments_on_origin_permits_ids ON trade_shipments USING btree (origin_permits_ids);
 
 
 --
@@ -11908,13 +11783,6 @@ CREATE INDEX listing_changes_mview_display_in_index ON listing_changes_mview USI
 --
 
 CREATE UNIQUE INDEX trade_permits_number_idx ON trade_permits USING btree (number);
-
-
---
--- Name: trade_restrictions_extract_year_from_start_date; Type: INDEX; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE INDEX trade_restrictions_extract_year_from_start_date ON trade_restrictions USING btree (date_part('year'::text, start_date)) WHERE ((type)::text = 'Quota'::text);
 
 
 --
@@ -13448,244 +13316,6 @@ INSERT INTO schema_migrations (version) VALUES ('20120703141230');
 
 INSERT INTO schema_migrations (version) VALUES ('20121004124446');
 
-INSERT INTO schema_migrations (version) VALUES ('20130620075330');
-
-INSERT INTO schema_migrations (version) VALUES ('20130702093134');
-
-INSERT INTO schema_migrations (version) VALUES ('20130702093702');
-
-INSERT INTO schema_migrations (version) VALUES ('20130802130514');
-
-INSERT INTO schema_migrations (version) VALUES ('20130802135401');
-
-INSERT INTO schema_migrations (version) VALUES ('20130808132357');
-
-INSERT INTO schema_migrations (version) VALUES ('20130808132441');
-
-INSERT INTO schema_migrations (version) VALUES ('20130812101133');
-
-INSERT INTO schema_migrations (version) VALUES ('20130814095805');
-
-INSERT INTO schema_migrations (version) VALUES ('20130814103626');
-
-INSERT INTO schema_migrations (version) VALUES ('20130816131841');
-
-INSERT INTO schema_migrations (version) VALUES ('20130816172913');
-
-INSERT INTO schema_migrations (version) VALUES ('20130820080014');
-
-INSERT INTO schema_migrations (version) VALUES ('20130820080200');
-
-INSERT INTO schema_migrations (version) VALUES ('20130916091657');
-
-INSERT INTO schema_migrations (version) VALUES ('20130920185559');
-
-INSERT INTO schema_migrations (version) VALUES ('20131005212713');
-
-INSERT INTO schema_migrations (version) VALUES ('20131005215038');
-
-INSERT INTO schema_migrations (version) VALUES ('20131014164845');
-
-INSERT INTO schema_migrations (version) VALUES ('20131015150024');
-
-INSERT INTO schema_migrations (version) VALUES ('20131017122309');
-
-INSERT INTO schema_migrations (version) VALUES ('20131017123734');
-
-INSERT INTO schema_migrations (version) VALUES ('20131017142454');
-
-INSERT INTO schema_migrations (version) VALUES ('20131017163541');
-
-INSERT INTO schema_migrations (version) VALUES ('20131018101540');
-
-INSERT INTO schema_migrations (version) VALUES ('20131018134130');
-
-INSERT INTO schema_migrations (version) VALUES ('20131022144429');
-
-INSERT INTO schema_migrations (version) VALUES ('20131029165950');
-
-INSERT INTO schema_migrations (version) VALUES ('20131106161335');
-
-INSERT INTO schema_migrations (version) VALUES ('20131106162439');
-
-INSERT INTO schema_migrations (version) VALUES ('20131106162824');
-
-INSERT INTO schema_migrations (version) VALUES ('20131106163851');
-
-INSERT INTO schema_migrations (version) VALUES ('20131119133659');
-
-INSERT INTO schema_migrations (version) VALUES ('20131119140819');
-
-INSERT INTO schema_migrations (version) VALUES ('20131119140820');
-
-INSERT INTO schema_migrations (version) VALUES ('20131119164032');
-
-INSERT INTO schema_migrations (version) VALUES ('20131212171122');
-
-INSERT INTO schema_migrations (version) VALUES ('20131213140544');
-
-INSERT INTO schema_migrations (version) VALUES ('20131216120901');
-
-INSERT INTO schema_migrations (version) VALUES ('20131216121536');
-
-INSERT INTO schema_migrations (version) VALUES ('20131217101949');
-
-INSERT INTO schema_migrations (version) VALUES ('20131217102142');
-
-INSERT INTO schema_migrations (version) VALUES ('20131217121051');
-
-INSERT INTO schema_migrations (version) VALUES ('20131218164749');
-
-INSERT INTO schema_migrations (version) VALUES ('20131218165627');
-
-INSERT INTO schema_migrations (version) VALUES ('20131223110646');
-
-INSERT INTO schema_migrations (version) VALUES ('20140108113028');
-
-INSERT INTO schema_migrations (version) VALUES ('20140109175917');
-
-INSERT INTO schema_migrations (version) VALUES ('20140110111239');
-
-INSERT INTO schema_migrations (version) VALUES ('20140110111609');
-
-INSERT INTO schema_migrations (version) VALUES ('20140113145605');
-
-INSERT INTO schema_migrations (version) VALUES ('20140113160601');
-
-INSERT INTO schema_migrations (version) VALUES ('20140113173344');
-
-INSERT INTO schema_migrations (version) VALUES ('20140113173345');
-
-INSERT INTO schema_migrations (version) VALUES ('20140116121054');
-
-INSERT INTO schema_migrations (version) VALUES ('20140116134521');
-
-INSERT INTO schema_migrations (version) VALUES ('20140116182242');
-
-INSERT INTO schema_migrations (version) VALUES ('20140205084322');
-
-INSERT INTO schema_migrations (version) VALUES ('20140207090849');
-
-INSERT INTO schema_migrations (version) VALUES ('20140210121223');
-
-INSERT INTO schema_migrations (version) VALUES ('20140210121403');
-
-INSERT INTO schema_migrations (version) VALUES ('20140218105813');
-
-INSERT INTO schema_migrations (version) VALUES ('20140220112825');
-
-INSERT INTO schema_migrations (version) VALUES ('20140220171138');
-
-INSERT INTO schema_migrations (version) VALUES ('20140221115708');
-
-INSERT INTO schema_migrations (version) VALUES ('20140312145229');
-
-INSERT INTO schema_migrations (version) VALUES ('20140313102554');
-
-INSERT INTO schema_migrations (version) VALUES ('20140318132052');
-
-INSERT INTO schema_migrations (version) VALUES ('20140326100059');
-
-INSERT INTO schema_migrations (version) VALUES ('20140411143214');
-
-INSERT INTO schema_migrations (version) VALUES ('20140513084035');
-
-INSERT INTO schema_migrations (version) VALUES ('20140513084116');
-
-INSERT INTO schema_migrations (version) VALUES ('20140513084500');
-
-INSERT INTO schema_migrations (version) VALUES ('20140513090352');
-
-INSERT INTO schema_migrations (version) VALUES ('20140514082045');
-
-INSERT INTO schema_migrations (version) VALUES ('20140514082122');
-
-INSERT INTO schema_migrations (version) VALUES ('20140514131633');
-
-INSERT INTO schema_migrations (version) VALUES ('20140514131715');
-
-INSERT INTO schema_migrations (version) VALUES ('20140514140438');
-
-INSERT INTO schema_migrations (version) VALUES ('20140514141353');
-
-INSERT INTO schema_migrations (version) VALUES ('20140514143438');
-
-INSERT INTO schema_migrations (version) VALUES ('20140514143525');
-
-INSERT INTO schema_migrations (version) VALUES ('20140514143916');
-
-INSERT INTO schema_migrations (version) VALUES ('20140514143954');
-
-INSERT INTO schema_migrations (version) VALUES ('20140514144222');
-
-INSERT INTO schema_migrations (version) VALUES ('20140514144304');
-
-INSERT INTO schema_migrations (version) VALUES ('20140519105842');
-
-INSERT INTO schema_migrations (version) VALUES ('20140519105917');
-
-INSERT INTO schema_migrations (version) VALUES ('20140520124510');
-
-INSERT INTO schema_migrations (version) VALUES ('20140520124553');
-
-INSERT INTO schema_migrations (version) VALUES ('20140520125612');
-
-INSERT INTO schema_migrations (version) VALUES ('20140520125642');
-
-INSERT INTO schema_migrations (version) VALUES ('20140520130258');
-
-INSERT INTO schema_migrations (version) VALUES ('20140520130341');
-
-INSERT INTO schema_migrations (version) VALUES ('20140520130708');
-
-INSERT INTO schema_migrations (version) VALUES ('20140520130740');
-
-INSERT INTO schema_migrations (version) VALUES ('20140520131040');
-
-INSERT INTO schema_migrations (version) VALUES ('20140520131539');
-
-INSERT INTO schema_migrations (version) VALUES ('20140520132248');
-
-INSERT INTO schema_migrations (version) VALUES ('20140520132319');
-
-INSERT INTO schema_migrations (version) VALUES ('20140521102836');
-
-INSERT INTO schema_migrations (version) VALUES ('20140521102906');
-
-INSERT INTO schema_migrations (version) VALUES ('20140521103243');
-
-INSERT INTO schema_migrations (version) VALUES ('20140521103318');
-
-INSERT INTO schema_migrations (version) VALUES ('20140521104850');
-
-INSERT INTO schema_migrations (version) VALUES ('20140521104935');
-
-INSERT INTO schema_migrations (version) VALUES ('20140521105017');
-
-INSERT INTO schema_migrations (version) VALUES ('20140521105044');
-
-INSERT INTO schema_migrations (version) VALUES ('20140521105116');
-
-INSERT INTO schema_migrations (version) VALUES ('20140521105149');
-
-INSERT INTO schema_migrations (version) VALUES ('20140521112702');
-
-INSERT INTO schema_migrations (version) VALUES ('20140521112741');
-
-INSERT INTO schema_migrations (version) VALUES ('20140521113436');
-
-INSERT INTO schema_migrations (version) VALUES ('20140522125128');
-
-INSERT INTO schema_migrations (version) VALUES ('20140523131927');
-
-INSERT INTO schema_migrations (version) VALUES ('20140523150907');
-
-INSERT INTO schema_migrations (version) VALUES ('20140528075844');
-
-INSERT INTO schema_migrations (version) VALUES ('20140529073508');
-
-INSERT INTO schema_migrations (version) VALUES ('20140530173241');
-
 INSERT INTO schema_migrations (version) VALUES ('20140604100410');
 
 INSERT INTO schema_migrations (version) VALUES ('20140606102740');
@@ -13816,6 +13446,8 @@ INSERT INTO schema_migrations (version) VALUES ('20150106100040');
 
 INSERT INTO schema_migrations (version) VALUES ('20150107171940');
 
+INSERT INTO schema_migrations (version) VALUES ('20150107173809');
+
 INSERT INTO schema_migrations (version) VALUES ('20150109134326');
 
 INSERT INTO schema_migrations (version) VALUES ('20150112080319');
@@ -13825,4 +13457,6 @@ INSERT INTO schema_migrations (version) VALUES ('20150112093954');
 INSERT INTO schema_migrations (version) VALUES ('20150112113519');
 
 INSERT INTO schema_migrations (version) VALUES ('20150112124146');
+
+INSERT INTO schema_migrations (version) VALUES ('20150114084537');
 

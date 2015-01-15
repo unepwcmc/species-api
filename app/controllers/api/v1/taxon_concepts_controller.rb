@@ -110,6 +110,7 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
     end
 
     @taxon_concepts = @taxon_concepts.where(taxonomy_is_cites_eu: taxonomy_is_cites_eu)
+
     render 'api/v1/taxon_concepts/index'
   end
 end
