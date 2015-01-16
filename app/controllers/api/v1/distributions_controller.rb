@@ -47,6 +47,7 @@ class Api::V1::DistributionsController < Api::V1::BaseController
     @distributions = TaxonConcept.find(params[:taxon_concept_id]).distributions
 
     respond_to do |format|
+      format.html { render :index, content_type: 'application/json' }
       format.json { render :index, content_type: 'application/json' }
       format.xml { render :index, content_type: 'application/xml' }
     end
