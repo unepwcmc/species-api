@@ -112,6 +112,7 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
     @taxon_concepts = @taxon_concepts.where(taxonomy_is_cites_eu: taxonomy_is_cites_eu)    
 
     respond_to do |format|
+      format.html { render :index, content_type: 'application/json' }
       format.json { render :index, content_type: 'application/json' }
       format.xml { render :index, content_type: 'application/xml' }
     end
