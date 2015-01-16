@@ -3,43 +3,49 @@ class Api::BaseController < ApplicationController
   respond_to :xml, :json
   before_action :authenticate
 
+  # Add these two lines to record analytics on api requests and errors on a controller
+  after_action :track_this_request
+  rescue_from StandardError, with: :track_this_error
+
   private
-
-  def authenticate
-    token = request.headers['X-Authentication-Token']
-    @user = User.where(authentication_token: token).first if token
-    if @user.nil? || @user.is_contributor?
-      head status: :unauthorized
-      track_this_request
-      return false
+    def authenticate
+      token = request.headers['X-Authentication-Token']
+      @user = User.where(authentication_token: token).first if token
+      if @user.nil? || @user.is_contributor?
+        head status: :unauthorized
+        track_this_request
+        return false
+      end
     end
-  end
 
-  # after_action method for recording API Metrics
-  def track_this_request
-    # ApiRequest.create(
-    #   user_id: @user.try(:id),
-    #   controller: params[:controller].split('/').last,
-    #   action: params[:action],
-    #   params: params.except(:controller, :action, :format),
-    #   format: params[:format],
-    #   ip: request.remote_ip,
-    #   response_status: response.status
-    # )
-  end
+    # after_action method for recording API Metrics
+    def track_this_request
+      ApiRequest.create(
+        user_id: @user.try(:id),
+        controller: params[:controller].split('/').last,
+        action: params[:action],
+        params: params.except(:controller, :action, :format),
+        format: params[:format],
+        ip: request.remote_ip,
+        response_status: response.status
+      )
+    end
 
-  # rescue_from method for recording API Metrics on 500 errors
-  def track_this_error(exception)
-    # head status: 500 # Manually set this again because we're rescuing from rails magic
-    # ApiRequest.create(
-    #   user_id: @user.try(:id),
-    #   controller: params[:controller].split('/').last,
-    #   action: params[:action],
-    #   params: params.except(:controller, :action, :format),
-    #   format: params[:format],
-    #   ip: request.remote_ip,
-    #   response_status: response.status,
-    #   error_message: exception.to_s
-    # )
-  end 
+    # rescue_from method for recording API Metrics on 500 errors
+    def track_this_error(exception)
+      ExceptionNotifier::Notifier.exception_notification(request.env, exception,
+        :data => {:message => "was doing something wrong"}).deliver
+
+      #head status: 500 # Manually set this again because we're rescuing from rails magic
+      # ApiRequest.create(
+      #   user_id: @user.try(:id),
+      #   controller: params[:controller].split('/').last,
+      #   action: params[:action],
+      #   params: params.except(:controller, :action, :format),
+      #   format: params[:format],
+      #   ip: request.remote_ip,
+      #   response_status: response.status,
+      #   error_message: exception.to_s
+      # )
+    end 
 end

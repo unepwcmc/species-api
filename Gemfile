@@ -16,6 +16,8 @@ gem 'httparty'
 gem 'select2-rails'
 gem 'groupdate'
 gem "chartkick"
+gem 'exception_notification', :git => 'https://github.com/smartinez87/exception_notification.git'
+gem 'slack-notifier', '~> 1.0'
 
 group :test do
   gem 'shoulda'
@@ -29,8 +31,6 @@ end
 
 group :staging, :production do
   gem 'dotenv-rails'
-  gem 'exception_notification', :git => 'https://github.com/smartinez87/exception_notification.git'
-  gem 'slack-notifier', '~> 1.0'
 end
 
 # Use postgresql as the database for Active Record
