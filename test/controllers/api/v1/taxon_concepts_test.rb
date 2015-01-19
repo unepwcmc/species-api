@@ -274,10 +274,4 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
   #   assert_equal 500, ApiRequest.last.response_status
   # end
 
-  test "on 'track_this_error' exception notification fires an email" do
-    @request.headers["X-Authentication-Token"] = @user.authentication_token
-    get :index, updated_since: '33'
-
-    assert_includes ActionMailer::Base.deliveries.last.to, "SpeciesPlusDevs@wcmc.org.uk"
-  end
 end
