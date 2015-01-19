@@ -16,8 +16,6 @@ gem 'httparty'
 gem 'select2-rails'
 gem 'groupdate'
 gem "chartkick"
-gem 'exception_notification', :git => 'https://github.com/smartinez87/exception_notification.git'
-gem 'slack-notifier', '~> 1.0'
 
 group :test do
   gem 'shoulda'
@@ -27,6 +25,8 @@ group :test do
   gem 'codeclimate-test-reporter', require: nil
   gem 'link_header'
   gem 'launchy'
+  gem 'exception_notification', :git => 'https://github.com/smartinez87/exception_notification.git'
+  gem 'slack-notifier', '~> 1.0'
 end
 
 group :staging, :production do

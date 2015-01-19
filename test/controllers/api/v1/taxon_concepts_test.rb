@@ -162,11 +162,6 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     @request.headers["X-Authentication-Token"] = @user.authentication_token
     get :index, name: "Mammalia", with_descendants: 'true'
 
-    puts "************************** RESPONSE ***************************"
-    puts response
-    puts "************************** RESPONSE ***************************"
-
-
     results = JSON.parse(response.body)
     assert_equal 5, results.length
 
@@ -174,7 +169,7 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
 
     get :index, name: "Canis", with_descendants: 'true'
     results = JSON.parse(response.body)
-    assert_equal 3, results.length
+    assert_equal 2, results.length
 
   end
 
