@@ -7,7 +7,6 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :taxon_concepts, :only => [:index] do
         resources :cites_legislation, :only => [:index]
-        resources :common_names, :only => [:index]
         resources :distributions, :only => [:index]
         resources :eu_legislation, :only => [:index]
         resources :references, :only => [:index]

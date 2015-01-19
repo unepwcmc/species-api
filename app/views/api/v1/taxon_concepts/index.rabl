@@ -10,7 +10,7 @@ node(:common_names) { |tc|
     @languages.nil?
 
   common_names.map do |cn|
-    {:name => cn.name, :iso_code1 => cn.iso_code1}
+    {:name => cn.name, :language => cn.iso_code1}
   end
 }
 

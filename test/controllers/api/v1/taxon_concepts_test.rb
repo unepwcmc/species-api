@@ -8,6 +8,21 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     @cites = FactoryGirl.create(:taxonomy, name: 'CITES_EU')
   end
 
+  def create_common_names
+    @lang_en = FactoryGirl.create(:language, iso_code1: 'EN')
+    @lang_pl = FactoryGirl.create(:language, iso_code1: 'PL')
+    @lang_it = FactoryGirl.create(:language, iso_code1: 'IT')
+
+    @en_name = FactoryGirl.create(:common_name, language: @lang_en)
+    @pl_name = FactoryGirl.create(:common_name, language: @lang_pl)
+    @it_name = FactoryGirl.create(:common_name, language: @lang_it)
+
+    @taxon_concept = FactoryGirl.create(:taxon_concept)
+    FactoryGirl.create(:taxon_common, common_name: @en_name, taxon_concept: @taxon_concept)
+    FactoryGirl.create(:taxon_common, common_name: @pl_name, taxon_concept: @taxon_concept)
+    FactoryGirl.create(:taxon_common, common_name: @it_name, taxon_concept: @taxon_concept)
+  end
+
   def create_taxon_concept_tree
     kingdom = FactoryGirl.create(:taxon_concept, taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'Animalia'), 
       rank: FactoryGirl.create(:rank, name: 'KINGDOM', display_name_en: 'Kingdom'))
@@ -194,6 +209,39 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
 
     assert_equal cms_tc.id, results.first["taxon_concept"]["id"]
     assert_equal 1, results.length
+  end
+
+  test "it returns all common names with no language parameter" do
+    create_common_names
+    @request.headers["X-Authentication-Token"] = @user.authentication_token
+    get :index, name: @taxon_concept.full_name
+    results = JSON.parse(response.body)
+    taxon_concept = results.first
+    common_names = taxon_concept['taxon_concept']['common_names']
+    assert_equal 3, common_names.length
+  end
+
+  test "it returns correct countries with a single language parameter" do
+    create_common_names
+    @request.headers["X-Authentication-Token"] = @user.authentication_token
+    get :index, name: @taxon_concept.full_name, language: 'PL'
+    results = JSON.parse(response.body)
+    taxon_concept = results.first
+    common_names = taxon_concept['taxon_concept']['common_names']
+    assert_equal 'PL', common_names.first["language"]
+    assert_equal 1, common_names.length
+  end
+
+  test "it returns correct countries with an array in the language parameter" do
+    create_common_names
+    @request.headers["X-Authentication-Token"] = @user.authentication_token
+    get :index, name: @taxon_concept.full_name, language: 'PL,IT'
+    results = JSON.parse(response.body)
+    taxon_concept = results.first
+    common_names = taxon_concept['taxon_concept']['common_names']
+    assert_equal 'PL', common_names.first["language"]
+    assert_equal 'IT', common_names.last["language"]
+    assert_equal 2, common_names.length
   end
 
   test "it records a request with params" do
