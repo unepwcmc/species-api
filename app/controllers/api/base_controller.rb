@@ -38,6 +38,9 @@ class Api::BaseController < ApplicationController
 
   # rescue_from method for recording API Metrics on 500 errors
   def track_this_error(exception)
+    ExceptionNotifier.notify_exception(exception,
+      :env => request.env, :data => {:message => "Something went wrong"})
+
     head status: 500 # Manually set this again because we're rescuing from rails magic
     ApiRequest.create(
       user_id: @user.try(:id),
@@ -49,5 +52,5 @@ class Api::BaseController < ApplicationController
       response_status: response.status,
       error_message: exception.to_s
     )
-  end 
+  end
 end
