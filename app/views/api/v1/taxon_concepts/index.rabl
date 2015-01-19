@@ -1,6 +1,6 @@
 collection @taxon_concepts
 attributes :id, :full_name, :author_year, :rank, :name_status,
-  :taxonomy, :updated_at, :cites_listing
+  :taxonomy, :updated_at
 node(:higher_taxa) { |tc| tc.higher_taxa }
 node(:synonyms) { |tc| tc.synonyms }
 
@@ -14,13 +14,13 @@ node(:common_names) { |tc|
   end
 }
 
+attributes :cites_listing
 node(:cites_listings) { |tc|
-  tc.cites_listings.where(is_current: true).map do |cl|
-    hash_annotation = cl.hash_annotation || ''
+  tc.cites_listings.where(is_current: true, change_type_name: 'ADDITION').map do |cl|
     {
       :appendix => cl.species_listing_name,
       :annotation => cl.annotation,
-      :hash_annotation => hash_annotation
+      :hash_annotation => cl.hash_annotation
     }
   end
 }

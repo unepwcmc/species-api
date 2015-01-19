@@ -10,242 +10,230 @@ class Api::V1::EuLegislationController < Api::V1::BaseController
   param :scope, String, desc: 'Time scope of legislation. Select all, current or historic. Defaults to current.', required: false
   param :language, String, desc: 'Select language for the text of legislation notes. Select en, fr, or es. Defaults to en.', required: false
   example <<-EOS
-{
-  "eu_legislation":{
+  {
     "eu_listings":[
       {
-        "eu_listing":{
-          "taxon_concept_id":4521,
-          "is_current":true,
-          "annex":"A",
-          "change_type":"+",
-          "effective_at":"2013-08-10",
-          "annotation":"All populations except those of Botswana, Namibia, South Africa and Zimbabwe."
-        }
+        "taxon_concept_id":4521,
+        "is_current":true,
+        "annex":"B",
+        "change_type":"+",
+        "effective_at":"2013-08-10",
+        "annotation":"Populations of Botswana, Namibia, South Africa and Zimbabwe (listed in Annex B):\n\nFor the exclusive purpose of allowing: [...]"
       },
       {
-        "eu_listing":{
-          "taxon_concept_id":4521,
-          "is_current":true,
-          "annex":"B",
-          "change_type":"+",
-          "effective_at":"2013-08-10",
-          "annotation":"Populations of Botswana, Namibia, South Africa and Zimbabwe (listed in Annex B):\n\nFor the exclusive purpose of allowing: [...]"
-        }
+        "taxon_concept_id":4521,
+        "is_current":true,
+        "annex":"A",
+        "change_type":"+",
+        "effective_at":"2013-08-10",
+        "annotation":"All populations except those of Botswana, Namibia, South Africa and Zimbabwe."
       }
     ],
     "eu_decisions":[
       {
-        "eu_decision":{
-          "taxon_concept_id":4521,
-          "notes":"",
-          "start_date":"2014-09-03",
-          "is_current":true,
-          "eu_decision_type":{
-            "name":"Positive",
-            "description":null,
-            "type":"POSITIVE_OPINION"
-          },
-          "geo_entity":{
-            "iso_code2":"BW",
-            "name":"Botswana",
-            "type":"COUNTRY"
-          },
-          "start_event":{
-            "name":"No 338/97",
-            "date":"1997-06-01",
-            "url":"http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CONSLEG:1997R0338:20080411:EN:PDF"
-          },
-          "source":{
-            "code":"W",
-            "name":"Wild"
-          },
-          "term":{
-            "code":null,
-            "name":null
-          }
+        "taxon_concept_id":4521,
+        "notes":"",
+        "start_date":"2014-09-03",
+        "is_current":true,
+        "eu_decision_type":{
+          "name":"Positive",
+          "description":null,
+          "type":"POSITIVE_OPINION"
+        },
+        "geo_entity":{
+          "iso_code2":"BW",
+          "name":"Botswana",
+          "type":"COUNTRY"
+        },
+        "start_event":{
+          "name":"No 338/97",
+          "date":"1997-06-01",
+          "url":"http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CONSLEG:1997R0338:20080411:EN:PDF"
+        },
+        "source":{
+          "code":"W",
+          "name":"Wild"
+        },
+        "term":{
+          "code":null,
+          "name":null
         }
       },
       {
-        "eu_decision":{
-          "taxon_concept_id":4521,
-          "notes":null,
-          "start_date":"2011-12-02",
-          "is_current":true,
-          "eu_decision_type":{
-            "name":"i)",
-            "description":"no significant trade anticipated",
-            "type":"NO_OPINION"
-          },
-          "geo_entity":{
-            "iso_code2":"ET",
-            "name":"Ethiopia",
-            "type":"COUNTRY"
-          },
-          "start_event":{
-            "name":"No 338/97",
-            "date":"1997-06-01",
-            "url":"http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CONSLEG:1997R0338:20080411:EN:PDF"
-          },
-          "source":{
-            "code":null,
-            "name":null
-          },
-          "term":{
-            "code":null,
-            "name":null
-          }
+        "taxon_concept_id":4521,
+        "notes":null,
+        "start_date":"2011-12-02",
+        "is_current":true,
+        "eu_decision_type":{
+          "name":"i)",
+          "description":"no significant trade anticipated",
+          "type":"NO_OPINION"
+        },
+        "geo_entity":{
+          "iso_code2":"ET",
+          "name":"Ethiopia",
+          "type":"COUNTRY"
+        },
+        "start_event":{
+          "name":"No 338/97",
+          "date":"1997-06-01",
+          "url":"http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CONSLEG:1997R0338:20080411:EN:PDF"
+        },
+        "source":{
+          "code":null,
+          "name":null
+        },
+        "term":{
+          "code":null,
+          "name":null
         }
       },
       {
-        "eu_decision":{
-          "taxon_concept_id":4521,
-          "notes":"Hunting trophies",
-          "start_date":"2014-09-04",
-          "is_current":true,
-          "eu_decision_type":{
-            "name":"Suspension (a)",
-            "description":null,
-            "type":"SUSPENSION"
-          },
-          "geo_entity":{
-            "iso_code2":"CM",
-            "name":"Cameroon",
-            "type":"COUNTRY"
-          },
-          "start_event":{
-            "name":"No 888/2014",
-            "date":"2014-09-04",
-            "url":"http://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:32014R0888&from=EN"
-          },
-          "source":{
-            "code":"W",
-            "name":"Wild"
-          },
-          "term":{
-            "code":null,
-            "name":null
-          }
+        "taxon_concept_id":4521,
+        "notes":"Hunting trophies",
+        "start_date":"2014-09-04",
+        "is_current":true,
+        "eu_decision_type":{
+          "name":"Suspension (a)",
+          "description":null,
+          "type":"SUSPENSION"
+        },
+        "geo_entity":{
+          "iso_code2":"CM",
+          "name":"Cameroon",
+          "type":"COUNTRY"
+        },
+        "start_event":{
+          "name":"No 888/2014",
+          "date":"2014-09-04",
+          "url":"http://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:32014R0888&from=EN"
+        },
+        "source":{
+          "code":"W",
+          "name":"Wild"
+        },
+        "term":{
+          "code":null,
+          "name":null
         }
       }
     ]
   }
-}
   EOS
 
   example <<-EOS
-<?xml version="1.0" encoding="UTF-8"?>
-<eu-legislation>
-  <eu-listings type="array">
-    <eu-listing>
-      <taxon-concept-id type="integer">4521</taxon-concept-id>
-      <is-current type="boolean">true</is-current>
-      <annex>A</annex>
-      <change-type>+</change-type>
-      <effective-at type="date">2013-08-10</effective-at>
-      <annotation>All populations except those of Botswana, Namibia, South Africa and Zimbabwe.</annotation>
-    </eu-listing>
-    <eu-listing>
-      <taxon-concept-id type="integer">4521</taxon-concept-id>
-      <is-current type="boolean">true</is-current>
-      <annex>B</annex>
-      <change-type>+</change-type>
-      <effective-at type="date">2013-08-10</effective-at>
-      <annotation>Populations of Botswana, Namibia, South Africa and Zimbabwe (listed in Annex B):
+  <?xml version="1.0" encoding="UTF-8"?>
+  <eu-legislation>
+    <eu-listings type="array">
+      <eu-listing>
+        <taxon-concept-id type="integer">4521</taxon-concept-id>
+        <is-current type="boolean">true</is-current>
+        <annex>B</annex>
+        <change-type>+</change-type>
+        <effective-at type="date">2013-08-10</effective-at>
+        <annotation>Populations of Botswana, Namibia, South Africa and Zimbabwe (listed in Annex B):
 
-For the exclusive purpose of allowing: [...]</annotation>
-    </eu-listing>
-  </eu-listings>
-  <eu-decisions type="array">
-    <eu-decision>
-      <taxon-concept-id type="integer">4521</taxon-concept-id>
-      <notes></notes>
-      <start-date type="date">2014-09-03</start-date>
-      <is-current type="boolean">true</is-current>
-      <eu-decision-type>
-        <name>Positive</name>
-        <description nil="true"/>
-        <type>POSITIVE_OPINION</type>
-      </eu-decision-type>
-      <geo-entity>
-        <iso-code2>BW</iso-code2>
-        <name>Botswana</name>
-        <type>COUNTRY</type>
-      </geo-entity>
-      <start-event>
-        <name>No 338/97</name>
-        <date>1997-06-01</date>
-        <url>http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CONSLEG:1997R0338:20080411:EN:PDF</url>
-      </start-event>
-      <source>
-        <code>W</code>
-        <name>Wild</name>
-      </source>
-      <term>
-        <code nil="true"/>
-        <name nil="true"/>
-      </term>
-    </eu-decision>
-    <eu-decision>
-      <taxon-concept-id type="integer">4521</taxon-concept-id>
-      <notes nil="true"/>
-      <start-date type="date">2011-12-02</start-date>
-      <is-current type="boolean">true</is-current>
-      <eu-decision-type>
-        <name>i)</name>
-        <description>no significant trade anticipated</description>
-        <type>NO_OPINION</type>
-      </eu-decision-type>
-      <geo-entity>
-        <iso-code2>ET</iso-code2>
-        <name>Ethiopia</name>
-        <type>COUNTRY</type>
-      </geo-entity>
-      <start-event>
-        <name>No 338/97</name>
-        <date>1997-06-01</date>
-        <url>http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CONSLEG:1997R0338:20080411:EN:PDF</url>
-      </start-event>
-      <source>
-        <code nil="true"/>
-        <name nil="true"/>
-      </source>
-      <term>
-        <code nil="true"/>
-        <name nil="true"/>
-      </term>
-    </eu-decision>
-    <eu-decision>
-      <taxon-concept-id type="integer">4521</taxon-concept-id>
-      <notes>Hunting trophies</notes>
-      <start-date type="date">2014-09-04</start-date>
-      <is-current type="boolean">true</is-current>
-      <eu-decision-type>
-        <name>Suspension (a)</name>
-        <description nil="true"/>
-        <type>SUSPENSION</type>
-      </eu-decision-type>
-      <geo-entity>
-        <iso-code2>CM</iso-code2>
-        <name>Cameroon</name>
-        <type>COUNTRY</type>
-      </geo-entity>
-      <start-event>
-        <name>No 888/2014</name>
-        <date>2014-09-04</date>
-        <url>http://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:32014R0888&amp;from=EN</url>
-      </start-event>
-      <source>
-        <code>W</code>
-        <name>Wild</name>
-      </source>
-      <term>
-        <code nil="true"/>
-        <name nil="true"/>
-      </term>
-    </eu-decision>
-  </eu-decisions>
-</eu-legislation>
+  For the exclusive purpose of allowing: [...]</annotation>
+      </eu-listing>
+      <eu-listing>
+        <taxon-concept-id type="integer">4521</taxon-concept-id>
+        <is-current type="boolean">true</is-current>
+        <annex>A</annex>
+        <change-type>+</change-type>
+        <effective-at type="date">2013-08-10</effective-at>
+        <annotation>All populations except those of Botswana, Namibia, South Africa and Zimbabwe.</annotation>
+      </eu-listing>
+    </eu-listings>
+    <eu-decisions type="array">
+      <eu-decision>
+        <taxon-concept-id type="integer">4521</taxon-concept-id>
+        <notes></notes>
+        <start-date type="date">2014-09-03</start-date>
+        <is-current type="boolean">true</is-current>
+        <eu-decision-type>
+          <name>Positive</name>
+          <description nil="true"/>
+          <type>POSITIVE_OPINION</type>
+        </eu-decision-type>
+        <geo-entity>
+          <iso-code2>BW</iso-code2>
+          <name>Botswana</name>
+          <type>COUNTRY</type>
+        </geo-entity>
+        <start-event>
+          <name>No 338/97</name>
+          <date>1997-06-01</date>
+          <url>http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CONSLEG:1997R0338:20080411:EN:PDF</url>
+        </start-event>
+        <source>
+          <code>W</code>
+          <name>Wild</name>
+        </source>
+        <term>
+          <code nil="true"/>
+          <name nil="true"/>
+        </term>
+      </eu-decision>
+      <eu-decision>
+        <taxon-concept-id type="integer">4521</taxon-concept-id>
+        <notes nil="true"/>
+        <start-date type="date">2011-12-02</start-date>
+        <is-current type="boolean">true</is-current>
+        <eu-decision-type>
+          <name>i)</name>
+          <description>no significant trade anticipated</description>
+          <type>NO_OPINION</type>
+        </eu-decision-type>
+        <geo-entity>
+          <iso-code2>ET</iso-code2>
+          <name>Ethiopia</name>
+          <type>COUNTRY</type>
+        </geo-entity>
+        <start-event>
+          <name>No 338/97</name>
+          <date>1997-06-01</date>
+          <url>http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CONSLEG:1997R0338:20080411:EN:PDF</url>
+        </start-event>
+        <source>
+          <code nil="true"/>
+          <name nil="true"/>
+        </source>
+        <term>
+          <code nil="true"/>
+          <name nil="true"/>
+        </term>
+      </eu-decision>
+      <eu-decision>
+        <taxon-concept-id type="integer">4521</taxon-concept-id>
+        <notes>Hunting trophies</notes>
+        <start-date type="date">2014-09-04</start-date>
+        <is-current type="boolean">true</is-current>
+        <eu-decision-type>
+          <name>Suspension (a)</name>
+          <description nil="true"/>
+          <type>SUSPENSION</type>
+        </eu-decision-type>
+        <geo-entity>
+          <iso-code2>CM</iso-code2>
+          <name>Cameroon</name>
+          <type>COUNTRY</type>
+        </geo-entity>
+        <start-event>
+          <name>No 888/2014</name>
+          <date>2014-09-04</date>
+          <url>http://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:32014R0888&amp;from=EN</url>
+        </start-event>
+        <source>
+          <code>W</code>
+          <name>Wild</name>
+        </source>
+        <term>
+          <code nil="true"/>
+          <name nil="true"/>
+        </term>
+      </eu-decision>
+    </eu-decisions>
+  </eu-legislation>
   EOS
 
   def index

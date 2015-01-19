@@ -9,38 +9,58 @@ class Api::V1::DistributionsController < Api::V1::BaseController
   param :language, String, desc: 'Select language for the names of distributions. Select en, fr, or es. Defaults to en.', required: false
 
   example <<-EOS
-    [
-      {
-        "distribution": {
-          "iso_code2" : "NI",
-          "tags" : [],
-          "type" : "COUNTRY",
-          "references" : [
-            "Howell, T.R. 2010. Thomas R. Howell's check-list of the birds of Nicaragua as of 1993. Ornithological Monographs: 68: 1-108.",
-            "Martínez-Sánchez, J. C. 2007. Lista patrón de las aves de Nicaragua; Con información de nuevos registros, distribución y localidades donde observar aves. Alianza para las Areas Silvestres. Granada, Nicaragua.",
-            "Ridgely, R. S. and Gwynne, J. A. 1989. A guide to the birds of Panama with Costa Rica, Nicaragua, and Honduras. 2nd edition. Princeton University Press. Princeton, New Jersey."  
-          ],
-          "name" : "Nicaragua"
-        }
-      }
-    ]
+  [
+    {
+      "iso_code2":"GQ",
+      "name":"Equatorial Guinea",
+      "tags":[
+
+      ],
+      "type":"COUNTRY",
+      "references":[
+        "Basilio, A. 1962. La vida animal en la Guinea Espanola. Instituto de Estudios Africanos. Madrid."
+      ]
+    },
+    {
+      "iso_code2":"MR",
+      "name":"Mauritania",
+      "tags":[
+        "extinct"
+      ],
+      "type":"COUNTRY",
+      "references":[
+        "Blanc, J.J., Thouless, C.R., Hart, J.A., Dublin H.T., Douglas-Hamilton, I., Craig, C.R. and Barnes, R.F.W. 2003. African Elephant Status Report 2002: an update from the African Elephant Database. http://iucn.org/afesg/aed/aesr2002.html IUCN/SSC African Elephant Specialist Group. IUCN, Gland, Switzerland and Cambridge, UK. ",
+        "Jackson, P. 1982. Elephants and rhinos in Africa. A time for decision. IUCN. Gland."
+      ]
+    }
+  ]
   EOS
 
   example <<-EOS
-    <?xml version="1.0" encoding="UTF-8"?>
-    <distributions type="array">
-      <distribution>
-        <name>Nicaragua</name>
-        <iso-code2>NI</iso-code2>
-        <tags type="array"/>
-        <type>COUNTRY</type>
-        <references type="array">
-          <reference>Howell, T.R. 2010. Thomas R. Howell's check-list of the birds of Nicaragua as of 1993. Ornithological Monographs: 68: 1-108.</reference>
-          <reference>Martínez-Sánchez, J. C. 2007. Lista patrón de las aves de Nicaragua; Con información de nuevos registros, distribución y localidades donde observar aves. Alianza para las Areas Silvestres. Granada, Nicaragua.</reference>
-          <reference>Ridgely, R. S. and Gwynne, J. A. 1989. A guide to the birds of Panama with Costa Rica, Nicaragua, and Honduras. 2nd edition. Princeton University Press. Princeton, New Jersey.</reference>
-        </references>
-      </distribution>
-    </distributions>
+  <?xml version="1.0" encoding="UTF-8"?>
+  <distributions type="array">
+    <distribution>
+      <iso-code2>GQ</iso-code2>
+      <name>Equatorial Guinea</name>
+      <tags type="array"/>
+      <type>COUNTRY</type>
+      <references type="array">
+        <reference>Basilio, A. 1962. La vida animal en la Guinea Espanola. Instituto de Estudios Africanos. Madrid.</reference>
+      </references>
+    </distribution>
+    <distribution>
+      <iso-code2>MR</iso-code2>
+      <name>Mauritania</name>
+      <tags type="array">
+        <tag>extinct</tag>
+      </tags>
+      <type>COUNTRY</type>
+      <references type="array">
+        <reference>Blanc, J.J., Thouless, C.R., Hart, J.A., Dublin H.T., Douglas-Hamilton, I., Craig, C.R. and Barnes, R.F.W. 2003. African Elephant Status Report 2002: an update from the African Elephant Database. http://iucn.org/afesg/aed/aesr2002.html IUCN/SSC African Elephant Specialist Group. IUCN, Gland, Switzerland and Cambridge, UK. </reference>
+        <reference>Jackson, P. 1982. Elephants and rhinos in Africa. A time for decision. IUCN. Gland.</reference>
+      </references>
+    </distribution>
+  </distributions>
   EOS
 
   def index
