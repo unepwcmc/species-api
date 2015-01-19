@@ -12,6 +12,7 @@ Rails.application.routes.draw do
         resources :references, :only => [:index]
       end
     end
+    get 'test_exception_notifier', controller: :base, action: :test_exception_notifier
   end
 
   devise_for :users, :controllers => { :registrations => "registrations" }

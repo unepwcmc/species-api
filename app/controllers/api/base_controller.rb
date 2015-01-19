@@ -1,8 +1,13 @@
 class Api::BaseController < ApplicationController
   skip_before_action :authenticate_user!
   respond_to :xml, :json
-  before_action :authenticate
+  before_action :authenticate, except: [:test_exception_notifier]
   before_action :set_content_type_if_xml
+
+  # this end-point to be used to test exception notifier
+  def test_exception_notifier
+    raise 'This is a test. This is only a test.'
+  end
 
   private
 
