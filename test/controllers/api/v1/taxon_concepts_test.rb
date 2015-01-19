@@ -169,7 +169,7 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
 
     get :index, name: "Canis", with_descendants: 'true'
     results = JSON.parse(response.body)
-    assert_equal 3, results.length
+    assert_equal 2, results.length
 
   end
 
