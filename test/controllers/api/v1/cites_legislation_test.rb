@@ -89,7 +89,7 @@ class Api::V1::CitesLegislationControllerTest < ActionController::TestCase
     get :index, taxon_concept_id: @taxon_concept.id
 
     results = JSON.parse(response.body)
-    cites_suspensions = results['cites_legislation']['cites_suspensions']
+    cites_suspensions = results['cites_suspensions']
     assert_equal 2, cites_suspensions.size
   end
 
@@ -98,7 +98,7 @@ class Api::V1::CitesLegislationControllerTest < ActionController::TestCase
     get :index, taxon_concept_id: @taxon_concept.id, scope: :all
 
     results = JSON.parse(response.body)
-    cites_suspensions = results['cites_legislation']['cites_suspensions']
+    cites_suspensions = results['cites_suspensions']
     assert_equal 3, cites_suspensions.size
   end
 
@@ -107,7 +107,7 @@ class Api::V1::CitesLegislationControllerTest < ActionController::TestCase
     get :index, taxon_concept_id: @taxon_concept.id
 
     results = JSON.parse(response.body)
-    cites_quotas = results['cites_legislation']['cites_quotas']
+    cites_quotas = results['cites_quotas']
     assert_equal 2, cites_quotas.size
   end
 
@@ -116,7 +116,7 @@ class Api::V1::CitesLegislationControllerTest < ActionController::TestCase
     get :index, taxon_concept_id: @taxon_concept.id, scope: :all
 
     results = JSON.parse(response.body)
-    cites_quotas = results['cites_legislation']['cites_quotas']
+    cites_quotas = results['cites_quotas']
     assert_equal 3, cites_quotas.size
   end
 
@@ -125,7 +125,7 @@ class Api::V1::CitesLegislationControllerTest < ActionController::TestCase
     get :index, taxon_concept_id: @taxon_concept.id
 
     results = JSON.parse(response.body)
-    cites_quotas = results['cites_legislation']['cites_listings']
+    cites_quotas = results['cites_listings']
     assert_equal 2, cites_quotas.size
   end
 
@@ -134,7 +134,7 @@ class Api::V1::CitesLegislationControllerTest < ActionController::TestCase
     get :index, taxon_concept_id: @taxon_concept.id, scope: :all
 
     results = JSON.parse(response.body)
-    cites_quotas = results['cites_legislation']['cites_listings']
+    cites_quotas = results['cites_listings']
     assert_equal 3, cites_quotas.size
   end
 

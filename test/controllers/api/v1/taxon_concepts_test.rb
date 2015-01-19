@@ -167,7 +167,7 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
 
     get :index, name: "John Hammond"
     results = JSON.parse(response.body)
-    assert_equal "John Hammond", results.first["taxon_concept"]["full_name"]
+    assert_equal "John Hammond", results.first["full_name"]
     assert_equal 1, results.length
   end
 
@@ -207,7 +207,7 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     get :index, taxonomy: "CMS"
     results = JSON.parse(response.body)
 
-    assert_equal cms_tc.id, results.first["taxon_concept"]["id"]
+    assert_equal cms_tc.id, results.first["id"]
     assert_equal 1, results.length
   end
 
@@ -217,7 +217,7 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     get :index, name: @taxon_concept.full_name
     results = JSON.parse(response.body)
     taxon_concept = results.first
-    common_names = taxon_concept['taxon_concept']['common_names']
+    common_names = taxon_concept['common_names']
     assert_equal 3, common_names.length
   end
 
@@ -227,7 +227,7 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     get :index, name: @taxon_concept.full_name, language: 'PL'
     results = JSON.parse(response.body)
     taxon_concept = results.first
-    common_names = taxon_concept['taxon_concept']['common_names']
+    common_names = taxon_concept['common_names']
     assert_equal 'PL', common_names.first["language"]
     assert_equal 1, common_names.length
   end
@@ -238,7 +238,7 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     get :index, name: @taxon_concept.full_name, language: 'PL,IT'
     results = JSON.parse(response.body)
     taxon_concept = results.first
-    common_names = taxon_concept['taxon_concept']['common_names']
+    common_names = taxon_concept['common_names']
     assert_equal 'PL', common_names.first["language"]
     assert_equal 'IT', common_names.last["language"]
     assert_equal 2, common_names.length
@@ -250,7 +250,7 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     @request.headers["X-Authentication-Token"] = @user.authentication_token
 
     assert_difference 'ApiRequest.count' do
-      get :index, updated_since: 2.months.ago.to_s    
+      get :index, updated_since: 2.months.ago.to_s
     end
 
     assert_not_nil ApiRequest.last.params

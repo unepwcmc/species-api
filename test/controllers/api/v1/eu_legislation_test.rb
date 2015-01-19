@@ -97,7 +97,7 @@ class Api::V1::EuLegislationControllerTest < ActionController::TestCase
     get :index, taxon_concept_id: @taxon_concept.id
 
     results = JSON.parse(response.body)
-    eu_decisions = results['eu_legislation']['eu_decisions']
+    eu_decisions = results['eu_decisions']
     assert_equal 2, eu_decisions.size
   end
 
@@ -106,7 +106,7 @@ class Api::V1::EuLegislationControllerTest < ActionController::TestCase
     get :index, taxon_concept_id: @taxon_concept.id, scope: :all
 
     results = JSON.parse(response.body)
-    eu_decisions = results['eu_legislation']['eu_decisions']
+    eu_decisions = results['eu_decisions']
     assert_equal 3, eu_decisions.size
   end
 
@@ -115,7 +115,7 @@ class Api::V1::EuLegislationControllerTest < ActionController::TestCase
     get :index, taxon_concept_id: @taxon_concept.id
 
     results = JSON.parse(response.body)
-    eu_listings = results['eu_legislation']['eu_listings']
+    eu_listings = results['eu_listings']
     assert_equal 2, eu_listings.size
   end
 
@@ -124,7 +124,7 @@ class Api::V1::EuLegislationControllerTest < ActionController::TestCase
     get :index, taxon_concept_id: @taxon_concept.id, scope: :all
 
     results = JSON.parse(response.body)
-    eu_listings = results['eu_legislation']['eu_listings']
+    eu_listings = results['eu_listings']
     assert_equal 3, eu_listings.size
   end
 

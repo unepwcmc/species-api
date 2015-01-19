@@ -40,7 +40,7 @@ class Api::V1::DistributionsControllerTest < ActionController::TestCase
     get :index, taxon_concept_id: @taxon_concept.id, language: 'fr'
 
     results = JSON.parse(response.body)
-    assert_equal "name fr", results.first["distribution"]["name"]
+    assert_equal "name fr", results.first["name"]
   end
 
   test "defaults to English name without language params" do
@@ -48,6 +48,6 @@ class Api::V1::DistributionsControllerTest < ActionController::TestCase
     get :index, taxon_concept_id: @taxon_concept.id
 
     results = JSON.parse(response.body)
-    assert_equal "name en", results.first["distribution"]["name"]
+    assert_equal "name en", results.first["name"]
   end
 end
