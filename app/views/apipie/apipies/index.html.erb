@@ -17,12 +17,27 @@
   </div> -->
 
   <h3 class="first">Getting Started</h3>
+
+  <h4>Signing up for API access</h4>
+  <p>You can sign up for an API account <%= link_to 'here', new_user_registration_path %>. Once you have signed up, visit <%= link_to 'Sign in', new_user_session_path %> to log in to the API Dashboard and retrieve your generated token.</p>
+
+  <h4>Tools for testing the API</h4>
+  <p>There are a number of free tools available that allow you to test the API before you start integrating it in your systems. For example, <code>curl</code> is a popular command-line tool that could be used for this purpose:</p>
+
+  <p>
+  <code>curl -i "http://api.speciesplus.net/api/v1/taxon_concepts.xml?name=Mammalia" -H "X-Authentication-Token:YOUR_TOKEN_HERE"</code>
+  </p>
+
+  <p>There are also a number of tools that can be installed as an add-on to your browser; they can be found for example by searching for "rest client" in the add-ons repository for your browser.</p>
+
   <h4>Authenticating your requests</h4>
-  <p>You can sign up for an API account <%= link_to 'here', new_user_registration_path %>. Once you have signed up, visit <%= link_to 'Sign in', new_user_session_path %> to log in to the API Dashboard and retrieve your generated token. This token will need to be passed into every request you make via the HTTP header below:</p>
+  Your authentication token needs to be passed into every request you make via the HTTP header below:</p>
 
   <div class="well">
     <pre>X-Authentication-Token: 8QW6Qgh57sBG2k0gtt</pre>
   </div>
+
+  <p>Tokens can be manually regenerated from the API Dashboard</p>
 
   <h4>Optional parameters</h4>
   <p>Whereas authentication is passed via a HTTP header, other parameters for refining your response data are provided via the query string. These are detailed below and where appropriate in the documentation for each endpoint. Parameters can be combined.</p>
@@ -39,18 +54,11 @@ Total-Count: 64230</pre></div>
 
   <p>If there are additional pages, the link header will contain the URL for the next page of results, followed by the URL for the last page of results. The Total-Count header shows the total number of objects returned for this call, regardless of pagination.</p>
 
-  <h4>Filtering by Date Updated</h4>
-  <p>An optional 'updated_since' parameter can be passed to pull only objects updated after (and including) the specified timestamp in ISO8601 format (UTC time).
-
-  <div class="well"><pre>http://www.speciesplus.net/api/v1/taxon_concepts?updated_since=2013-12-09</pre></div>
-
   <h4>Formats</h4>
   <p>All endpoint can return both JSON and XML data. The default is JSON, if you would like to receive XML data, you can add .xml to the endpoint as below:</p>
 
   <div class="well"><pre>http://www.speciesplus.net/api/v1/taxon_concepts.xml</pre></div>
 
-  <h4>Tokens</h4>
-  <p>Tokens can be manually regenerated from the API Dashboard</p>
 </div>
 
 <h3 class="first">API Calls</h3>
