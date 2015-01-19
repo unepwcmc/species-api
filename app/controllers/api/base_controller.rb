@@ -2,6 +2,7 @@ class Api::BaseController < ApplicationController
   skip_before_action :authenticate_user!
   respond_to :xml, :json
   before_action :authenticate
+  before_action :set_content_type_if_xml
 
   private
 
@@ -12,6 +13,13 @@ class Api::BaseController < ApplicationController
       head status: :unauthorized
       track_this_request
       return false
+    end
+  end
+
+  def set_content_type_if_xml
+    # rabl does not set the content type properly for XML
+    if params[:format] && params[:format].downcase.strip.to_sym == :xml
+      response.headers['Content-Type'] = 'application/xml; charset=utf-8'
     end
   end
 
