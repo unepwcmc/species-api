@@ -145,7 +145,7 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
 
     get :index, updated_since: 2.months.ago.to_s
     results = JSON.parse(response.body)
-    assert_equal 1, results.length
+    assert_equal 1, results['taxon_concepts'].length
   end
 
   test "filters results by name with 'name' params" do
@@ -167,8 +167,8 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
 
     get :index, name: "John Hammond"
     results = JSON.parse(response.body)
-    assert_equal "John Hammond", results.first["full_name"]
-    assert_equal 1, results.length
+    assert_equal "John Hammond", results['taxon_concepts'].first["full_name"]
+    assert_equal 1, results['taxon_concepts'].length
   end
 
   test "filters results by name including higher taxa fields with 'with_descendants' params set to true" do
@@ -178,13 +178,13 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     get :index, name: "Mammalia", with_descendants: 'true'
 
     results = JSON.parse(response.body)
-    assert_equal 5, results.length
+    assert_equal 5, results['taxon_concepts'].length
 
     create_canis_tree_and_taxon_concepts
 
     get :index, name: "Canis", with_descendants: 'true'
     results = JSON.parse(response.body)
-    assert_equal 2, results.length
+    assert_equal 2, results['taxon_concepts'].length
 
   end
 
@@ -195,7 +195,7 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     get :index, name: "Mammalia"
 
     results = JSON.parse(response.body)
-    assert_equal 1, results.length
+    assert_equal 1, results['taxon_concepts'].length
   end
 
   test "filters results by name with 'taxonomy' params" do
@@ -207,8 +207,8 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     get :index, taxonomy: "CMS"
     results = JSON.parse(response.body)
 
-    assert_equal cms_tc.id, results.first["id"]
-    assert_equal 1, results.length
+    assert_equal cms_tc.id, results['taxon_concepts'].first["id"]
+    assert_equal 1, results['taxon_concepts'].length
   end
 
   test "it returns all common names with no language parameter" do
@@ -216,7 +216,7 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     @request.headers["X-Authentication-Token"] = @user.authentication_token
     get :index, name: @taxon_concept.full_name
     results = JSON.parse(response.body)
-    taxon_concept = results.first
+    taxon_concept = results['taxon_concepts'].first
     common_names = taxon_concept['common_names']
     assert_equal 3, common_names.length
   end
@@ -226,7 +226,7 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     @request.headers["X-Authentication-Token"] = @user.authentication_token
     get :index, name: @taxon_concept.full_name, language: 'PL'
     results = JSON.parse(response.body)
-    taxon_concept = results.first
+    taxon_concept = results['taxon_concepts'].first
     common_names = taxon_concept['common_names']
     assert_equal 'PL', common_names.first["language"]
     assert_equal 1, common_names.length
@@ -237,7 +237,7 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     @request.headers["X-Authentication-Token"] = @user.authentication_token
     get :index, name: @taxon_concept.full_name, language: 'PL,IT'
     results = JSON.parse(response.body)
-    taxon_concept = results.first
+    taxon_concept = results['taxon_concepts'].first
     common_names = taxon_concept['common_names']
     assert_equal 'PL', common_names.first["language"]
     assert_equal 'IT', common_names.last["language"]

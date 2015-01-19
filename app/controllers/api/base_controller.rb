@@ -38,8 +38,10 @@ class Api::BaseController < ApplicationController
 
   # rescue_from method for recording API Metrics on 500 errors
   def track_this_error(exception)
-    ExceptionNotifier.notify_exception(exception,
-      :env => request.env, :data => {:message => "Something went wrong"})
+    if Rails.env.production? || Rails.env.staging?
+      ExceptionNotifier.notify_exception(exception,
+        :env => request.env, :data => {:message => "Something went wrong"})
+    end
 
     head status: 500 # Manually set this again because we're rescuing from rails magic
     ApiRequest.create(

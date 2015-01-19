@@ -1,4 +1,10 @@
-collection @taxon_concepts
+child :pagination do
+  node(:current_page){ @taxon_concepts.current_page.to_i }
+  node(:per_page){ @taxon_concepts.per_page }
+  node(:total_entries){ @taxon_concepts.total_entries }
+end
+
+child @taxon_concepts => :taxon_concepts do
 attributes :id, :full_name, :author_year, :rank, :name_status,
   :taxonomy, :updated_at
 node(:higher_taxa) { |tc| tc.higher_taxa }
@@ -24,3 +30,4 @@ node(:cites_listings) { |tc|
     }
   end
 }
+end
