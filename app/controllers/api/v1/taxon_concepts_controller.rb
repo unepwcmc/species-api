@@ -1,3 +1,5 @@
+require 'ostruct'
+
 class Api::V1::TaxonConceptsController < Api::V1::BaseController
   after_action only: [:index] { set_pagination_headers(:taxon_concepts) }
 
@@ -172,6 +174,12 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
     end
 
     @taxon_concepts = @taxon_concepts.where(taxonomy_is_cites_eu: taxonomy_is_cites_eu)
+
+    @pagination = {
+      :current_page => @taxon_concepts.current_page,
+      :per_page => @taxon_concepts.per_page,
+      :total_entries => @taxon_concepts.total_entries
+    }
 
     render 'api/v1/taxon_concepts/index'
   end
