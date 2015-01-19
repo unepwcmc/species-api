@@ -1,5 +1,3 @@
-require 'ostruct'
-
 class Api::V1::TaxonConceptsController < Api::V1::BaseController
   after_action only: [:index] { set_pagination_headers(:taxon_concepts) }
 
@@ -18,122 +16,136 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
   param :taxonomy, String, desc: 'Filter taxon concepts by taxonomy, accepts either CITES or CMS as its value. Defaults to CITES if no value is specified', required: false
 
   example <<-EOS
-  [
-    {
-      "id":4521,
-      "full_name":"Loxodonta africana",
-      "author_year":"(Blumenbach, 1797)",
-      "rank":"SPECIES",
-      "name_status":"A",
-      "updated_at":"2014-12-11T15:39:51.620Z",
-      "cites_listing":"I/II",
-      "higher_taxa":{
-        "kingdom":"Animalia",
-        "phylum":"Chordata",
-        "class":"Mammalia",
-        "order":"Proboscidea",
-        "family":"Elephantidae"
-      },
-      "synonyms":[
-        {
-          "id":37069,
-          "full_name":"Loxodonta cyclotis",
-          "author_year":"(Matschie, 1900)",
-          "rank":"SPECIES"
-        }
-      ],
-      "common_names":[
-        {
-          "name":"African Elephant",
-          "language":"EN"
+  {
+    "pagination":{
+      "current_page":1,
+      "per_page":500,
+      "total_entries":1
+    },
+    "taxon_concepts":[
+      {
+        "id":4521,
+        "full_name":"Loxodonta africana",
+        "author_year":"(Blumenbach, 1797)",
+        "rank":"SPECIES",
+        "name_status":"A",
+        "updated_at":"2014-12-11T15:39:51.620Z",
+        "cites_listing":"I/II",
+        "higher_taxa":{
+          "kingdom":"Animalia",
+          "phylum":"Chordata",
+          "class":"Mammalia",
+          "order":"Proboscidea",
+          "family":"Elephantidae"
         },
-        {
-          "name":"African Savannah Elephant",
-          "language":"EN"
-        },
-        {
-          "name":"Eléphant d'Afrique",
-          "language":"FR"
-        },
-        {
-          "name":"Eléphant africain",
-          "language":"FR"
-        }
-      ],
-      "cites_listings":[
-        {
-          "appendix":"II",
-          "annotation":"The populations of Botswana, Namibia, South Africa and Zimbabwe are listed in Appendix II for the exclusive purpose of allowing: [...]",
-          "hash_annotation":null
-        },
-        {
-          "appendix":"I",
-          "annotation":"Included in Appendix I, except the populations of Botswana, Namibia, South Africa and Zimbabwe, which are included in Appendix II.",
-          "hash_annotation":null
-        }
-      ]
-    }
-  ]
+        "synonyms":[
+          {
+            "id":37069,
+            "full_name":"Loxodonta cyclotis",
+            "author_year":"(Matschie, 1900)",
+            "rank":"SPECIES"
+          }
+        ],
+        "common_names":[
+          {
+            "name":"African Elephant",
+            "language":"EN"
+          },
+          {
+            "name":"African Savannah Elephant",
+            "language":"EN"
+          },
+          {
+            "name":"Eléphant d'Afrique",
+            "language":"FR"
+          },
+          {
+            "name":"Eléphant africain",
+            "language":"FR"
+          }
+        ],
+        "cites_listings":[
+          {
+            "appendix":"II",
+            "annotation":"The populations of Botswana, Namibia, South Africa and Zimbabwe are listed in Appendix II for the exclusive purpose of allowing: [...]",
+            "hash_annotation":null
+          },
+          {
+            "appendix":"I",
+            "annotation":"Included in Appendix I, except the populations of Botswana, Namibia, South Africa and Zimbabwe, which are included in Appendix II.",
+            "hash_annotation":null
+          }
+        ]
+      }
+    ]
+  }
   EOS
 
   example <<-EOS
   <?xml version="1.0" encoding="UTF-8"?>
-  <taxon-concepts type="array">
-    <taxon-concept>
-      <id type="integer">4521</id>
-      <full-name>Loxodonta africana</full-name>
-      <author-year>(Blumenbach, 1797)</author-year>
-      <rank>SPECIES</rank>
-      <name-status>A</name-status>
-      <updated-at type="dateTime">2014-12-11T15:39:51Z</updated-at>
-      <cites-listing>I/II</cites-listing>
-      <higher-taxa>
-        <kingdom>Animalia</kingdom>
-        <phylum>Chordata</phylum>
-        <class>Mammalia</class>
-        <order>Proboscidea</order>
-        <family>Elephantidae</family>
-      </higher-taxa>
-      <synonyms type="array">
-        <synonym>
-          <id type="integer">37069</id>
-          <full-name>Loxodonta cyclotis</full-name>
-          <author-year>(Matschie, 1900)</author-year>
-          <rank>SPECIES</rank>
-        </synonym>
-      </synonyms>
-      <common-names type="array">
-        <common-name>
-          <name>African Elephant</name>
-          <language>EN</language>
-        </common-name>
-        <common-name>
-          <name>African Savannah Elephant</name>
-          <language>EN</language>
-        </common-name>
-        <common-name>
-          <name>Eléphant d'Afrique</name>
-          <language>FR</language>
-        </common-name>
-        <common-name>
-          <name>Eléphant africain</name>
-          <language>FR</language>
-        </common-name>
-      </common-names>
-      <cites-listings type="array">
-        <cites-listing>
-          <appendix>II</appendix>
-          <annotation>The populations of Botswana, Namibia, South Africa and Zimbabwe are listed in Appendix II for the exclusive purpose of allowing: [...]</annotation>
-          <hash-annotation nil="true"/>
-        </cites-listing>
-        <cites-listing>
-          <appendix>I</appendix>
-          <annotation>Included in Appendix I, except the populations of Botswana, Namibia, South Africa and Zimbabwe, which are included in Appendix II.</annotation>
-          <hash-annotation nil="true"/>
-        </cites-listing>
-      </cites-listings>
-    </taxon-concept>
-  </taxon-concepts>
+  <hash>
+    <pagination>
+      <current-page type="integer">1</current-page>
+      <per-page type="integer">500</per-page>
+      <total-entries type="integer">1</total-entries>
+    </pagination>
+    <taxon-concepts type="array">
+      <taxon-concept>
+        <id type="integer">4521</id>
+        <full-name>Loxodonta africana</full-name>
+        <author-year>(Blumenbach, 1797)</author-year>
+        <rank>SPECIES</rank>
+        <name-status>A</name-status>
+        <updated-at type="dateTime">2014-12-11T15:39:51Z</updated-at>
+        <cites-listing>I/II</cites-listing>
+        <higher-taxa>
+          <kingdom>Animalia</kingdom>
+          <phylum>Chordata</phylum>
+          <class>Mammalia</class>
+          <order>Proboscidea</order>
+          <family>Elephantidae</family>
+        </higher-taxa>
+        <synonyms type="array">
+          <synonym>
+            <id type="integer">37069</id>
+            <full-name>Loxodonta cyclotis</full-name>
+            <author-year>(Matschie, 1900)</author-year>
+            <rank>SPECIES</rank>
+          </synonym>
+        </synonyms>
+        <common-names type="array">
+          <common-name>
+            <name>African Elephant</name>
+            <language>EN</language>
+          </common-name>s
+          <common-name>
+            <name>African Savannah Elephant</name>
+            <language>EN</language>
+          </common-name>
+          <common-name>
+            <name>Eléphant d'Afrique</name>
+            <language>FR</language>
+          </common-name>
+          <common-name>
+            <name>Eléphant africain</name>
+            <language>FR</language>
+          </common-name>
+        </common-names>
+        <cites-listings type="array">
+          <cites-listing>
+            <appendix>II</appendix>
+            <annotation>The populations of Botswana, Namibia, South Africa and Zimbabwe are listed in Appendix II for the exclusive purpose of allowing: [...]</annotation>
+            <hash-annotation nil="true"/>
+          </cites-listing>
+          <cites-listing>
+            <appendix>I</appendix>
+            <annotation>Included in Appendix I, except the populations of Botswana, Namibia, South Africa and Zimbabwe, which are included in Appendix II.</annotation>
+            <hash-annotation nil="true"/>
+          </cites-listing>
+        </cites-listings>
+      </taxon-concept>
+    </taxon-concepts>
+  </hash>
   EOS
 
   def index
@@ -174,12 +186,6 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
     end
 
     @taxon_concepts = @taxon_concepts.where(taxonomy_is_cites_eu: taxonomy_is_cites_eu)
-
-    @pagination = {
-      :current_page => @taxon_concepts.current_page,
-      :per_page => @taxon_concepts.per_page,
-      :total_entries => @taxon_concepts.total_entries
-    }
 
     render 'api/v1/taxon_concepts/index'
   end
