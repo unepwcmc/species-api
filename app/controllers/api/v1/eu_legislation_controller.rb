@@ -253,5 +253,11 @@ For the exclusive purpose of allowing: [...]</annotation>
     @taxon_concept = TaxonConcept.find(params[:taxon_concept_id])
     @eu_listings = @taxon_concept.eu_listings.in_scope(@legislation_scope)
     @eu_decisions = @taxon_concept.eu_decisions.in_scope(@legislation_scope)
+
+    respond_to do |format|
+      format.html { render :index, content_type: 'application/json' }
+      format.json { render :index, content_type: 'application/json' }
+      format.xml { render :index, content_type: 'application/xml' }
+    end
   end
 end

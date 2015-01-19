@@ -41,5 +41,11 @@ class Api::V1::ReferencesController < Api::V1::BaseController
   def index
     @references = TaxonConcept.find(params[:taxon_concept_id]).
       taxon_references.order(:citation)
+
+    respond_to do |format|
+      format.html { render :index, content_type: 'application/json' }
+      format.json { render :index, content_type: 'application/json' }
+      format.xml { render :index, content_type: 'application/xml' }
+    end
   end
 end

@@ -32,6 +32,12 @@ class Api::V1::CommonNamesController < Api::V1::BaseController
   def index
     @common_names = TaxonConcept.find(params[:taxon_concept_id]).common_names.where("iso_code1 IS NOT NULL")
     @common_names = @common_names.where(iso_code1: @languages) unless @languages.nil?
+
+    respond_to do |format|
+      format.html { render :index, content_type: 'application/json' }
+      format.json { render :index, content_type: 'application/json' }
+      format.xml { render :index, content_type: 'application/xml' }
+    end
   end
 
   private
