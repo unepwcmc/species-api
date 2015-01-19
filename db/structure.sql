@@ -7416,13 +7416,13 @@ CREATE TABLE api_taxon_concepts_view (
     name_status text,
     rank character varying(255),
     taxonomic_position character varying,
+    cites_listing text,
     kingdom_name text,
     phylum_name text,
     class_name text,
     order_name text,
     family_name text,
     genus_name text,
-    species_name text,
     higher_taxa json,
     synonyms json,
     accepted_names json,
@@ -11910,13 +11910,13 @@ CREATE RULE "_RETURN" AS
     'A'::text AS name_status,
     ranks.name AS rank,
     tc.taxonomic_position,
+    (tc.listing -> 'cites_listing'::text) AS cites_listing,
     (tc.data -> 'kingdom_name'::text) AS kingdom_name,
     (tc.data -> 'phylum_name'::text) AS phylum_name,
     (tc.data -> 'class_name'::text) AS class_name,
     (tc.data -> 'order_name'::text) AS order_name,
     (tc.data -> 'family_name'::text) AS family_name,
     (tc.data -> 'genus_name'::text) AS genus_name,
-    (tc.data -> 'species_name'::text) AS species_name,
     row_to_json(ROW((tc.data -> 'kingdom_name'::text), (tc.data -> 'phylum_name'::text), (tc.data -> 'class_name'::text), (tc.data -> 'order_name'::text), (tc.data -> 'family_name'::text))::api_higher_taxa) AS higher_taxa,
     array_to_json(array_agg_notnull(ROW(synonyms.id, (synonyms.full_name)::text, (synonyms.author_year)::text, (synonyms.data -> 'rank_name'::text))::api_taxon_concept)) AS synonyms,
     NULL::json AS accepted_names,
@@ -11927,7 +11927,7 @@ CREATE RULE "_RETURN" AS
      JOIN ranks ON ((ranks.id = tc.rank_id)))
      LEFT JOIN taxon_relationships tr ON ((tr.taxon_concept_id = tc.id)))
      LEFT JOIN taxon_relationship_types trt ON (((trt.id = tr.taxon_relationship_type_id) AND ((trt.name)::text = 'HAS_SYNONYM'::text))))
-     LEFT JOIN taxon_concepts synonyms ON ((synonyms.id = tr.other_taxon_concept_id)))
+     LEFT JOIN taxon_concepts synonyms ON (((synonyms.id = tr.other_taxon_concept_id) AND (synonyms.taxonomy_id = taxonomies.id))))
   WHERE ((tc.name_status)::text = 'A'::text)
   GROUP BY tc.id, tc.parent_id, taxonomies.name, tc.full_name, tc.author_year, ranks.name, tc.taxonomic_position, tc.created_at, tc.updated_at
 UNION ALL
@@ -11943,13 +11943,13 @@ UNION ALL
     'S'::text AS name_status,
     ranks.name AS rank,
     NULL::character varying AS taxonomic_position,
+    NULL::text AS cites_listing,
     NULL::text AS kingdom_name,
     NULL::text AS phylum_name,
     NULL::text AS class_name,
     NULL::text AS order_name,
     NULL::text AS family_name,
     NULL::text AS genus_name,
-    NULL::text AS species_name,
     NULL::json AS higher_taxa,
     NULL::json AS synonyms,
     array_to_json(array_agg_notnull(ROW(accepted_names.id, (accepted_names.full_name)::text, (accepted_names.author_year)::text, (accepted_names.data -> 'rank_name'::text))::api_taxon_concept)) AS accepted_names,
@@ -11960,7 +11960,7 @@ UNION ALL
      JOIN ranks ON ((ranks.id = tc.rank_id)))
      JOIN taxon_relationships tr ON ((tr.other_taxon_concept_id = tc.id)))
      JOIN taxon_relationship_types trt ON (((trt.id = tr.taxon_relationship_type_id) AND ((trt.name)::text = 'HAS_SYNONYM'::text))))
-     JOIN taxon_concepts accepted_names ON ((accepted_names.id = tr.taxon_concept_id)))
+     JOIN taxon_concepts accepted_names ON (((accepted_names.id = tr.taxon_concept_id) AND (accepted_names.taxonomy_id = taxonomies.id))))
   WHERE ((tc.name_status)::text = 'S'::text)
   GROUP BY tc.id, tc.parent_id, taxonomies.name, tc.full_name, tc.author_year, ranks.name, tc.taxonomic_position, tc.created_at, tc.updated_at;
 
@@ -13482,4 +13482,8 @@ INSERT INTO schema_migrations (version) VALUES ('20150112124146');
 INSERT INTO schema_migrations (version) VALUES ('20150114084537');
 
 INSERT INTO schema_migrations (version) VALUES ('20150114105024');
+
+INSERT INTO schema_migrations (version) VALUES ('20150116112256');
+
+INSERT INTO schema_migrations (version) VALUES ('20150119122122');
 
