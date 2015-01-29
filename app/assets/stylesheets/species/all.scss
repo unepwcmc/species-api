@@ -102,14 +102,14 @@ p.browsehappy a {
 	float: left;
 	text-indent: -9999px;
 	overflow: hidden;
-	background: image-url("species-plus-api-logo.png") no-repeat;
+	background: image-url("checklist-species-plus-api-logo.png") no-repeat;
 	background-size:100%;
 }
 
 html.lt-ie9 #header .logo{
   background: none;
   filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(
-  src='image-path("species-plus-api-logo.png")',
+  src='image-path("checklist-species-plus-api-logo.png")',
   sizingMethod='scale');
 }
 
