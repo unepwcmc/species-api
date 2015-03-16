@@ -8,6 +8,22 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
   end
 
   api :GET, '/', 'Lists taxon concepts'
+
+  description <<-EOS
+  The following taxon concept fields are returned:
+  [id] unique identifier of a taxon concept
+  [full_name] scientific name
+  [author_year] author and year (parentheses where applicable)
+  [rank] one of KINGDOM, PHYLUM, CLASS, ORDER, FAMILY, SUBFAMILY, GENUS, SPECIES, SUBSPECIES, VARIETY
+  [name_status] A for accepted names, S for synonyms (both types of names are taxon concepts in Species+)
+  [updated_at] timestamp of last update to the taxon concept in Species+
+  [cites_listing] value of current CITES listing (as per CITES Checklist). When taxon concept is removed from appendices this becomes 'NC'. When taxon is split listed it becomes a concatenation of appendix symbols, e.g. 'I/II/NC'
+  [higher_taxa] object that gives scientific names of ancestors in the taxonomic tree
+  [synonyms] list of synonyms
+  [common names] list of common names (with language given by ISO 639-1 code)
+  [cites_listings] list of current CITES listings with annotations (there will be more than one element in this list in case of split listings)
+  EOS
+
   param :page, String, desc: 'Page number for paginated responses', required: false
   param :per_page, String, desc: 'Limit for how many objects returned per page for paginated responses. If not specificed it will default to the maximum value of 500', required: false
   param :updated_since, String, desc: 'Pull only objects updated after (and including) the specified timestamp in ISO8601 format (UTC time).', required: false
