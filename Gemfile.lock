@@ -41,7 +41,7 @@ GEM
       rake (>= 0.8.7)
     api_pagination_headers (2.0.1)
       rails (~> 4.1)
-    apipie-rails (0.2.6)
+    apipie-rails (0.3.1)
       json
     arel (5.0.1.20140414130214)
     bcrypt (3.1.9)
