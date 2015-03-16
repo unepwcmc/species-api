@@ -9,11 +9,12 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
 
   api :GET, '/', 'Lists taxon concepts'
   param :page, String, desc: 'Page number for paginated responses', required: false
-  param :per_page, String, desc: 'Limit for how many objects returned per page for paginated responses. If not specificed it will default to the maximum value of 100', required: false
+  param :per_page, String, desc: 'Limit for how many objects returned per page for paginated responses. If not specificed it will default to the maximum value of 500', required: false
   param :updated_since, String, desc: 'Pull only objects updated after (and including) the specified timestamp in ISO8601 format (UTC time).', required: false
   param :name, String, desc: 'Filter taxon concepts by name', required: false
   param :with_descendants, String, desc: 'Broadens the above search by name to include higher taxa. Value must be true or false', required: false
   param :taxonomy, String, desc: 'Filter taxon concepts by taxonomy, accepts either CITES or CMS as its value. Defaults to CITES if no value is specified', required: false
+  param :language, String, desc: 'Filter languages returned for common names. Value should be a single country code or a comma separated string of country codes (e.g. language=EN,PL,IT). Defaults to showing all available languages if no language parameter is specified', required: false
 
   example <<-EOS
   {
