@@ -184,7 +184,7 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
                                               OR lower(kingdom_name) = :name
                                               ", name: params[:name].downcase)
     elsif params[:name]
-      @taxon_concepts = @taxon_concepts.where("lower(name) = ?", params[:name].downcase)
+      @taxon_concepts = @taxon_concepts.where("lower(full_name) = ?", params[:name].downcase)
     end
 
     if params[:updated_since]

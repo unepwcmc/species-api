@@ -148,7 +148,7 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     assert_equal 1, results['taxon_concepts'].length
   end
 
-  test "filters results by name with 'name' params" do
+  test "filters results by name with 'name' params (case insensitive)" do
     FactoryGirl.create(
       :taxon_concept,
       taxon_name: FactoryGirl.create(
@@ -165,8 +165,12 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     )
     @request.headers["X-Authentication-Token"] = @user.authentication_token
 
-    get :index, name: "John Hammond"
-    results = JSON.parse(response.body)
+    get :index, name: "JOHN HAMMOND"
+    puts "==================================================================="
+    puts "DB Count: #{TaxonConcept.count}"
+    puts results = JSON.parse(response.body)
+        puts "==================================================================="
+
     assert_equal "John Hammond", results['taxon_concepts'].first["full_name"]
     assert_equal 1, results['taxon_concepts'].length
   end
