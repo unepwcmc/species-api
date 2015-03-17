@@ -1,5 +1,6 @@
 class Api::V1::BaseController < Api::BaseController
   before_action :set_language
+  before_action :permit_params
 
   # Add these two lines to record analytics on api requests and errors on a controller
   after_action :track_this_request
@@ -23,5 +24,8 @@ class Api::V1::BaseController < Api::BaseController
       unless [:all, :current, :historic].include?(@legislation_scope)
         @legislation_scope = :current
       end
+    end
+
+    def permit_params
     end
 end

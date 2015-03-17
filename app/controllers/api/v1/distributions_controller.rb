@@ -66,4 +66,8 @@ class Api::V1::DistributionsController < Api::V1::BaseController
   def index
     @distributions = TaxonConcept.find(params[:taxon_concept_id]).distributions
   end
+
+  def permit_params
+    params.permit(:taxon_concept_id, :language, :format)
+  end
 end

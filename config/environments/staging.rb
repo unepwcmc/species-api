@@ -83,6 +83,9 @@ Rails.application.configure do
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
 
+  #Raises error for unpermitted parameters
+  config.action_controller.action_on_unpermitted_parameters = :raise
+
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.asset_host = secrets['asset_host']
   config.action_mailer.default_url_options = { :host => secrets['host'] }

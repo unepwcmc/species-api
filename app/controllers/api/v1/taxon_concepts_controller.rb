@@ -218,4 +218,11 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
     end
     @languages = params[:language].delete(' ').split(',').map! { |lang| lang.upcase } unless params[:language].nil?
   end
+
+  def permit_params
+    params.permit(
+      :page, :per_page, :updated_since, :name,
+      :with_descendants, :taxonomy, :language, :format
+    )
+  end
 end

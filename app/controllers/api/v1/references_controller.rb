@@ -37,4 +37,8 @@ class Api::V1::ReferencesController < Api::V1::BaseController
     @references = TaxonConcept.find(params[:taxon_concept_id]).
       taxon_references.order(:citation)
   end
+
+  def permit_params
+    params.permit(:taxon_concept_id, :format)
+  end
 end
