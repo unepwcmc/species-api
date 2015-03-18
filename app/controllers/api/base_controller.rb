@@ -45,9 +45,10 @@ class Api::BaseController < ApplicationController
   def track_this_error(exception)
 
     code = if exception.is_a?(ActiveRecord::StatementInvalid) ||
-        exception.is_a?(ActionController::UnpermittedParameters) ||
         exception.is_a?(ArgumentError) || exception.is_a?(FloatDomainError)
       400
+    elsif exception.is_a?(ActionController::UnpermittedParameters)
+      422
     else
       500
     end
