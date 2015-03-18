@@ -59,6 +59,10 @@ class Api::BaseController < ApplicationController
     end
 
     head status: code # Manually set this again because we're rescuing from rails magic
+    create_api_request(exception)
+  end
+
+  def create_api_request(exception)
     ApiRequest.create(
       user_id: @user.try(:id),
       controller: params[:controller].split('/').last,
