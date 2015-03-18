@@ -1,5 +1,6 @@
 class Api::V1::TaxonConceptsController < Api::V1::BaseController
   after_action only: [:index] { set_pagination_headers(:taxon_concepts) }
+  before_action :validate_params, only: [:index]
 
   resource_description do
     formats ['JSON', 'XML']
@@ -224,5 +225,12 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
       :page, :per_page, :updated_since, :name,
       :with_descendants, :taxonomy, :language, :format
     )
+  end
+
+  def validate_params
+    raise ActionController::UnpermittedParameters,
+      ["incorrect taxonomy or name not present along with with_descendants"] if
+        (params[:taxonomy].present? && !(/cms|cites/.match(params[:taxonomy]))) ||
+          (params[:with_descendants].present? && !params[:name].present?)
   end
 end
