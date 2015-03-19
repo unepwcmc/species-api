@@ -43,12 +43,30 @@ class Api::BaseController < ApplicationController
 
   # rescue_from method for recording API Metrics on 500 errors
   def track_this_error(exception)
+
+    code = 500
+    @message = 'We are sorry but an error occurred processing your request'
+
+    if exception.is_a?(ActiveRecord::StatementInvalid) ||
+        exception.is_a?(ArgumentError) || exception.is_a?(FloatDomainError)
+        @message = 'Invalid parameters'
+        code = 400
+    elsif exception.is_a?(ActionController::UnpermittedParameters) ||
+      exception.is_a?(ActionController::ParameterMissing)
+        @message = exception.message
+        code = 422
+    end
+
     if Rails.env.production? || Rails.env.staging?
       ExceptionNotifier.notify_exception(exception,
         :env => request.env, :data => {:message => "Something went wrong"})
     end
 
-    head status: 500 # Manually set this again because we're rescuing from rails magic
+    create_api_request(exception)
+    render 'api/error', status: code
+  end
+
+  def create_api_request(exception)
     ApiRequest.create(
       user_id: @user.try(:id),
       controller: params[:controller].split('/').last,

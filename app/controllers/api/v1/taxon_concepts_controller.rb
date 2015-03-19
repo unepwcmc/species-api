@@ -1,5 +1,6 @@
 class Api::V1::TaxonConceptsController < Api::V1::BaseController
   after_action only: [:index] { set_pagination_headers(:taxon_concepts) }
+  before_action :validate_params, only: [:index]
 
   resource_description do
     formats ['JSON', 'XML']
@@ -217,5 +218,23 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
       I18n.default_locale
     end
     @languages = params[:language].delete(' ').split(',').map! { |lang| lang.upcase } unless params[:language].nil?
+  end
+
+  def permit_params
+    params.permit(
+      :page, :per_page, :updated_since, :name,
+      :with_descendants, :taxonomy, :language, :format
+    )
+  end
+
+  def validate_params
+    message = ''
+    if (params[:taxonomy].present? && !(/cms|cites/.match(params[:taxonomy].downcase)))
+      message = "Invalid taxonomy"
+    elsif (params[:with_descendants].present? && !params[:name].present?)
+      message = "Invalid use of with_descendants"
+    end
+
+    raise ActionController::ParameterMissing, message if message.present?
   end
 end

@@ -25,6 +25,7 @@ group :test do
   gem 'codeclimate-test-reporter', require: nil
   gem 'link_header'
   gem 'launchy'
+  gem 'mocha'
 end
 
 group :staging, :production do

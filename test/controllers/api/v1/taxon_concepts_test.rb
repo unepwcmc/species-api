@@ -268,6 +268,45 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     assert_equal 401, ApiRequest.last.response_status
   end
 
+  test 'it returns an unprocessable entity response when taxonomy is not cms or cites' do
+    @request.headers["X-Authentication-Token"] = @user.authentication_token
+    assert_difference 'ApiRequest.count' do
+      get :index, taxonomy: 'something'
+    end
+    assert_response 422
+  end
+
+  test 'it returns an unprocessable entity response when with_descendants is specified without name' do
+    @request.headers["X-Authentication-Token"] = @user.authentication_token
+    assert_difference 'ApiRequest.count' do
+      get :index, with_descendants: 'true'
+    end
+    assert_response 422
+  end
+
+  test 'it returns an unprocessable entity response when unpermitted parameters are specified' do
+    @request.headers["X-Authentication-Token"] = @user.authentication_token
+    assert_difference 'ApiRequest.count' do
+      get :index, aparam: 'something'
+    end
+    assert_response 422
+  end
+
+  test 'it returns a bad request error when incorrectly formatted data' do
+    @request.headers["X-Authentication-Token"] = @user.authentication_token
+    @controller.expects(:create_api_request)
+    get :index, updated_since: '2012-122-12'
+    assert_response 400
+  end
+
+  test 'it returns a bad request error when incorrect page value' do
+    @request.headers["X-Authentication-Token"] = @user.authentication_token
+    assert_difference 'ApiRequest.count' do
+      get :index, page: 'something'
+    end
+    assert_response 400
+  end
+
   # test "it records a failed request" do
   #   @request.headers["X-Authentication-Token"] = @user.authentication_token
 

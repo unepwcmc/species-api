@@ -131,9 +131,12 @@ GEM
     mail (2.5.4)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
+    metaclass (0.0.4)
     mime-types (1.25.1)
     mini_portile (0.6.2)
     minitest (5.5.1)
+    mocha (1.1.0)
+      metaclass (~> 0.0.1)
     multi_json (1.11.0)
     multi_xml (0.5.5)
     net-scp (1.2.1)
@@ -267,6 +270,7 @@ DEPENDENCIES
   jquery-rails
   launchy
   link_header
+  mocha
   oj
   pg
   rabl
