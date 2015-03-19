@@ -23,8 +23,5 @@ module SpeciesPlusAPI
     config.active_record.schema_format = :sql
     config.autoload_paths += %W(#{config.root}/test/support/models)
     config.autoload_paths += %W(#{config.root}/lib)
-
-    # Raises error for unpermitted parameters
-    config.action_controller.action_on_unpermitted_parameters = :raise
   end
 end

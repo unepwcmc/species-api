@@ -27,5 +27,15 @@ class Api::V1::BaseController < Api::BaseController
     end
 
     def permit_params
+      permitted = permit_params_child
+      never_unpermitted = ActionController::Parameters::NEVER_UNPERMITTED_PARAMS
+      unpermitted_keys = params.keys - permitted.keys - never_unpermitted
+      if unpermitted_keys.any?
+        @message = "Unpermitted parameters"
+        create_api_request(@message, 422)
+        render 'api/error', status: 422
+      end
     end
+
+    def permit_params_child; end
 end

@@ -47,16 +47,6 @@ class Api::BaseController < ApplicationController
     code = 500
     @message = 'We are sorry but an error occurred processing your request'
 
-    if exception.is_a?(ActiveRecord::StatementInvalid) ||
-        exception.is_a?(ArgumentError) || exception.is_a?(FloatDomainError)
-        @message = 'Invalid parameters'
-        code = 400
-    elsif exception.is_a?(ActionController::UnpermittedParameters) ||
-      exception.is_a?(ActionController::ParameterMissing)
-        @message = exception.message
-        code = 422
-    end
-
     if Rails.env.production? || Rails.env.staging?
       ExceptionNotifier.notify_exception(exception,
         :env => request.env, :data => {:message => "Something went wrong"})
