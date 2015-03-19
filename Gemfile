@@ -6,7 +6,7 @@ gem 'devise'
 gem 'annotate'
 gem 'sass-rails'#,   '~> 3.2.3'
 gem 'uglifier'#, '>= 1.0.3'
-gem "susy"
+gem 'susy', '~> 1.0.9'
 gem 'compass'#, '>= 0.12.2'
 gem 'compass-rails'#, '>= 1.0.3'
 gem 'will_paginate' #, '~> 3.0.6'
