@@ -62,11 +62,11 @@ class Api::BaseController < ApplicationController
         :env => request.env, :data => {:message => "Something went wrong"})
     end
 
-    create_api_request(exception)
+    create_api_request(exception, code)
     render 'api/error', status: code
   end
 
-  def create_api_request(exception)
+  def create_api_request(exception, code)
     ApiRequest.create(
       user_id: @user.try(:id),
       controller: params[:controller].split('/').last,
@@ -74,8 +74,8 @@ class Api::BaseController < ApplicationController
       params: params.except(:controller, :action, :format),
       format: params[:format],
       ip: request.remote_ip,
-      response_status: response.status,
-      error_message: exception.to_s
+      response_status: code,
+      error_message: @message
     )
   end
 end
