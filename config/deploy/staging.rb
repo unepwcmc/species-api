@@ -5,7 +5,7 @@ set :domain, "unepwcmc-012.vm.brightbox.net"
 ## List of servers
 server "unepwcmc-012.vm.brightbox.net", :app, :web, :db, :primary => true
 
-set :branch, :master
+set :branch, :sanitize_params
 
 desc "Configure VHost"
 task :config_vhost do

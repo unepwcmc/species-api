@@ -228,13 +228,13 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
   end
 
   def validate_params
-    message = ''
+    @message = ''
     if (params[:taxonomy].present? && !(/cms|cites/.match(params[:taxonomy].downcase)))
-      message = "Invalid taxonomy"
+      @message = "Invalid taxonomy"
     elsif (params[:with_descendants].present? && !params[:name].present?)
-      message = "Invalid use of with_descendants"
+      @message = "Invalid use of with_descendants"
     end
 
-    raise ActionController::ParameterMissing, message if message.present?
+    render 'api/error', status: 422
   end
 end
