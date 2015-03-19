@@ -229,15 +229,26 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
 
   def validate_params
     @message = ''
-    if (params[:taxonomy].present? && !(/cms|cites/.match(params[:taxonomy].downcase)))
+    code = 400
+
+    if params[:updated_since]
+      y, m, d = params[:updated_since].split('-')
+      @message = "Invalid date format" unless Date.valid_date? y.to_i, m.to_i, d.to_i
+    elsif params[:page]
+      @message = "Invalid page format" unless /\A\d+\Z/.match(params[:page])
+    elsif params[:per_page]
+      @message = "Invalid per_page format" unless /\A\d+\Z/.match(params[:per_page])
+    elsif (params[:taxonomy].present? && !(/cms|cites/.match(params[:taxonomy].downcase)))
       @message = "Invalid taxonomy"
-    elsif (params[:with_descendants].present? && !params[:name].present?)
+      code = 422
+    elsif (params[:with_descendants] == 'true' && !params[:name].present?)
       @message = "Invalid use of with_descendants"
+      code = 422
     end
 
     if @message.present?
-      create_api_request(@message, 422)
-      render 'api/error', status: 422
+      create_api_request(@message, code)
+      render 'api/error', status: code
     end
   end
 end
