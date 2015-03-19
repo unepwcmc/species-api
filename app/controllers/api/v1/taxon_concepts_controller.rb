@@ -235,6 +235,6 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
       @message = "Invalid use of with_descendants"
     end
 
-    render 'api/error', status: 422 if message.present?
+    render 'api/error', status: 422 if @message.present?
   end
 end
