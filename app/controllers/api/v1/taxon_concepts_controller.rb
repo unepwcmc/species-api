@@ -228,9 +228,13 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
   end
 
   def validate_params
-    raise ActionController::UnpermittedParameters,
-      ["incorrect taxonomy or name not present along with with_descendants"] if
-        (params[:taxonomy].present? && !(/cms|cites/.match(params[:taxonomy].downcase))) ||
-          (params[:with_descendants].present? && !params[:name].present?)
+    message = ''
+    if (params[:taxonomy].present? && !(/cms|cites/.match(params[:taxonomy].downcase)))
+      message = "invalid taxonomy"
+    elsif (params[:with_descendants].present? && !params[:name].present?)
+      message = "invalid use of with_descendants"
+    end
+
+    raise ActionController::ParameterMissing, message if message.present?
   end
 end

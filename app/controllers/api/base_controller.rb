@@ -47,7 +47,8 @@ class Api::BaseController < ApplicationController
     code = if exception.is_a?(ActiveRecord::StatementInvalid) ||
         exception.is_a?(ArgumentError) || exception.is_a?(FloatDomainError)
       400
-    elsif exception.is_a?(ActionController::UnpermittedParameters)
+    elsif exception.is_a?(ActionController::UnpermittedParameters) ||
+      exception.is_a?(ActionController::ParameterMissing)
       422
     else
       500
@@ -58,8 +59,9 @@ class Api::BaseController < ApplicationController
         :env => request.env, :data => {:message => "Something went wrong"})
     end
 
-    head status: code # Manually set this again because we're rescuing from rails magic
     create_api_request(exception)
+    @message = exception.message
+    render 'api/error', status: code
   end
 
   def create_api_request(exception)
