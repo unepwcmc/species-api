@@ -38,4 +38,20 @@ class Test::TaxonConcept < ActiveRecord::Base
     end
   end
 
+  after_destroy do |taxon_concept|
+    tcv = Test::TaxonConceptVersion.new(
+      event: 'destroy',
+      item_id: taxon_concept.id,
+      item_type: 'TaxonConcept',
+      taxon_concept_id: taxon_concept.id,
+      taxonomy_name: taxon_concept.taxonomy.name,
+      rank_name: taxon_concept.rank.name,
+      full_name: taxon_concept.full_name,
+      author_year: taxon_concept.author_year,
+      name_status: taxon_concept.name_status
+    )
+    tcv.save
+    puts tcv.errors.inspect
+  end
+
 end
