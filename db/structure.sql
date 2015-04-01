@@ -192,7 +192,8 @@ CREATE TABLE taxon_concepts (
     dependents_updated_at timestamp without time zone,
     nomenclature_note_en text,
     nomenclature_note_es text,
-    nomenclature_note_fr text
+    nomenclature_note_fr text,
+    dependents_updated_by_id integer
 );
 
 
@@ -913,7 +914,22 @@ CREATE FUNCTION copy_listing_changes_across_events(from_event_id integer, to_eve
       to_event events%ROWTYPE;
     BEGIN
     SELECT INTO to_event * FROM events WHERE id = to_event_id;
-    WITH copied_annotations AS (
+
+
+    WITH event_lcs AS (
+      SELECT *
+      FROM listing_changes
+      WHERE event_id = from_event_id
+    ), exclusions AS (
+      SELECT listing_changes.*
+      FROM event_lcs
+      JOIN listing_changes
+      ON event_lcs.id = listing_changes.parent_id
+    ), lcs_to_copy AS (
+      SELECT * FROM event_lcs
+      UNION
+      SELECT * FROM exclusions
+    ), copied_annotations AS (
       -- copy regular annotations
       INSERT INTO annotations (
         symbol, parent_symbol,
@@ -928,9 +944,8 @@ CREATE FUNCTION copy_listing_changes_across_events(from_event_id integer, to_eve
         display_in_index, display_in_footnote,
         current_date, current_date, original.id
       FROM annotations original
-      INNER JOIN listing_changes
-        ON listing_changes.annotation_id = original.id
-          AND listing_changes.event_id = from_event_id
+      INNER JOIN lcs_to_copy lc
+        ON lc.annotation_id = original.id
       RETURNING id, original_id
     ), copied_hash_annotations AS (
       -- copy hash annotations
@@ -947,9 +962,8 @@ CREATE FUNCTION copy_listing_changes_across_events(from_event_id integer, to_eve
         display_in_index, display_in_footnote,
         current_date, current_date, original.id
       FROM annotations original
-      INNER JOIN listing_changes
-        ON listing_changes.hash_annotation_id = original.id
-          AND listing_changes.event_id = from_event_id
+      JOIN lcs_to_copy lc
+        ON lc.hash_annotation_id = original.id
       RETURNING id, original_id
     ), copied_listing_changes AS (
       -- copy listing_changes
@@ -963,15 +977,29 @@ CREATE FUNCTION copy_listing_changes_across_events(from_event_id integer, to_eve
         original.taxon_concept_id, to_event.id, to_event.effective_at, to_event.is_current,
         current_date, current_date, original.id,
         events.created_by_id, events.updated_by_id
-      FROM listing_changes original
+      FROM event_lcs original
       LEFT JOIN copied_annotations
         ON original.annotation_id = copied_annotations.original_id
       LEFT JOIN copied_hash_annotations
         ON original.hash_annotation_id = copied_hash_annotations.original_id
       JOIN events
         ON events.id = to_event_id
-      WHERE original.event_id = from_event_id
-      RETURNING id, original_id
+      RETURNING id, original_id, created_at, created_by_id, updated_at, updated_by_id
+    ), copied_exclusions AS (
+      INSERT INTO listing_changes (
+        change_type_id, species_listing_id, annotation_id, hash_annotation_id,
+        parent_id, taxon_concept_id, event_id, effective_at, is_current,
+        created_at, updated_at, original_id, created_by_id, updated_by_id
+      )
+      SELECT original.change_type_id, original.species_listing_id,
+        NULL, NULL, copied_listing_changes.id,
+        original.taxon_concept_id, NULL, to_event.effective_at, to_event.is_current,
+        copied_listing_changes.created_at, copied_listing_changes.updated_at, original.id,
+        copied_listing_changes.created_by_id, copied_listing_changes.updated_by_id
+      FROM exclusions original
+      JOIN copied_listing_changes
+      ON copied_listing_changes.original_id = original.parent_id
+      RETURNING id, original_id, created_at, created_by_id, updated_at, updated_by_id
     )
     INSERT INTO listing_distributions (
       listing_change_id, geo_entity_id, is_party, created_at, updated_at
@@ -979,8 +1007,15 @@ CREATE FUNCTION copy_listing_changes_across_events(from_event_id integer, to_eve
     SELECT copied_listing_changes.id, original.geo_entity_id, original.is_party,
       current_date, current_date
     FROM listing_distributions original
-    INNER JOIN copied_listing_changes
-      ON copied_listing_changes.original_id = original.listing_change_id;
+    JOIN copied_listing_changes
+      ON copied_listing_changes.original_id = original.listing_change_id
+    UNION
+    SELECT copied_exclusions.id, original.geo_entity_id, original.is_party,
+      current_date, current_date
+    FROM listing_distributions original
+    JOIN copied_exclusions
+      ON copied_exclusions.original_id = original.listing_change_id;
+
     END;
   $$;
 
@@ -1184,12 +1219,12 @@ BEGIN
       SQUISH(regexp_split_to_table(origin_permit, ''[:;,]'')) AS permit
       FROM '|| table_name || '
     ), permits_to_be_inserted (number) AS (
-      SELECT DISTINCT permit FROM split_permits WHERE permit IS NOT NULL
+      SELECT DISTINCT UPPER(permit) FROM split_permits WHERE permit IS NOT NULL
       EXCEPT
-      SELECT number FROM trade_permits
+      SELECT UPPER(number) FROM trade_permits
     )
     INSERT INTO trade_permits(number, created_at, updated_at)
-    SELECT number, current_timestamp, current_timestamp
+    SELECT UPPER(number), current_timestamp, current_timestamp
     FROM permits_to_be_inserted';
 
   EXECUTE sql;
@@ -1295,7 +1330,7 @@ BEGIN
       INNER JOIN split_permits
         ON split_permits.id = shipments_for_submit.sandbox_id
       INNER JOIN trade_permits
-        ON trade_permits.number = split_permits.permit
+        ON UPPER(trade_permits.number) = UPPER(split_permits.permit)
     ), agg_shipment_permits AS (
       SELECT trade_shipment_id,
       ARRAY_AGG(trade_permit_id) AS permits_ids,
@@ -1304,7 +1339,7 @@ BEGIN
       GROUP BY trade_shipment_id
     )
     UPDATE trade_shipments
-    SET ' || permit_type || '_permit_number = sp.permit_number,
+    SET ' || permit_type || '_permit_number = UPPER(sp.permit_number),
     ' || permit_type || '_permits_ids = sp.permits_ids
     FROM agg_shipment_permits sp
     WHERE sp.trade_shipment_id = trade_shipments.id;
@@ -7122,7 +7157,8 @@ CREATE TABLE eu_decisions (
 --
 
 CREATE VIEW api_eu_decisions_view AS
- SELECT eu_decisions.type,
+ SELECT eu_decisions.id,
+    eu_decisions.type,
     eu_decisions.taxon_concept_id,
     row_to_json(ROW(eu_decisions.taxon_concept_id, (taxon_concepts.full_name)::text, (taxon_concepts.author_year)::text, (taxon_concepts.data -> 'rank_name'::text))::api_taxon_concept) AS taxon_concept,
     eu_decisions.notes,
@@ -7145,7 +7181,11 @@ CREATE VIEW api_eu_decisions_view AS
     row_to_json(ROW((geo_entities.iso_code2)::text, (geo_entities.name_es)::text, (geo_entity_types.name)::text)::api_geo_entity) AS geo_entity_es,
     row_to_json(ROW((geo_entities.iso_code2)::text, (geo_entities.name_fr)::text, (geo_entity_types.name)::text)::api_geo_entity) AS geo_entity_fr,
     eu_decisions.start_event_id,
-    row_to_json(ROW((start_event.name)::text, (start_event.effective_at)::date, start_event.url)::api_event) AS start_event,
+    row_to_json(ROW(((start_event.name)::text ||
+        CASE
+            WHEN ((start_event.type)::text = 'EcSrg'::text) THEN ' Soc'::text
+            ELSE ''::text
+        END), (start_event.effective_at)::date, start_event.url)::api_event) AS start_event,
     eu_decisions.end_event_id,
     row_to_json(ROW((end_event.name)::text, (end_event.effective_at)::date, end_event.url)::api_event) AS end_event,
     eu_decisions.term_id,
@@ -7456,24 +7496,28 @@ CREATE TABLE taxon_concept_references (
 CREATE VIEW api_taxon_references_view AS
  WITH RECURSIVE all_tc_refs AS (
          SELECT taxon_concept_references.id,
+            taxon_concept_references.taxon_concept_id AS original_taxon_concept_id,
             taxon_concept_references.taxon_concept_id,
             taxon_concept_references.reference_id,
-            taxon_concept_references.excluded_taxon_concepts_ids AS exclusions,
+            taxon_concept_references.excluded_taxon_concepts_ids,
             taxon_concept_references.is_cascaded,
             taxon_concept_references.is_standard
            FROM taxon_concept_references
         UNION
          SELECT h.id,
+            h.original_taxon_concept_id,
             hi.id,
             h.reference_id,
-            h.exclusions,
+            h.excluded_taxon_concepts_ids,
             h.is_cascaded,
             h.is_standard
            FROM (taxon_concepts hi
-             JOIN all_tc_refs h ON (((((h.taxon_concept_id = hi.parent_id) AND (NOT (COALESCE(h.exclusions, ARRAY[]::integer[]) @> ARRAY[hi.id]))) AND h.is_cascaded) AND h.is_standard)))
+             JOIN all_tc_refs h ON (((((h.taxon_concept_id = hi.parent_id) AND (NOT (COALESCE(h.excluded_taxon_concepts_ids, ARRAY[]::integer[]) @> ARRAY[hi.id]))) AND h.is_cascaded) AND h.is_standard)))
         )
  SELECT all_tc_refs.id,
     all_tc_refs.taxon_concept_id,
+    all_tc_refs.original_taxon_concept_id,
+    all_tc_refs.excluded_taxon_concepts_ids,
     all_tc_refs.reference_id,
     all_tc_refs.is_standard,
     refs.citation
@@ -8168,6 +8212,53 @@ ALTER SEQUENCE eu_decisions_id_seq OWNED BY eu_decisions.id;
 
 
 --
+-- Name: eu_suspensions_applicability_view; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW eu_suspensions_applicability_view AS
+ WITH RECURSIVE eu_decisions_with_end_dates AS (
+         SELECT eu_decisions.id,
+            eu_decisions.taxon_concept_id,
+            eu_decisions.geo_entity_id,
+            eu_decisions.term_id,
+            eu_decisions.source_id,
+            start_event.effective_at AS start_event_date,
+            end_event.effective_at AS end_event_date
+           FROM ((eu_decisions
+             JOIN events start_event ON ((start_event.id = eu_decisions.start_event_id)))
+             LEFT JOIN events end_event ON ((end_event.id = eu_decisions.end_event_id)))
+          WHERE ((eu_decisions.type)::text = 'EuSuspension'::text)
+        ), eu_decisions_chain AS (
+         SELECT eu_decisions_with_end_dates.id,
+            eu_decisions_with_end_dates.taxon_concept_id,
+            eu_decisions_with_end_dates.geo_entity_id,
+            eu_decisions_with_end_dates.term_id,
+            eu_decisions_with_end_dates.source_id,
+            eu_decisions_with_end_dates.start_event_date,
+            eu_decisions_with_end_dates.end_event_date,
+            eu_decisions_with_end_dates.start_event_date AS new_start_event_date
+           FROM eu_decisions_with_end_dates
+          WHERE (eu_decisions_with_end_dates.end_event_date IS NULL)
+        UNION
+         SELECT eu_decisions_chain_1.id,
+            eu_decisions_chain_1.taxon_concept_id,
+            eu_decisions_chain_1.geo_entity_id,
+            eu_decisions_chain_1.term_id,
+            eu_decisions_chain_1.source_id,
+            eu_decisions_chain_1.start_event_date,
+            eu_decisions_chain_1.end_event_date,
+            eu_decisions_with_end_dates.start_event_date
+           FROM (eu_decisions_chain eu_decisions_chain_1
+             JOIN eu_decisions_with_end_dates ON ((((((eu_decisions_chain_1.taxon_concept_id = eu_decisions_with_end_dates.taxon_concept_id) AND (eu_decisions_chain_1.geo_entity_id = eu_decisions_with_end_dates.geo_entity_id)) AND ((eu_decisions_chain_1.term_id = eu_decisions_with_end_dates.term_id) OR ((eu_decisions_chain_1.term_id IS NULL) AND (eu_decisions_with_end_dates.term_id IS NULL)))) AND ((eu_decisions_chain_1.source_id = eu_decisions_with_end_dates.source_id) OR ((eu_decisions_chain_1.source_id IS NULL) AND (eu_decisions_with_end_dates.source_id IS NULL)))) AND (eu_decisions_chain_1.new_start_event_date = eu_decisions_with_end_dates.end_event_date))))
+        )
+ SELECT eu_decisions_chain.id,
+    min(eu_decisions_chain.new_start_event_date) AS original_start_date,
+    to_char(min(eu_decisions_chain.new_start_event_date), 'DD/MM/YYYY'::text) AS original_start_date_formatted
+   FROM eu_decisions_chain
+  GROUP BY eu_decisions_chain.id;
+
+
+--
 -- Name: eu_decisions_view; Type: VIEW; Schema: public; Owner: -
 --
 
@@ -8189,8 +8280,19 @@ CREATE VIEW eu_decisions_view AS
     lower((taxon_concepts.data -> 'subspecies_name'::text)) AS subspecies_name,
     taxon_concepts.full_name,
     (taxon_concepts.data -> 'rank_name'::text) AS rank_name,
-    eu_decisions.start_date,
-    to_char(eu_decisions.start_date, 'DD/MM/YYYY'::text) AS start_date_formatted,
+        CASE
+            WHEN ((eu_decisions.type)::text = 'EuOpinion'::text) THEN (eu_decisions.start_date)::date
+            WHEN ((eu_decisions.type)::text = 'EuSuspension'::text) THEN (start_event.effective_at)::date
+            ELSE NULL::date
+        END AS start_date,
+    to_char((
+        CASE
+            WHEN ((eu_decisions.type)::text = 'EuOpinion'::text) THEN (eu_decisions.start_date)::date
+            WHEN ((eu_decisions.type)::text = 'EuSuspension'::text) THEN (start_event.effective_at)::date
+            ELSE NULL::date
+        END)::timestamp with time zone, 'DD/MM/YYYY'::text) AS start_date_formatted,
+    t.original_start_date,
+    to_char(t.original_start_date, 'DD/MM/YYYY'::text) AS original_start_date_formatted,
     eu_decisions.geo_entity_id,
     geo_entities.name_en AS party,
         CASE
@@ -8226,14 +8328,15 @@ CREATE VIEW eu_decisions_view AS
 '::text || strip_tags(eu_decisions.nomenclature_note_en))
             ELSE ''::text
         END) AS full_note_en
-   FROM (((((((eu_decisions
+   FROM ((((((((eu_decisions
      JOIN eu_decision_types ON ((eu_decision_types.id = eu_decisions.eu_decision_type_id)))
      JOIN taxon_concepts ON ((taxon_concepts.id = eu_decisions.taxon_concept_id)))
      LEFT JOIN events start_event ON ((start_event.id = eu_decisions.start_event_id)))
      LEFT JOIN events end_event ON ((end_event.id = eu_decisions.end_event_id)))
      LEFT JOIN geo_entities ON ((geo_entities.id = eu_decisions.geo_entity_id)))
      LEFT JOIN trade_codes sources ON ((((sources.type)::text = 'Source'::text) AND (sources.id = eu_decisions.source_id))))
-     LEFT JOIN trade_codes terms ON ((((terms.type)::text = 'Term'::text) AND (terms.id = eu_decisions.term_id))));
+     LEFT JOIN trade_codes terms ON ((((terms.type)::text = 'Term'::text) AND (terms.id = eu_decisions.term_id))))
+     LEFT JOIN eu_suspensions_applicability_view t ON ((t.id = eu_decisions.id)));
 
 
 --
@@ -8857,11 +8960,13 @@ CREATE VIEW orphaned_taxon_concepts_view AS
     taxonomies.name AS taxonomy_name,
     array_to_string(ARRAY[general_note.note, nomenclature_note.note, distribution_note.note], '
 '::text) AS internal_notes,
-    to_char(tc.created_at, 'DD/MM/YYYY'::text) AS created_at,
+    to_char(tc.created_at, 'DD/MM/YYYY HH24:MI'::text) AS created_at,
     uc.name AS created_by,
-    to_char(tc.updated_at, 'DD/MM/YYYY'::text) AS updated_at,
-    uu.name AS updated_by
-   FROM (((((((((taxon_concepts tc
+    to_char(tc.updated_at, 'DD/MM/YYYY HH24:MI'::text) AS updated_at,
+    uu.name AS updated_by,
+    to_char(tc.dependents_updated_at, 'DD/MM/YYYY HH24:MI'::text) AS dependents_updated_at,
+    uud.name AS dependents_updated_by
+   FROM ((((((((((taxon_concepts tc
      JOIN taxonomies ON ((taxonomies.id = tc.taxonomy_id)))
      LEFT JOIN taxon_relationships tr1 ON ((tr1.taxon_concept_id = tc.id)))
      LEFT JOIN taxon_relationships tr2 ON ((tr2.other_taxon_concept_id = tc.id)))
@@ -8871,6 +8976,7 @@ CREATE VIEW orphaned_taxon_concepts_view AS
      LEFT JOIN comments distribution_note ON ((((distribution_note.commentable_id = tc.id) AND ((distribution_note.commentable_type)::text = 'TaxonConcept'::text)) AND ((distribution_note.comment_type)::text = 'Distribution'::text))))
      LEFT JOIN users uc ON ((tc.created_by_id = uc.id)))
      LEFT JOIN users uu ON ((tc.updated_by_id = uu.id)))
+     LEFT JOIN users uud ON ((tc.dependents_updated_by_id = uud.id)))
   WHERE ((((tc.parent_id IS NULL) AND (tr1.id IS NULL)) AND (tr2.id IS NULL)) AND (children.id IS NULL));
 
 
@@ -9235,11 +9341,13 @@ CREATE VIEW synonyms_and_trade_names_view AS
     taxonomies.name AS taxonomy_name,
     array_to_string(ARRAY[general_note.note, nomenclature_note.note, distribution_note.note], '
 '::text) AS internal_notes,
-    to_char(st.created_at, 'DD/MM/YYYY'::text) AS created_at,
+    to_char(st.created_at, 'DD/MM/YYYY HH24:MI'::text) AS created_at,
     uc.name AS created_by,
-    to_char(st.updated_at, 'DD/MM/YYYY'::text) AS updated_at,
-    uu.name AS updated_by
-   FROM ((((((((taxon_concepts st
+    to_char(st.updated_at, 'DD/MM/YYYY HH24:MI'::text) AS updated_at,
+    uu.name AS updated_by,
+    to_char(st.dependents_updated_at, 'DD/MM/YYYY HH24:MI'::text) AS dependents_updated_at,
+    uud.name AS dependents_updated_by
+   FROM (((((((((taxon_concepts st
      JOIN taxonomies ON ((taxonomies.id = st.taxonomy_id)))
      LEFT JOIN taxon_relationships ON ((taxon_relationships.other_taxon_concept_id = st.id)))
      LEFT JOIN taxon_concepts a ON ((taxon_relationships.taxon_concept_id = a.id)))
@@ -9248,6 +9356,7 @@ CREATE VIEW synonyms_and_trade_names_view AS
      LEFT JOIN comments distribution_note ON ((((distribution_note.commentable_id = st.id) AND ((distribution_note.commentable_type)::text = 'TaxonConcept'::text)) AND ((distribution_note.comment_type)::text = 'Distribution'::text))))
      LEFT JOIN users uc ON ((st.created_by_id = uc.id)))
      LEFT JOIN users uu ON ((st.updated_by_id = uu.id)))
+     LEFT JOIN users uud ON ((st.dependents_updated_by_id = uud.id)))
   WHERE ((st.name_status)::text = ANY ((ARRAY['S'::character varying, 'T'::character varying])::text[]));
 
 
@@ -9473,17 +9582,20 @@ CREATE VIEW taxon_concepts_names_view AS
     taxonomies.name AS taxonomy_name,
     array_to_string(ARRAY[general_note.note, nomenclature_note.note, distribution_note.note], '
 '::text) AS internal_notes,
-    to_char(taxon_concepts.created_at, 'DD/MM/YYYY'::text) AS created_at,
+    to_char(taxon_concepts.created_at, 'DD/MM/YYYY HH24:MI'::text) AS created_at,
     uc.name AS created_by,
-    to_char(taxon_concepts.updated_at, 'DD/MM/YYYY'::text) AS updated_at,
-    uu.name AS updated_by
-   FROM ((((((taxon_concepts
+    to_char(taxon_concepts.updated_at, 'DD/MM/YYYY HH24:MI'::text) AS updated_at,
+    uu.name AS updated_by,
+    to_char(taxon_concepts.dependents_updated_at, 'DD/MM/YYYY HH24:MI'::text) AS dependents_updated_at,
+    uud.name AS dependents_updated_by
+   FROM (((((((taxon_concepts
      JOIN taxonomies ON ((taxonomies.id = taxon_concepts.taxonomy_id)))
      LEFT JOIN comments general_note ON ((((general_note.commentable_id = taxon_concepts.id) AND ((general_note.commentable_type)::text = 'TaxonConcept'::text)) AND ((general_note.comment_type)::text = 'General'::text))))
      LEFT JOIN comments nomenclature_note ON ((((nomenclature_note.commentable_id = taxon_concepts.id) AND ((nomenclature_note.commentable_type)::text = 'TaxonConcept'::text)) AND ((nomenclature_note.comment_type)::text = 'Nomenclature'::text))))
      LEFT JOIN comments distribution_note ON ((((distribution_note.commentable_id = taxon_concepts.id) AND ((distribution_note.commentable_type)::text = 'TaxonConcept'::text)) AND ((distribution_note.comment_type)::text = 'Distribution'::text))))
      LEFT JOIN users uc ON ((taxon_concepts.created_by_id = uc.id)))
-     LEFT JOIN users uu ON ((taxon_concepts.updated_by_id = uu.id)));
+     LEFT JOIN users uu ON ((taxon_concepts.updated_by_id = uu.id)))
+     LEFT JOIN users uud ON ((taxon_concepts.dependents_updated_by_id = uud.id)));
 
 
 --
@@ -10007,7 +10119,10 @@ CREATE VIEW trade_shipments_with_taxa_view AS
     ((taxon_concepts.data -> 'subfamily_id'::text))::integer AS taxon_concept_subfamily_id,
     ((taxon_concepts.data -> 'genus_id'::text))::integer AS taxon_concept_genus_id,
     ((taxon_concepts.data -> 'species_id'::text))::integer AS taxon_concept_species_id,
+    (taxon_concepts.data -> 'class_name'::text) AS taxon_concept_class_name,
+    (taxon_concepts.data -> 'order_name'::text) AS taxon_concept_order_name,
     (taxon_concepts.data -> 'family_name'::text) AS taxon_concept_family_name,
+    (taxon_concepts.data -> 'genus_name'::text) AS taxon_concept_genus_name,
     reported_taxon_concepts.full_name AS reported_taxon_concept_full_name,
     reported_taxon_concepts.author_year AS reported_taxon_concept_author_year,
     reported_taxon_concepts.name_status AS reported_taxon_concept_name_status,
@@ -12902,6 +13017,14 @@ ALTER TABLE ONLY taxon_concepts
 
 
 --
+-- Name: taxon_concepts_dependents_updated_by_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY taxon_concepts
+    ADD CONSTRAINT taxon_concepts_dependents_updated_by_id_fk FOREIGN KEY (dependents_updated_by_id) REFERENCES users(id);
+
+
+--
 -- Name: taxon_concepts_parent_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -13486,4 +13609,30 @@ INSERT INTO schema_migrations (version) VALUES ('20150114105024');
 INSERT INTO schema_migrations (version) VALUES ('20150116112256');
 
 INSERT INTO schema_migrations (version) VALUES ('20150119122122');
+
+INSERT INTO schema_migrations (version) VALUES ('20150121111134');
+
+INSERT INTO schema_migrations (version) VALUES ('20150121232443');
+
+INSERT INTO schema_migrations (version) VALUES ('20150121234014');
+
+INSERT INTO schema_migrations (version) VALUES ('20150122132408');
+
+INSERT INTO schema_migrations (version) VALUES ('20150126125749');
+
+INSERT INTO schema_migrations (version) VALUES ('20150126135438');
+
+INSERT INTO schema_migrations (version) VALUES ('20150126161813');
+
+INSERT INTO schema_migrations (version) VALUES ('20150210140508');
+
+INSERT INTO schema_migrations (version) VALUES ('20150217174539');
+
+INSERT INTO schema_migrations (version) VALUES ('20150225102903');
+
+INSERT INTO schema_migrations (version) VALUES ('20150302082111');
+
+INSERT INTO schema_migrations (version) VALUES ('20150304104013');
+
+INSERT INTO schema_migrations (version) VALUES ('20150310140649');
 
