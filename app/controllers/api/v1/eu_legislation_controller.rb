@@ -243,7 +243,7 @@ class Api::V1::EuLegislationController < Api::V1::BaseController
     @eu_decisions = @taxon_concept.eu_decisions.in_scope(@legislation_scope)
   end
 
-  def permit_params_child
-    params.permit(:scope, :language, :taxon_concept_id, :format)
+  def permitted_params
+    [:scope, :language, :taxon_concept_id, :format]
   end
 end

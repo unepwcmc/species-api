@@ -38,7 +38,7 @@ class Api::V1::ReferencesController < Api::V1::BaseController
       taxon_references.order(:citation)
   end
 
-  def permit_params_child
-    params.permit(:taxon_concept_id, :format)
+  def permitted_params
+    [:taxon_concept_id, :format]
   end
 end

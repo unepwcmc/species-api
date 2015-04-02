@@ -1,6 +1,6 @@
 class Api::V1::BaseController < Api::BaseController
   before_action :set_language
-  before_action :permit_params
+  before_action :validate_params
 
   # Add these two lines to record analytics on api requests and errors on a controller
   after_action :track_this_request
@@ -26,16 +26,12 @@ class Api::V1::BaseController < Api::BaseController
       end
     end
 
-    def permit_params
-      permitted = permit_params_child
+    def validate_params
       never_unpermitted = ActionController::Parameters::NEVER_UNPERMITTED_PARAMS
-      unpermitted_keys = params.keys - permitted.keys - never_unpermitted
+      unpermitted_keys = params.keys - permitted_params.map(&:to_s) - never_unpermitted
       if unpermitted_keys.any?
-        @message = "Unpermitted parameters"
-        create_api_request(@message, 422)
-        render 'api/error', status: 422
+        track_api_error("Unpermitted parameters (#{unpermitted_keys.join(', ')})", 422)
+        return false
       end
     end
-
-    def permit_params_child; end
 end

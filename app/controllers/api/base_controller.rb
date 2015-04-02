@@ -43,8 +43,6 @@ class Api::BaseController < ApplicationController
 
   # rescue_from method for recording API Metrics on 500 errors
   def track_this_error(exception)
-    code = 500
-    @message = 'We are sorry but an error occurred processing your request'
     if Rails.env.production? || Rails.env.staging?
       ExceptionNotifier.notify_exception(exception,
         :env => request.env, :data => {:message => "Something went wrong"})
@@ -52,12 +50,19 @@ class Api::BaseController < ApplicationController
       Rails.logger.error exception.message
       Rails.logger.error exception.backtrace.join("\n")
     end
-
-    create_api_request(exception, code)
+    code = 500
+    @message = 'We are sorry but an error occurred processing your request'
+    create_api_request(@message, code)
     render 'api/error', status: code
   end
 
-  def create_api_request(exception, code)
+  def track_api_error(message, code)
+    create_api_request(message, code)
+    @message = message
+    render 'api/error', status: code
+  end
+
+  def create_api_request(message, code)
     ApiRequest.create(
       user_id: @user.try(:id),
       controller: params[:controller].split('/').last,
@@ -66,7 +71,8 @@ class Api::BaseController < ApplicationController
       format: params[:format],
       ip: request.remote_ip,
       response_status: code,
-      error_message: @message
+      error_message: message
     )
   end
+
 end

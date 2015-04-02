@@ -222,7 +222,7 @@ class Api::V1::CitesLegislationController < Api::V1::BaseController
     @cites_quotas = @taxon_concept.cites_quotas_including_global.in_scope(@legislation_scope)
   end
 
-  def permit_params_child
-    params.permit(:taxon_concept_id, :scope, :language, :format)
+  def permitted_params
+    [:taxon_concept_id, :scope, :language, :format]
   end
 end
