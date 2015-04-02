@@ -31,6 +31,12 @@ class TaxonConcept < ActiveRecord::Base
   has_many :eu_listings
   has_many :eu_decisions
   has_many :taxon_references
+  has_many :current_cites_additions, -> (tc){
+    where("is_current and change_type_name = 'ADDITION'")
+  }, class_name: CitesListing
+  has_many :common_names_with_iso_code, -> (tc){
+    where("iso_code1 IS NOT NULL")
+  }, class_name: CommonName
 
   def cites_suspensions_including_global
     CitesSuspension.where(trade_restrictions_including_global_where_clause)
