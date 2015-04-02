@@ -208,11 +208,13 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
     render 'api/v1/taxon_concepts/index'
   end
 
+  private
+
   #overrides method from parent controller
   def set_language
-    language = params[:language] ? params[:language].try(:downcase).split(',').first.delete(' ').try(:to_sym) ||
-      :en : :en
-    I18n.locale = if [:en, :es, :fr].include?(language)
+    language = params[:language] ? params[:language].try(:downcase).split(',').first.delete(' ') ||
+      'en' : 'en'
+    I18n.locale = if ['en', 'es', 'fr'].include?(language)
       language
     else
       I18n.default_locale

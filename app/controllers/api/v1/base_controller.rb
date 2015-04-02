@@ -7,11 +7,11 @@ class Api::V1::BaseController < Api::BaseController
   rescue_from StandardError, with: :track_this_error
 
   private
-  
+
     def set_language
-      language = params[:language].try(:downcase).try(:strip).try(:to_sym) ||
-        :en
-      I18n.locale = if [:en, :es, :fr].include?(language)
+      language = params[:language].try(:downcase).try(:strip) ||
+        'en'
+      I18n.locale = if ['en', 'es', 'fr'].include?(language)
         language
       else
         I18n.default_locale
