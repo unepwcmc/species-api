@@ -1,17 +1,17 @@
 class Api::V1::BaseController < Api::BaseController
   before_action :set_language
-  before_action :permit_params
+  before_action :validate_params
 
   # Add these two lines to record analytics on api requests and errors on a controller
   after_action :track_this_request
   rescue_from StandardError, with: :track_this_error
 
   private
-  
+
     def set_language
-      language = params[:language].try(:downcase).try(:strip).try(:to_sym) ||
-        :en
-      I18n.locale = if [:en, :es, :fr].include?(language)
+      language = params[:language].try(:downcase).try(:strip) ||
+        'en'
+      I18n.locale = if ['en', 'es', 'fr'].include?(language)
         language
       else
         I18n.default_locale
@@ -26,6 +26,12 @@ class Api::V1::BaseController < Api::BaseController
       end
     end
 
-    def permit_params
+    def validate_params
+      never_unpermitted = ActionController::Parameters::NEVER_UNPERMITTED_PARAMS
+      unpermitted_keys = params.keys - permitted_params.map(&:to_s) - never_unpermitted
+      if unpermitted_keys.any?
+        track_api_error("Unpermitted parameters (#{unpermitted_keys.join(', ')})", 422)
+        return false
+      end
     end
 end

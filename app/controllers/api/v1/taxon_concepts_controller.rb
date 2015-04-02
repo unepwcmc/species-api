@@ -208,11 +208,13 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
     render 'api/v1/taxon_concepts/index'
   end
 
+  private
+
   #overrides method from parent controller
   def set_language
-    language = params[:language] ? params[:language].try(:downcase).split(',').first.delete(' ').try(:to_sym) ||
-      :en : :en
-    I18n.locale = if [:en, :es, :fr].include?(language)
+    language = params[:language] ? params[:language].try(:downcase).split(',').first.delete(' ') ||
+      'en' : 'en'
+    I18n.locale = if ['en', 'es', 'fr'].include?(language)
       language
     else
       I18n.default_locale
@@ -220,21 +222,51 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
     @languages = params[:language].delete(' ').split(',').map! { |lang| lang.upcase } unless params[:language].nil?
   end
 
-  def permit_params
-    params.permit(
+  def permitted_params
+    [
       :page, :per_page, :updated_since, :name,
       :with_descendants, :taxonomy, :language, :format
-    )
+    ]
   end
 
   def validate_params
-    message = ''
-    if (params[:taxonomy].present? && !(/cms|cites/.match(params[:taxonomy].downcase)))
-      message = "Invalid taxonomy"
-    elsif (params[:with_descendants].present? && !params[:name].present?)
-      message = "Invalid use of with_descendants"
+    super()
+    [
+      :updated_since,
+      :page,
+      :per_page,
+      :with_descendants
+    ].each do |param|
+      unless send(:"validate_#{param}_format")
+        track_api_error("Invalid parameter format: #{param}", 400) and return
+      end
     end
+    if (params[:taxonomy].present? && !(/^(cms|cites)$/.match(params[:taxonomy].downcase)))
+      track_api_error("Unknown taxonomy: #{params[:taxonomy]}", 422) and return
+    end
+    if (params[:with_descendants] == 'true' && params[:name].blank?)
+      track_api_error("Invalid use of with_descendants", 422) and return
+    end
+  end
 
-    raise ActionController::ParameterMissing, message if message.present?
+  def validate_updated_since_format
+    return true unless params[:updated_since]
+    y, m, d = params[:updated_since].split('-')
+    Date.valid_date? y.to_i, m.to_i, d.to_i
+  end
+
+  def validate_page_format
+    return true unless params[:page]
+    /\A\d+\Z/.match(params[:page])
+  end
+
+  def validate_per_page_format
+    return true unless params[:per_page]
+    /\A\d+\Z/.match(params[:per_page])
+  end
+
+  def validate_with_descendants_format
+    return true unless params[:with_descendants]
+    /^(true|false)$/.match(params[:with_descendants])
   end
 end

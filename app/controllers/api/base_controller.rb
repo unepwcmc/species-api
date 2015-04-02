@@ -43,30 +43,26 @@ class Api::BaseController < ApplicationController
 
   # rescue_from method for recording API Metrics on 500 errors
   def track_this_error(exception)
-
-    code = 500
-    @message = 'We are sorry but an error occurred processing your request'
-
-    if exception.is_a?(ActiveRecord::StatementInvalid) ||
-        exception.is_a?(ArgumentError) || exception.is_a?(FloatDomainError)
-        @message = 'Invalid parameters'
-        code = 400
-    elsif exception.is_a?(ActionController::UnpermittedParameters) ||
-      exception.is_a?(ActionController::ParameterMissing)
-        @message = exception.message
-        code = 422
-    end
-
     if Rails.env.production? || Rails.env.staging?
       ExceptionNotifier.notify_exception(exception,
         :env => request.env, :data => {:message => "Something went wrong"})
+    else
+      Rails.logger.error exception.message
+      Rails.logger.error exception.backtrace.join("\n")
     end
-
-    create_api_request(exception)
+    code = 500
+    @message = 'We are sorry but an error occurred processing your request'
+    create_api_request(@message, code)
     render 'api/error', status: code
   end
 
-  def create_api_request(exception)
+  def track_api_error(message, code)
+    create_api_request(message, code)
+    @message = message
+    render 'api/error', status: code
+  end
+
+  def create_api_request(message, code)
     ApiRequest.create(
       user_id: @user.try(:id),
       controller: params[:controller].split('/').last,
@@ -74,8 +70,9 @@ class Api::BaseController < ApplicationController
       params: params.except(:controller, :action, :format),
       format: params[:format],
       ip: request.remote_ip,
-      response_status: response.status,
-      error_message: exception.to_s
+      response_status: code,
+      error_message: message
     )
   end
+
 end
