@@ -6,6 +6,56 @@ class Api::V1::EuLegislationController < Api::V1::BaseController
   end
 
   api :GET, '/:taxon_concept_id/eu_legislation', 'Lists current EU annex listings, SRG opinions, and EU suspensions for a given taxon concept'
+
+  description <<-EOS
+==== eu_listings
+[taxon_concept_id] always present
+[is_current] boolean flag indicating whether listing change is current
+[annex] EU annex, one of <tt>A</tt>, <tt>B</tt>, <tt>C</tt>, <tt>D</tt>
+[change_type] type of listing change, one of:
+<tt>+</tt>: inclusion in annex,
+<tt>-</tt>: removal from annex
+[effective_at] date when listing change came into effect, YYYY-MM-DD
+[party] where applicable, party involved in the listing change. See description of <tt>geo_entity</tt> object below.
+[annotation] text of annotation (translated based on locale)
+[hash_annotation] where applicable, <tt>#</tt> annotation (plants). See description of <tt>annotation</tt> object below.
+
+==== eu_decisions
+[taxon_concept_id] always present
+[notes]
+[start_date] date when decision came into effect, YYYY-MM-DD
+[is_current] boolean flag indicating whether decision is current
+[eu_decision_type] type of decision. See description of eu_decision_type object below.
+[geo_entity] geographic location to which the decision applies. See description of <tt>geo_entity</tt> object below.
+[start_event] event that started the suspension. See description of <tt>event</tt> object below.
+[end_event] event that ended the suspension. See description of <tt>event</tt> object below.
+[source] source to which decision applies. See description of <tt>trade_code</tt> object below.
+[term] term to which decision applies. See description of <tt>trade_code</tt> object below.
+
+==== geo_entity
+[iso_code2] ISO 3166-1 alpha-2
+[name] name of country / territory (translated based on locale)
+[type] one of <tt>COUNTRY</tt> or <tt>TERRITORY</tt>
+
+==== trade_code
+[code] CITES trade code
+[name] full name name (translated based on locale)
+
+==== event
+[name] name of event
+[date] date of event
+[url] URL of document
+
+==== annotation
+[symbol] symbol of annotation
+[note] text of annotation (translated based on locale)
+
+==== eu_decision_type
+[name] name of decision type, e.g. <tt>Suspension (a)</tt>, <tt>Negative</tt>, <tt>No opinion</tt>
+[description] additional description where available
+[type] one of <tt>SUSPENSION</tt>, <tt>POSITIVE_OPINION</tt>, <tt>NEGATIVE_OPINION</tt>, <tt>NO_OPINION</tt>
+  EOS
+
   param :taxon_concept_id, String, :desc => "Taxon Concept ID", :required => true
   param :scope, String, desc: 'Time scope of legislation. Select all, current or historic. Defaults to current.', required: false
   param :language, String, desc: 'Select language for the text of legislation notes. Select en, fr, or es. Defaults to en.', required: false
@@ -235,6 +285,12 @@ class Api::V1::EuLegislationController < Api::V1::BaseController
     </eu-decisions>
   </eu-legislation>
   EOS
+
+  error code: 400, desc: "Bad Request"
+  error code: 401, desc: "Unauthorized"
+  error code: 404, desc: "Not Found"
+  error code: 422, desc: "Unprocessable Entity"
+  error code: 500, desc: "Internal Server Error"
 
   def index
     set_legislation_scope

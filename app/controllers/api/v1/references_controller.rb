@@ -5,6 +5,12 @@ class Api::V1::ReferencesController < Api::V1::BaseController
   end
 
   api :GET, '/:taxon_concept_id/references', 'Lists references for a given taxon concept'
+
+  description <<-EOS
+[citation] reference citation
+[is_standard] boolean flag that indicates whether this is a CITES standard reference
+  EOS
+
   param :taxon_concept_id, String, :desc => "Taxon Concept ID", :required => true
   example <<-EOS
   [
@@ -32,6 +38,12 @@ class Api::V1::ReferencesController < Api::V1::BaseController
     </taxon-reference>
   </taxon-references>
   EOS
+
+  error code: 400, desc: "Bad Request"
+  error code: 401, desc: "Unauthorized"
+  error code: 404, desc: "Not Found"
+  error code: 422, desc: "Unprocessable Entity"
+  error code: 500, desc: "Internal Server Error"
 
   def index
     @references = TaxonConcept.find(params[:taxon_concept_id]).

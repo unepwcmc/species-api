@@ -21,15 +21,6 @@
   <h4>Signing up for API access</h4>
   <p>You can sign up for an API account <%= link_to 'here', new_user_registration_path %>. Once you have signed up, visit <%= link_to 'Sign in', new_user_session_path %> to log in to the API Dashboard and retrieve your generated token.</p>
 
-  <h4>Tools for testing the API</h4>
-  <p>There are a number of free tools available that allow you to test the API before you start integrating it in your systems. For example, <code>curl</code> is a popular command-line tool that could be used for this purpose:</p>
-
-  <p>
-  <code>curl -i "http://api.speciesplus.net/api/v1/taxon_concepts.xml?name=Mammalia" -H "X-Authentication-Token:YOUR_TOKEN_HERE"</code>
-  </p>
-
-  <p>There are also a number of tools that can be installed as an add-on to your browser; they can be found for example by searching for "rest client" in the add-ons repository for your browser.</p>
-
   <h4>Authenticating your requests</h4>
   Your authentication token needs to be passed into every request you make via the HTTP header below:</p>
 
@@ -39,25 +30,22 @@
 
   <p>Tokens can be manually regenerated from the API Dashboard</p>
 
-  <h4>Optional parameters</h4>
-  <p>Whereas authentication is passed via a HTTP header, other parameters for refining your response data are provided via the query string. These are detailed below and where appropriate in the documentation for each endpoint. Parameters can be combined.</p>
+  <h4>Tools for testing the API</h4>
+  <p>There are a number of free tools available that allow you to test the API before you start integrating it in your systems. For example, <code>curl</code> is a popular command-line tool that could be used for this purpose:</p>
 
-  <h4>Paginating Responses</h4>
-  <p>Where the request returns more than 100 objects, the request is paginated, showing 100 objects (Or less by passing in an optional 'per_page' parameter) at a time. To fetch the remaining objects, you will need to make a new request and pass the optional ‘page’ parameter as below:</p>
+  <p>
+  <code>curl -i "http://api.speciesplus.net/api/v1/taxon_concepts.xml?name=Mammalia" -H "X-Authentication-Token:YOUR_TOKEN_HERE"</code>
+  </p>
 
-  <div class="well"><pre>http://api.speciesplus.net/api/v1/taxon_concepts?page=2&per_page=25</pre></div>
-
-  <p>Information about the remaining pages is provided in the Link header of the API response. For example, making the above request for page two, with a limit of 25 objects per page would return the following in the link header along with a total-count header:</p>
-
-  <div class="well"><pre>Link: &lt;http://api.speciesplus.net/api/v1/taxon_concepts?page=3&per_page=25&gt;; rel="next", &lt;http://api.speciesplus.net/api/v1/taxon_concepts?page=2570&per_page=25&gt;; rel="last"
-Total-Count: 64230</pre></div>
-
-  <p>If there are additional pages, the link header will contain the URL for the next page of results, followed by the URL for the last page of results. The Total-Count header shows the total number of objects returned for this call, regardless of pagination.</p>
+  <p>There are also a number of tools that can be installed as an add-on to your browser; they can be found for example by searching for "rest client" in the add-ons repository for your browser.</p>
 
   <h4>Formats</h4>
   <p>All endpoint can return both JSON and XML data. The default is JSON, if you would like to receive XML data, you can add .xml to the endpoint as below:</p>
 
   <div class="well"><pre>http://api.speciesplus.net/api/v1/taxon_concepts.xml</pre></div>
+
+  <h4>Optional parameters</h4>
+  <p>Whereas authentication is passed via a HTTP header, other parameters for refining your response data are provided via the query string. These are detailed below and where appropriate in the documentation for each endpoint. Parameters can be combined.</p>
 
 </div>
 

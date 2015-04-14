@@ -11,18 +11,32 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
   api :GET, '/', 'Lists taxon concepts'
 
   description <<-EOS
-  The following taxon concept fields are returned:
-  [id] unique identifier of a taxon concept
-  [full_name] scientific name
-  [author_year] author and year (parentheses where applicable)
-  [rank] one of KINGDOM, PHYLUM, CLASS, ORDER, FAMILY, SUBFAMILY, GENUS, SPECIES, SUBSPECIES, VARIETY
-  [name_status] A for accepted names, S for synonyms (both types of names are taxon concepts in Species+)
-  [updated_at] timestamp of last update to the taxon concept in Species+
-  [cites_listing] value of current CITES listing (as per CITES Checklist). When taxon concept is removed from appendices this becomes 'NC'. When taxon is split listed it becomes a concatenation of appendix symbols, e.g. 'I/II/NC'
-  [higher_taxa] object that gives scientific names of ancestors in the taxonomic tree
-  [synonyms] list of synonyms
-  [common names] list of common names (with language given by ISO 639-1 code)
-  [cites_listings] list of current CITES listings with annotations (there will be more than one element in this list in case of split listings)
+The following taxon concept fields are returned:
+
+[id] unique identifier of a taxon concept
+[full_name] scientific name
+[author_year] author and year (parentheses where applicable)
+[rank] one of +KINGDOM+, +PHYLUM+, +CLASS+, +ORDER+, +FAMILY+, +SUBFAMILY+, +GENUS+, +SPECIES+, +SUBSPECIES+, +VARIETY+
+[name_status] +A+ for accepted names, +S+ for synonyms (both types of names are taxon concepts in Species+)
+[updated_at] timestamp of last update to the taxon concept in Species+
+[cites_listing] value of current CITES listing (as per CITES Checklist). When taxon concept is removed from appendices this becomes +NC+. When taxon is split listed it becomes a concatenation of appendix symbols, e.g. +I/II/NC+
+[higher_taxa] object that gives scientific names of ancestors in the taxonomic tree
+[synonyms] list of synonyms
+[common_names] list of common names (with language given by ISO 639-1 code)
+[cites_listings] list of current CITES listings with annotations (there will be more than one element in this list in case of split listings)
+
+Where more than 500 taxon concepts are returned, the request is paginated, showing 500 objects (or less by passing in an optional 'per_page' parameter) at a time. To fetch the remaining objects, you will need to make a new request and pass the optional ‘page’ parameter as below:
+
+  http://api.speciesplus.net/api/v1/taxon_concepts?page=2&per_page=25
+
+Information about the remaining pages is provided in the Link header of the API response. For example, making the above request for page two, with a limit of 25 objects per page would return the following in the link header along with a total-count header:
+
+  Link: &lt;http://api.speciesplus.net/api/v1/taxon_concepts?page=3&per_page=25&gt;; rel="next", &lt;http://api.speciesplus.net/api/v1/taxon_concepts?page=2570&per_page=25&gt;; rel="last"
+  Total-Count: 64230
+
+If there are additional pages, the link header will contain the URL for the next page of results, followed by the URL for the last page of results. The Total-Count header shows the total number of objects returned for this call, regardless of pagination.
+
+For convenience, a 'pagination' meta object is also included in the body of the response.
   EOS
 
   param :page, String, desc: 'Page number for paginated responses', required: false
@@ -165,6 +179,12 @@ class Api::V1::TaxonConceptsController < Api::V1::BaseController
     </taxon-concepts>
   </hash>
   EOS
+
+  error code: 400, desc: "Bad Request"
+  error code: 401, desc: "Unauthorized"
+  error code: 404, desc: "Not Found"
+  error code: 422, desc: "Unprocessable Entity"
+  error code: 500, desc: "Internal Server Error"
 
   def index
     taxon_per_page = TaxonConcept.per_page

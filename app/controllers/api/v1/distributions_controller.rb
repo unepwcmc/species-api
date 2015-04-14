@@ -5,6 +5,15 @@ class Api::V1::DistributionsController < Api::V1::BaseController
   end
 
   api :GET, '/:taxon_concept_id/distributions', 'Lists distributions for a given taxon concept'
+
+  description <<-EOS
+[iso_code2] ISO 3166-1 alpha-2
+[name] name of country / territory (translated based on locale)
+[type] one of <tt>COUNTRY</tt> or <tt>TERRITORY</tt>
+[tags] array of distribution tags, e.g. <tt>extinct</tt> (strings)
+[references] array of citations (strings)
+  EOS
+
   param :taxon_concept_id, String, desc: 'Taxon Concept ID', required: true
   param :language, String, desc: 'Select language for the names of distributions. Select en, fr, or es. Defaults to en.', required: false
 
@@ -62,6 +71,12 @@ class Api::V1::DistributionsController < Api::V1::BaseController
     </distribution>
   </distributions>
   EOS
+
+  error code: 400, desc: "Bad Request"
+  error code: 401, desc: "Unauthorized"
+  error code: 404, desc: "Not Found"
+  error code: 422, desc: "Unprocessable Entity"
+  error code: 500, desc: "Internal Server Error"
 
   def index
     @distributions = TaxonConcept.find(params[:taxon_concept_id]).distributions
