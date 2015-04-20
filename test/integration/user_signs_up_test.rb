@@ -19,6 +19,13 @@ class UserSignsUpTest < ActionDispatch::IntegrationTest
     #assert_equal 'new_user_registration_path', current_path
   end
 
+  test "user signs up without organisation" do
+    @user = FactoryGirl.build(:user, organisation: nil)
+    assert_no_difference 'User.count' do
+      sign_up @user
+    end
+  end
+
   test "user gets an api token on sign up" do
     sign_up @user
     assert_not_nil User.last.authentication_token

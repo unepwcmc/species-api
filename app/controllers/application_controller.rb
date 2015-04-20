@@ -10,8 +10,8 @@ class ApplicationController < ActionController::Base
   protected
 
     def configure_permitted_parameters
-      devise_parameter_sanitizer.for(:sign_up).push(:name, :terms_and_conditions, :geo_entity_id, :organisation)
-      devise_parameter_sanitizer.for(:account_update).push(:name, :geo_entity_id, :organisation)
+      devise_parameter_sanitizer.for(:sign_up).push(:name, :terms_and_conditions, :geo_entity_id, :organisation, :is_cites_authority)
+      devise_parameter_sanitizer.for(:account_update).push(:name, :geo_entity_id, :organisation, :is_cites_authority)
     end
 
     def after_sign_in_path_for(resource)
