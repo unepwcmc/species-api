@@ -4927,7 +4927,6 @@ CREATE FUNCTION rebuild_taxon_concepts_mview() RETURNS void
     taxon_concepts.dependents_updated_at,
     common_names.*,
     synonyms.*,
-    subspecies.subspecies_not_listed_ary,
     countries_ids_ary,
     all_distribution_iso_codes_ary,
     -- BEGIN remove once checklist translation has been deployed
@@ -5020,45 +5019,6 @@ CREATE FUNCTION rebuild_taxon_concepts_mview() RETURNS void
       ON synonym_tc.id = taxon_relationships.other_taxon_concept_id
       GROUP BY taxon_relationships.taxon_concept_id
     ) synonyms ON taxon_concepts.id = synonyms.taxon_concept_id_syn
-    LEFT JOIN (
-      SELECT taxon_concept_id_sub, ARRAY_AGG(subspecies_ary) AS subspecies_not_listed_ary
-      FROM
-      (
-      SELECT taxon_concepts.parent_id AS taxon_concept_id_sub,
-      taxon_concepts.full_name AS subspecies_ary
-      FROM taxon_concepts
-      JOIN ranks ON ranks.id = taxon_concepts.rank_id
-      AND ranks.name = 'VARIETY'
-      WHERE name_status NOT IN ('S', 'T', 'N')
-      GROUP BY taxon_concept_id_sub, taxon_concepts.full_name
-      UNION
-      (
-      SELECT taxon_concepts.parent_id AS taxon_concept_id_sub,
-      taxon_concepts.full_name AS subspecies_ary
-      FROM taxon_concepts
-      JOIN ranks ON ranks.id = taxon_concepts.rank_id
-      AND ranks.name = 'SUBSPECIES'
-      WHERE name_status NOT IN ('S', 'T', 'N')
-      GROUP BY taxon_concept_id_sub, taxon_concepts.full_name
-      EXCEPT
-      SELECT taxon_concepts.parent_id AS taxon_concept_id_sub,
-      taxon_concepts.full_name AS subspecies_ary
-      FROM taxon_concepts
-      JOIN ranks ON ranks.id = taxon_concepts.rank_id
-      AND ranks.name = 'SUBSPECIES'
-      JOIN taxonomies ON taxonomies.id = taxon_concepts.taxonomy_id
-      WHERE name_status NOT IN ('S', 'T', 'N')
-      AND CASE
-        WHEN taxonomies.name = 'CMS'
-        THEN (listing->'cms_historically_listed')::BOOLEAN
-        ELSE (listing->'cites_historically_listed')::BOOLEAN
-        OR (listing->'eu_historically_listed')::BOOLEAN
-      END
-      GROUP BY taxon_concept_id_sub, taxon_concepts.full_name
-      )
-      ) AS subquery
-      GROUP by taxon_concept_id_sub
-    ) subspecies ON taxon_concepts.id = subspecies.taxon_concept_id_sub
     LEFT JOIN (
       SELECT distributions.taxon_concept_id AS taxon_concept_id_cnt,
       ARRAY_AGG_NOTNULL(geo_entities.id ORDER BY geo_entities.name_en) AS countries_ids_ary,
@@ -5161,128 +5121,22 @@ CREATE FUNCTION rebuild_taxon_concepts_mview() RETURNS void
     DROP table IF EXISTS auto_complete_taxon_concepts_mview_tmp CASCADE;
     RAISE INFO 'Creating auto complete taxon concepts materialized view (tmp)';
     CREATE TABLE auto_complete_taxon_concepts_mview_tmp AS
-    WITH match_lookup (name_for_matching, matched_id, matched_name, id, full_name) AS (
-      SELECT
-        UPPER(full_name),
-        id,
-        NULL,
-        id,
-        full_name
-      FROM taxon_concepts
-
-      UNION
-
-      SELECT
-        UPPER(tc.full_name),
-        tc.id,
-        tc.full_name,
-        atc.id,
-        atc.full_name
-      FROM taxon_concepts tc
-      JOIN taxon_relationships tr
-      ON tr.other_taxon_concept_id = tc.id
-      JOIN taxon_relationship_types trt
-      ON trt.id = tr.taxon_relationship_type_id
-      AND trt.name = 'HAS_SYNONYM'
-      JOIN taxon_concepts atc
-      ON atc.id = tr.taxon_concept_id
-      WHERE tc.name_status = 'S' AND atc.name_status = 'A' -- just in case
-
-      UNION
-
-      SELECT
-        UPPER(UNNEST(REGEXP_SPLIT_TO_ARRAY(common_names.name, ' '))),
-        NULL,
-        common_names.name,
-        tc.id,
-        tc.full_name
-      FROM taxon_concepts tc
-      JOIN taxon_commons
-      ON tc.id = taxon_commons.taxon_concept_id
-      JOIN common_names
-      ON common_names.id = taxon_commons.common_name_id
-      JOIN languages
-      ON languages.id = common_names.language_id
-      AND languages.iso_code1 IN ('EN', 'ES', 'FR')
-      WHERE tc.name_status = 'A' -- just in case
-    ), taxa_with_visibility_flags AS (
-      SELECT taxon_concepts.id,
-        CASE
-        WHEN taxonomies.name = 'CITES_EU' THEN TRUE
-        ELSE FALSE
-        END AS taxonomy_is_cites_eu,
-        name_status,
-        ranks.name AS rank_name,
-        ranks.display_name_en AS rank_display_name_en,
-        ranks.display_name_es AS rank_display_name_es,
-        ranks.display_name_fr AS rank_display_name_fr,
-        ranks.taxonomic_position AS rank_order,
-        taxon_concepts.taxonomic_position,
-        CASE
-          WHEN
-            name_status = 'A'
-            AND (
-              ranks.name != 'SUBSPECIES'
-              AND ranks.name != 'VARIETY'
-              OR taxonomies.name = 'CITES_EU'
-              AND (
-                (listing->'cites_historically_listed')::BOOLEAN
-                OR (listing->'eu_historically_listed')::BOOLEAN
-              )
-              OR taxonomies.name = 'CMS'
-              AND (listing->'cms_historically_listed')::BOOLEAN
-            )
-          THEN TRUE
-          ELSE FALSE
-        END AS show_in_species_plus_ac,
-        CASE
-          WHEN
-            name_status = 'A'
-            AND (
-              ranks.name != 'SUBSPECIES'
-              AND ranks.name != 'VARIETY'
-              OR (listing->'cites_show')::BOOLEAN
-            )
-          THEN TRUE
-          ELSE FALSE
-        END AS show_in_checklist_ac,
-        CASE
-          WHEN
-            taxonomies.name = 'CITES_EU'
-            AND ARRAY['A', 'H', 'N']::VARCHAR[] && ARRAY[name_status]
-          THEN TRUE
-          ELSE FALSE
-        END AS show_in_trade_ac,
-        CASE
-          WHEN
-            taxonomies.name = 'CITES_EU'
-            AND ARRAY['A', 'H', 'N', 'T']::VARCHAR[] && ARRAY[name_status]
-          THEN TRUE
-          ELSE FALSE
-        END AS show_in_trade_internal_ac
-        FROM taxon_concepts
-        JOIN ranks ON ranks.id = rank_id
-        JOIN taxonomies ON taxonomies.id = taxon_concepts.taxonomy_id
-    )
-    SELECT t1.*, name_for_matching, matched_id, matched_name, full_name FROM taxa_with_visibility_flags t1
-    JOIN match_lookup t2
-    ON t1.id = t2.id
-    WHERE LENGTH(t2.name_for_matching) >= 3;
+    SELECT * FROM auto_complete_taxon_concepts_view;
 
     RAISE INFO 'Creating indexes on auto complete taxon concepts materialized view (tmp)';
 
     --this one used for Species+ autocomplete (both main and higher taxa in downloads)
     CREATE INDEX ON auto_complete_taxon_concepts_mview_tmp
-    USING BTREE(name_for_matching text_pattern_ops, taxonomy_is_cites_eu, rank_name, show_in_species_plus_ac);
+    USING BTREE(name_for_matching text_pattern_ops, taxonomy_is_cites_eu, type_of_match, show_in_species_plus_ac);
     --this one used for Checklist autocomplete
     CREATE INDEX ON auto_complete_taxon_concepts_mview_tmp
-    USING BTREE(name_for_matching text_pattern_ops, taxonomy_is_cites_eu, rank_name, show_in_checklist_ac);
+    USING BTREE(name_for_matching text_pattern_ops, taxonomy_is_cites_eu, type_of_match, show_in_checklist_ac);
     --this one used for Trade autocomplete
     CREATE INDEX ON auto_complete_taxon_concepts_mview_tmp
-    USING BTREE(name_for_matching text_pattern_ops, taxonomy_is_cites_eu, rank_name, show_in_trade_ac);
+    USING BTREE(name_for_matching text_pattern_ops, taxonomy_is_cites_eu, type_of_match, show_in_trade_ac);
     --this one used for Trade internal autocomplete
     CREATE INDEX ON auto_complete_taxon_concepts_mview_tmp
-    USING BTREE(name_for_matching text_pattern_ops, taxonomy_is_cites_eu, rank_name, show_in_trade_internal_ac);
+    USING BTREE(name_for_matching text_pattern_ops, taxonomy_is_cites_eu, type_of_match, show_in_trade_internal_ac);
 
     RAISE INFO 'Swapping auto complete taxon concepts materialized view';
     DROP table IF EXISTS auto_complete_taxon_concepts_mview CASCADE;
@@ -7526,6 +7380,256 @@ CREATE VIEW api_taxon_references_view AS
 
 
 --
+-- Name: ranks; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE ranks (
+    id integer NOT NULL,
+    name character varying(255) NOT NULL,
+    taxonomic_position character varying(255) DEFAULT '0'::character varying NOT NULL,
+    fixed_order boolean DEFAULT false NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    display_name_en text NOT NULL,
+    display_name_es text,
+    display_name_fr text
+);
+
+
+--
+-- Name: taxon_relationship_types; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE taxon_relationship_types (
+    id integer NOT NULL,
+    name character varying(255) NOT NULL,
+    is_intertaxonomic boolean DEFAULT false NOT NULL,
+    is_bidirectional boolean DEFAULT false NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: taxon_relationships; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE taxon_relationships (
+    id integer NOT NULL,
+    taxon_concept_id integer NOT NULL,
+    other_taxon_concept_id integer NOT NULL,
+    taxon_relationship_type_id integer NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    created_by_id integer,
+    updated_by_id integer
+);
+
+
+--
+-- Name: auto_complete_taxon_concepts_view; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW auto_complete_taxon_concepts_view AS
+ WITH synonyms_segmented(taxon_concept_id, full_name, matched_taxon_concept_id, matched_name, matched_name_segment) AS (
+         SELECT atc.id,
+            atc.full_name,
+            tc.id,
+            tc.full_name,
+            upper(regexp_split_to_table((tc.full_name)::text, ' '::text)) AS upper
+           FROM (((taxon_concepts tc
+             JOIN taxon_relationships tr ON ((tr.other_taxon_concept_id = tc.id)))
+             JOIN taxon_relationship_types trt ON (((trt.id = tr.taxon_relationship_type_id) AND ((trt.name)::text = 'HAS_SYNONYM'::text))))
+             JOIN taxon_concepts atc ON ((atc.id = tr.taxon_concept_id)))
+          WHERE (((tc.name_status)::text = 'S'::text) AND ((atc.name_status)::text = 'A'::text))
+        ), scientific_names_segmented(taxon_concept_id, full_name, matched_taxon_concept_id, matched_name, matched_name_segment) AS (
+         SELECT taxon_concepts.id,
+            taxon_concepts.full_name,
+            taxon_concepts.id,
+            taxon_concepts.full_name,
+            upper(regexp_split_to_table((taxon_concepts.full_name)::text, ' '::text)) AS upper
+           FROM taxon_concepts
+        ), unlisted_subspecies_segmented(taxon_concept_id, full_name, matched_taxon_concept_id, matched_name, matched_name_segment) AS (
+         SELECT parents.id,
+            parents.full_name,
+            taxon_concepts.id,
+            taxon_concepts.full_name,
+            upper(regexp_split_to_table((taxon_concepts.full_name)::text, ' '::text)) AS upper
+           FROM ((taxon_concepts
+             JOIN ranks ON (((ranks.id = taxon_concepts.rank_id) AND ((ranks.name)::text = ANY ((ARRAY['SUBSPECIES'::character varying, 'VARIETY'::character varying])::text[])))))
+             JOIN taxon_concepts parents ON ((parents.id = taxon_concepts.parent_id)))
+          WHERE (((taxon_concepts.name_status)::text <> ALL ((ARRAY['S'::character varying, 'T'::character varying, 'N'::character varying])::text[])) AND ((parents.name_status)::text = 'A'::text))
+        EXCEPT
+         SELECT parents.id,
+            parents.full_name,
+            taxon_concepts.id,
+            taxon_concepts.full_name,
+            upper(regexp_split_to_table((taxon_concepts.full_name)::text, ' '::text)) AS upper
+           FROM (((taxon_concepts
+             JOIN ranks ON (((ranks.id = taxon_concepts.rank_id) AND ((ranks.name)::text = 'SUBSPECIES'::text))))
+             JOIN taxon_concepts parents ON ((parents.id = taxon_concepts.parent_id)))
+             JOIN taxonomies ON ((taxonomies.id = taxon_concepts.taxonomy_id)))
+          WHERE ((((taxon_concepts.name_status)::text <> ALL ((ARRAY['S'::character varying, 'T'::character varying, 'N'::character varying])::text[])) AND ((parents.name_status)::text = 'A'::text)) AND
+                CASE
+                    WHEN ((taxonomies.name)::text = 'CMS'::text) THEN ((taxon_concepts.listing -> 'cms_historically_listed'::text))::boolean
+                    ELSE (((taxon_concepts.listing -> 'cites_historically_listed'::text))::boolean OR ((taxon_concepts.listing -> 'eu_historically_listed'::text))::boolean)
+                END)
+        ), taxon_common_names AS (
+         SELECT taxon_commons.id,
+            taxon_commons.taxon_concept_id,
+            taxon_commons.common_name_id,
+            taxon_commons.created_at,
+            taxon_commons.updated_at,
+            taxon_commons.created_by_id,
+            taxon_commons.updated_by_id,
+            common_names.name
+           FROM ((taxon_commons
+             JOIN common_names ON ((common_names.id = taxon_commons.common_name_id)))
+             JOIN languages ON (((languages.id = common_names.language_id) AND ((languages.iso_code1)::text = ANY ((ARRAY['EN'::character varying, 'ES'::character varying, 'FR'::character varying])::text[])))))
+        ), common_names_segmented(taxon_concept_id, full_name, matched_taxon_concept_id, matched_name, matched_name_segment) AS (
+         SELECT taxon_common_names.taxon_concept_id,
+            taxon_concepts.full_name,
+            NULL::integer AS int4,
+            taxon_common_names.name,
+            upper(regexp_split_to_table((taxon_common_names.name)::text, '\s|'''::text)) AS upper
+           FROM (taxon_common_names
+             JOIN taxon_concepts ON ((taxon_common_names.taxon_concept_id = taxon_concepts.id)))
+        ), taxon_common_names_dehyphenated AS (
+         SELECT taxon_common_names.taxon_concept_id,
+            taxon_concepts.full_name,
+            NULL::integer AS int4,
+            taxon_common_names.name,
+            upper(replace((taxon_common_names.name)::text, '-'::text, ' '::text)) AS upper
+           FROM (taxon_common_names
+             JOIN taxon_concepts ON ((taxon_common_names.taxon_concept_id = taxon_concepts.id)))
+          WHERE (strpos((taxon_common_names.name)::text, '-'::text) > 0)
+        ), common_names_segmented_dehyphenated AS (
+         SELECT common_names_segmented.taxon_concept_id,
+            common_names_segmented.full_name,
+            common_names_segmented.matched_taxon_concept_id,
+            common_names_segmented.matched_name,
+            common_names_segmented.matched_name_segment
+           FROM common_names_segmented
+        UNION
+         SELECT common_names_segmented.taxon_concept_id,
+            common_names_segmented.full_name,
+            common_names_segmented.matched_taxon_concept_id,
+            common_names_segmented.matched_name,
+            regexp_split_to_table(common_names_segmented.matched_name_segment, '-'::text) AS regexp_split_to_table
+           FROM common_names_segmented
+          WHERE (strpos(common_names_segmented.matched_name_segment, '-'::text) > 0)
+        UNION
+         SELECT taxon_common_names_dehyphenated.taxon_concept_id,
+            taxon_common_names_dehyphenated.full_name,
+            taxon_common_names_dehyphenated.int4,
+            taxon_common_names_dehyphenated.name,
+            taxon_common_names_dehyphenated.upper
+           FROM taxon_common_names_dehyphenated
+        ), all_names_segmented_cleaned AS (
+         SELECT all_names_segmented_no_prefixes.taxon_concept_id,
+            all_names_segmented_no_prefixes.full_name,
+            all_names_segmented_no_prefixes.matched_taxon_concept_id,
+            all_names_segmented_no_prefixes.matched_name,
+            all_names_segmented_no_prefixes.matched_name_segment,
+            all_names_segmented_no_prefixes.type_of_match
+           FROM ( SELECT all_names_segmented.taxon_concept_id,
+                    all_names_segmented.full_name,
+                    all_names_segmented.matched_taxon_concept_id,
+                    all_names_segmented.matched_name,
+                        CASE
+                            WHEN ("position"(upper((all_names_segmented.matched_name)::text), all_names_segmented.matched_name_segment) = 1) THEN upper((all_names_segmented.matched_name)::text)
+                            ELSE all_names_segmented.matched_name_segment
+                        END AS matched_name_segment,
+                    all_names_segmented.type_of_match
+                   FROM ( SELECT scientific_names_segmented.taxon_concept_id,
+                            scientific_names_segmented.full_name,
+                            scientific_names_segmented.matched_taxon_concept_id,
+                            scientific_names_segmented.matched_name,
+                            scientific_names_segmented.matched_name_segment,
+                            'SELF'::text AS type_of_match
+                           FROM scientific_names_segmented
+                        UNION
+                         SELECT synonyms_segmented.taxon_concept_id,
+                            synonyms_segmented.full_name,
+                            synonyms_segmented.matched_taxon_concept_id,
+                            synonyms_segmented.matched_name,
+                            synonyms_segmented.matched_name_segment,
+                            'SYNONYM'::text
+                           FROM synonyms_segmented
+                        UNION
+                         SELECT unlisted_subspecies_segmented.taxon_concept_id,
+                            unlisted_subspecies_segmented.full_name,
+                            unlisted_subspecies_segmented.matched_taxon_concept_id,
+                            unlisted_subspecies_segmented.matched_name,
+                            unlisted_subspecies_segmented.matched_name_segment,
+                            'SUBSPECIES'::text
+                           FROM unlisted_subspecies_segmented
+                        UNION
+                         SELECT common_names_segmented_dehyphenated.taxon_concept_id,
+                            common_names_segmented_dehyphenated.full_name,
+                            common_names_segmented_dehyphenated.matched_taxon_concept_id,
+                            common_names_segmented_dehyphenated.matched_name,
+                            common_names_segmented_dehyphenated.matched_name_segment,
+                            'COMMON_NAME'::text
+                           FROM common_names_segmented_dehyphenated) all_names_segmented) all_names_segmented_no_prefixes
+          WHERE (length(all_names_segmented_no_prefixes.matched_name_segment) >= 3)
+        ), taxa_with_visibility_flags AS (
+         SELECT taxon_concepts.id,
+                CASE
+                    WHEN ((taxonomies.name)::text = 'CITES_EU'::text) THEN true
+                    ELSE false
+                END AS taxonomy_is_cites_eu,
+            taxon_concepts.name_status,
+            ranks.name AS rank_name,
+            ranks.display_name_en AS rank_display_name_en,
+            ranks.display_name_es AS rank_display_name_es,
+            ranks.display_name_fr AS rank_display_name_fr,
+            ranks.taxonomic_position AS rank_order,
+            taxon_concepts.taxonomic_position,
+                CASE
+                    WHEN (((taxon_concepts.name_status)::text = 'A'::text) AND (((((ranks.name)::text <> 'SUBSPECIES'::text) AND ((ranks.name)::text <> 'VARIETY'::text)) OR (((taxonomies.name)::text = 'CITES_EU'::text) AND (((taxon_concepts.listing -> 'cites_historically_listed'::text))::boolean OR ((taxon_concepts.listing -> 'eu_historically_listed'::text))::boolean))) OR (((taxonomies.name)::text = 'CMS'::text) AND ((taxon_concepts.listing -> 'cms_historically_listed'::text))::boolean))) THEN true
+                    ELSE false
+                END AS show_in_species_plus_ac,
+                CASE
+                    WHEN (((taxon_concepts.name_status)::text = 'A'::text) AND ((((ranks.name)::text <> 'SUBSPECIES'::text) AND ((ranks.name)::text <> 'VARIETY'::text)) OR ((taxon_concepts.listing -> 'cites_show'::text))::boolean)) THEN true
+                    ELSE false
+                END AS show_in_checklist_ac,
+                CASE
+                    WHEN (((taxonomies.name)::text = 'CITES_EU'::text) AND (ARRAY['A'::character varying, 'H'::character varying, 'N'::character varying] && ARRAY[taxon_concepts.name_status])) THEN true
+                    ELSE false
+                END AS show_in_trade_ac,
+                CASE
+                    WHEN (((taxonomies.name)::text = 'CITES_EU'::text) AND (ARRAY['A'::character varying, 'H'::character varying, 'N'::character varying, 'T'::character varying] && ARRAY[taxon_concepts.name_status])) THEN true
+                    ELSE false
+                END AS show_in_trade_internal_ac
+           FROM ((taxon_concepts
+             JOIN ranks ON ((ranks.id = taxon_concepts.rank_id)))
+             JOIN taxonomies ON ((taxonomies.id = taxon_concepts.taxonomy_id)))
+        )
+ SELECT t1.id,
+    t1.taxonomy_is_cites_eu,
+    t1.name_status,
+    t1.rank_name,
+    t1.rank_display_name_en,
+    t1.rank_display_name_es,
+    t1.rank_display_name_fr,
+    t1.rank_order,
+    t1.taxonomic_position,
+    t1.show_in_species_plus_ac,
+    t1.show_in_checklist_ac,
+    t1.show_in_trade_ac,
+    t1.show_in_trade_internal_ac,
+    t2.matched_name_segment AS name_for_matching,
+    t2.matched_taxon_concept_id AS matched_id,
+    t2.matched_name,
+    t2.full_name,
+    t2.type_of_match
+   FROM (taxa_with_visibility_flags t1
+     JOIN all_names_segmented_cleaned t2 ON ((t1.id = t2.taxon_concept_id)))
+  WHERE (length(t2.matched_name_segment) >= 3);
+
+
+--
 -- Name: change_types; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -7769,7 +7873,8 @@ CREATE TABLE users (
     role character varying(255) DEFAULT 'default'::character varying NOT NULL,
     authentication_token character varying(255),
     organisation character varying(255),
-    geo_entity_id integer
+    geo_entity_id integer,
+    is_cites_authority boolean DEFAULT false NOT NULL
 );
 
 
@@ -8929,22 +9034,6 @@ ALTER SEQUENCE nomenclature_changes_id_seq OWNED BY nomenclature_changes.id;
 
 
 --
--- Name: taxon_relationships; Type: TABLE; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE TABLE taxon_relationships (
-    id integer NOT NULL,
-    taxon_concept_id integer NOT NULL,
-    other_taxon_concept_id integer NOT NULL,
-    taxon_relationship_type_id integer NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    created_by_id integer,
-    updated_by_id integer
-);
-
-
---
 -- Name: orphaned_taxon_concepts_view; Type: VIEW; Schema: public; Owner: -
 --
 
@@ -9044,23 +9133,6 @@ CREATE SEQUENCE proposal_details_id_seq
 --
 
 ALTER SEQUENCE proposal_details_id_seq OWNED BY proposal_details.id;
-
-
---
--- Name: ranks; Type: TABLE; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE TABLE ranks (
-    id integer NOT NULL,
-    name character varying(255) NOT NULL,
-    taxonomic_position character varying(255) DEFAULT '0'::character varying NOT NULL,
-    fixed_order boolean DEFAULT false NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    display_name_en text NOT NULL,
-    display_name_es text,
-    display_name_fr text
-);
 
 
 --
@@ -9662,20 +9734,6 @@ CREATE SEQUENCE taxon_names_id_seq
 --
 
 ALTER SEQUENCE taxon_names_id_seq OWNED BY taxon_names.id;
-
-
---
--- Name: taxon_relationship_types; Type: TABLE; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE TABLE taxon_relationship_types (
-    id integer NOT NULL,
-    name character varying(255) NOT NULL,
-    is_intertaxonomic boolean DEFAULT false NOT NULL,
-    is_bidirectional boolean DEFAULT false NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
 
 
 --
@@ -11904,7 +11962,7 @@ CREATE INDEX listing_changes_mview_display_in_index ON listing_changes_mview USI
 -- Name: trade_permits_number_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
-CREATE UNIQUE INDEX trade_permits_number_idx ON trade_permits USING btree (number);
+CREATE UNIQUE INDEX trade_permits_number_idx ON trade_permits USING btree (upper((number)::text) varchar_pattern_ops);
 
 
 --
@@ -12050,7 +12108,7 @@ UNION ALL
     NULL::integer AS parent_id,
     taxonomies.name,
         CASE
-            WHEN ((taxonomies.name)::text = 'CITES'::text) THEN true
+            WHEN ((taxonomies.name)::text = 'CITES_EU'::text) THEN true
             ELSE false
         END AS taxonomy_is_cites_eu,
     tc.full_name,
@@ -13628,11 +13686,21 @@ INSERT INTO schema_migrations (version) VALUES ('20150210140508');
 
 INSERT INTO schema_migrations (version) VALUES ('20150217174539');
 
+INSERT INTO schema_migrations (version) VALUES ('20150218141458');
+
+INSERT INTO schema_migrations (version) VALUES ('20150223115540');
+
 INSERT INTO schema_migrations (version) VALUES ('20150225102903');
+
+INSERT INTO schema_migrations (version) VALUES ('20150225103133');
 
 INSERT INTO schema_migrations (version) VALUES ('20150302082111');
 
 INSERT INTO schema_migrations (version) VALUES ('20150304104013');
 
 INSERT INTO schema_migrations (version) VALUES ('20150310140649');
+
+INSERT INTO schema_migrations (version) VALUES ('20150318150923');
+
+INSERT INTO schema_migrations (version) VALUES ('20150420100448');
 
