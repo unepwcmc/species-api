@@ -7870,7 +7870,7 @@ CREATE TABLE users (
     last_sign_in_at timestamp without time zone,
     current_sign_in_ip character varying(255),
     last_sign_in_ip character varying(255),
-    role character varying(255) DEFAULT 'default'::character varying NOT NULL,
+    role text DEFAULT 'api'::text NOT NULL,
     authentication_token character varying(255),
     organisation character varying(255),
     geo_entity_id integer,
@@ -13703,4 +13703,6 @@ INSERT INTO schema_migrations (version) VALUES ('20150310140649');
 INSERT INTO schema_migrations (version) VALUES ('20150318150923');
 
 INSERT INTO schema_migrations (version) VALUES ('20150420100448');
+
+INSERT INTO schema_migrations (version) VALUES ('20150420151952');
 
