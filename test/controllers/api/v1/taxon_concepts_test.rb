@@ -166,11 +166,7 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     @request.headers["X-Authentication-Token"] = @user.authentication_token
 
     get :index, name: "JOHN HAMMOND"
-    puts "==================================================================="
-    puts "DB Count: #{TaxonConcept.count}"
-    puts results = JSON.parse(response.body)
-        puts "==================================================================="
-
+    results = JSON.parse(response.body)
     assert_equal "John Hammond", results['taxon_concepts'].first["full_name"]
     assert_equal 1, results['taxon_concepts'].length
   end

@@ -26,13 +26,15 @@ class User < ActiveRecord::Base
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable
 
-  validates :name, :presence => true
-  validates :role, inclusion: { in: ['default', 'admin', 'api'] }, 
+  validates :name, presence: true
+  validates :role, inclusion: { in: ['default', 'admin', 'api'] },
                    presence: true
   validates :terms_and_conditions, acceptance: true
+  validates :organisation, presence: true
 
   has_many :api_requests
 
+  before_create :set_default_role
   after_create :generate_authentication_token
 
   def is_contributor?
@@ -55,4 +57,10 @@ class User < ActiveRecord::Base
     self.authentication_token = token
     self.save
   end
+
+  private
+  def set_default_role
+    self.role ||= 'api'
+  end
+
 end

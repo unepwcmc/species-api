@@ -30,6 +30,7 @@ class ActionDispatch::IntegrationTest
       fill_in 'Email', :with => user.email 
       fill_in 'Password', :with => user.password
       fill_in 'Password confirmation', :with => user.password
+      fill_in 'Organisation', :with => user.organisation
       find(:css, "#user_terms_and_conditions").set(options[:terms_and_conditions])
       click_button 'Sign up'
     end

@@ -2,10 +2,6 @@ class RegistrationsController < Devise::RegistrationsController
   before_action :countries, :only => [:new, :create, :edit, :update]
   before_action :organisations, :only => [:new, :create, :edit, :update]
 
-  def create
-    super { |resource| resource.role = 'api' }
-  end
-
   protected
     def after_sign_up_path_for(resource)
       dashboard_path
