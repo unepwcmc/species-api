@@ -6061,7 +6061,12 @@ CREATE FUNCTION set_eu_historically_listed_flag_for_node(node_id integer) RETURN
 CREATE FUNCTION squish(text) RETURNS text
     LANGUAGE sql IMMUTABLE
     AS $_$
-    SELECT BTRIM(regexp_replace($1, E'\\s+', ' ', 'g'));
+    SELECT BTRIM(
+      regexp_replace(
+        regexp_replace($1, U&'\00A0', ' ', 'g'),
+        E'\\s+', ' ', 'g'
+      )
+    );
   $_$;
 
 
@@ -7303,12 +7308,12 @@ ALTER SEQUENCE api_requests_id_seq OWNED BY api_requests.id;
 CREATE TABLE api_taxon_concepts_view (
     id integer,
     parent_id integer,
-    name character varying(255),
+    name character varying,
     taxonomy_is_cites_eu boolean,
-    full_name character varying(255),
-    author_year character varying(255),
+    full_name character varying,
+    author_year character varying,
     name_status text,
-    rank character varying(255),
+    rank character varying,
     taxonomic_position character varying,
     cites_listing text,
     kingdom_name text,
@@ -7321,7 +7326,8 @@ CREATE TABLE api_taxon_concepts_view (
     synonyms json,
     accepted_names json,
     created_at timestamp without time zone,
-    updated_at timestamp without time zone
+    updated_at timestamp without time zone,
+    active boolean
 );
 
 
@@ -7872,7 +7878,7 @@ CREATE TABLE users (
     last_sign_in_ip character varying(255),
     role text DEFAULT 'api'::text NOT NULL,
     authentication_token character varying(255),
-    organisation character varying(255),
+    organisation text DEFAULT 'UNKNOWN'::text NOT NULL,
     geo_entity_id integer,
     is_cites_authority boolean DEFAULT false NOT NULL
 );
@@ -9509,6 +9515,46 @@ ALTER SEQUENCE taxon_concept_references_id_seq OWNED BY taxon_concept_references
 
 
 --
+-- Name: taxon_concept_versions; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE taxon_concept_versions (
+    id integer NOT NULL,
+    item_type character varying(255) NOT NULL,
+    item_id integer NOT NULL,
+    event character varying(255) NOT NULL,
+    whodunnit character varying(255),
+    object text,
+    created_at timestamp without time zone,
+    taxon_concept_id integer NOT NULL,
+    taxonomy_name text NOT NULL,
+    full_name text NOT NULL,
+    author_year text,
+    name_status text NOT NULL,
+    rank_name text NOT NULL
+);
+
+
+--
+-- Name: taxon_concept_versions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE taxon_concept_versions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: taxon_concept_versions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE taxon_concept_versions_id_seq OWNED BY taxon_concept_versions.id;
+
+
+--
 -- Name: taxon_concepts_distributions_view; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -10558,6 +10604,40 @@ CREATE VIEW valid_unit_code_view AS
 
 
 --
+-- Name: versions; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE versions (
+    id integer NOT NULL,
+    item_type character varying(255) NOT NULL,
+    item_id integer NOT NULL,
+    event character varying(255) NOT NULL,
+    whodunnit character varying(255),
+    object text,
+    created_at timestamp without time zone
+);
+
+
+--
+-- Name: versions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE versions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: versions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE versions_id_seq OWNED BY versions.id;
+
+
+--
 -- Name: year_annual_reports_by_countries; Type: VIEW; Schema: public; Owner: -
 --
 
@@ -10927,6 +11007,13 @@ ALTER TABLE ONLY taxon_concept_references ALTER COLUMN id SET DEFAULT nextval('t
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY taxon_concept_versions ALTER COLUMN id SET DEFAULT nextval('taxon_concept_versions_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY taxon_concepts ALTER COLUMN id SET DEFAULT nextval('taxon_concepts_id_seq'::regclass);
 
 
@@ -11061,6 +11148,13 @@ ALTER TABLE ONLY trade_validation_rules ALTER COLUMN id SET DEFAULT nextval('tra
 --
 
 ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY versions ALTER COLUMN id SET DEFAULT nextval('versions_id_seq'::regclass);
 
 
 --
@@ -11456,6 +11550,14 @@ ALTER TABLE ONLY taxon_concept_references
 
 
 --
+-- Name: taxon_concept_versions_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY taxon_concept_versions
+    ADD CONSTRAINT taxon_concept_versions_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: taxon_concepts_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -11616,6 +11718,14 @@ ALTER TABLE ONLY users
 
 
 --
+-- Name: versions_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY versions
+    ADD CONSTRAINT versions_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: index_ahoy_events_on_time; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -11760,6 +11870,27 @@ CREATE INDEX index_taggings_on_taggable_id_and_taggable_type_and_context ON tagg
 --
 
 CREATE INDEX index_taxon_concept_references_on_taxon_concept_id_and_ref_id ON taxon_concept_references USING btree (taxon_concept_id, reference_id);
+
+
+--
+-- Name: index_taxon_concept_versions_on_event; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX index_taxon_concept_versions_on_event ON taxon_concept_versions USING btree (event);
+
+
+--
+-- Name: index_taxon_concept_versions_on_full_name_and_created_at; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX index_taxon_concept_versions_on_full_name_and_created_at ON taxon_concept_versions USING btree (full_name, created_at);
+
+
+--
+-- Name: index_taxon_concept_versions_on_taxonomy_name_and_created_at; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX index_taxon_concept_versions_on_taxonomy_name_and_created_at ON taxon_concept_versions USING btree (taxonomy_name, created_at);
 
 
 --
@@ -11952,6 +12083,13 @@ CREATE UNIQUE INDEX index_users_on_reset_password_token ON users USING btree (re
 
 
 --
+-- Name: index_versions_on_item_type_and_item_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX index_versions_on_item_type_and_item_id ON versions USING btree (item_type, item_id);
+
+
+--
 -- Name: listing_changes_mview_display_in_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -12094,7 +12232,8 @@ CREATE RULE "_RETURN" AS
     array_to_json(array_agg_notnull(ROW(synonyms.id, (synonyms.full_name)::text, (synonyms.author_year)::text, (synonyms.data -> 'rank_name'::text))::api_taxon_concept)) AS synonyms,
     NULL::json AS accepted_names,
     tc.created_at,
-    tc.updated_at
+    tc.updated_at,
+    true AS active
    FROM (((((taxon_concepts tc
      JOIN taxonomies ON ((taxonomies.id = tc.taxonomy_id)))
      JOIN ranks ON ((ranks.id = tc.rank_id)))
@@ -12127,7 +12266,8 @@ UNION ALL
     NULL::json AS synonyms,
     array_to_json(array_agg_notnull(ROW(accepted_names.id, (accepted_names.full_name)::text, (accepted_names.author_year)::text, (accepted_names.data -> 'rank_name'::text))::api_taxon_concept)) AS accepted_names,
     tc.created_at,
-    tc.updated_at
+    tc.updated_at,
+    true AS active
    FROM (((((taxon_concepts tc
      JOIN taxonomies ON ((taxonomies.id = tc.taxonomy_id)))
      JOIN ranks ON ((ranks.id = tc.rank_id)))
@@ -12135,7 +12275,35 @@ UNION ALL
      JOIN taxon_relationship_types trt ON (((trt.id = tr.taxon_relationship_type_id) AND ((trt.name)::text = 'HAS_SYNONYM'::text))))
      JOIN taxon_concepts accepted_names ON (((accepted_names.id = tr.taxon_concept_id) AND (accepted_names.taxonomy_id = taxonomies.id))))
   WHERE ((tc.name_status)::text = 'S'::text)
-  GROUP BY tc.id, tc.parent_id, taxonomies.name, tc.full_name, tc.author_year, ranks.name, tc.taxonomic_position, tc.created_at, tc.updated_at;
+  GROUP BY tc.id, tc.parent_id, taxonomies.name, tc.full_name, tc.author_year, ranks.name, tc.taxonomic_position, tc.created_at, tc.updated_at
+UNION ALL
+ SELECT taxon_concept_versions.taxon_concept_id,
+    NULL::integer AS parent_id,
+    taxon_concept_versions.taxonomy_name,
+        CASE
+            WHEN (taxon_concept_versions.taxonomy_name = 'CITES_EU'::text) THEN true
+            ELSE false
+        END AS taxonomy_is_cites_eu,
+    taxon_concept_versions.full_name,
+    taxon_concept_versions.author_year,
+    taxon_concept_versions.name_status,
+    taxon_concept_versions.rank_name,
+    NULL::character varying AS taxonomic_position,
+    NULL::text AS cites_listing,
+    NULL::text AS kingdom_name,
+    NULL::text AS phylum_name,
+    NULL::text AS class_name,
+    NULL::text AS order_name,
+    NULL::text AS family_name,
+    NULL::text AS genus_name,
+    NULL::json AS higher_taxa,
+    NULL::json AS synonyms,
+    NULL::json AS accepted_names,
+    taxon_concept_versions.created_at,
+    taxon_concept_versions.created_at,
+    false AS active
+   FROM taxon_concept_versions
+  WHERE (((taxon_concept_versions.event)::text = 'destroy'::text) AND (taxon_concept_versions.name_status = ANY (ARRAY['A'::text, 'S'::text])));
 
 
 --
@@ -13700,9 +13868,19 @@ INSERT INTO schema_migrations (version) VALUES ('20150304104013');
 
 INSERT INTO schema_migrations (version) VALUES ('20150310140649');
 
+INSERT INTO schema_migrations (version) VALUES ('20150317131538');
+
 INSERT INTO schema_migrations (version) VALUES ('20150318150923');
+
+INSERT INTO schema_migrations (version) VALUES ('20150324114546');
+
+INSERT INTO schema_migrations (version) VALUES ('20150401123614');
 
 INSERT INTO schema_migrations (version) VALUES ('20150420100448');
 
 INSERT INTO schema_migrations (version) VALUES ('20150420151952');
+
+INSERT INTO schema_migrations (version) VALUES ('20150421063910');
+
+INSERT INTO schema_migrations (version) VALUES ('20150421071444');
 
