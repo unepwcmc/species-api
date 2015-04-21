@@ -24,6 +24,13 @@ The following taxon concept fields are returned:
 [synonyms] list of synonyms
 [common_names] list of common names (with language given by ISO 639-1 code)
 [cites_listings] list of current CITES listings with annotations (there will be more than one element in this list in case of split listings)
+[active] if false, taxon concept has been deleted
+
+Note on deleted taxon concepts:
+
+In the event of removal from CITES appendices, a taxon is not deleted from the Species+ DB. As a historically listed taxon it remains in the database, and in most cases the value of current CITES listing becomes 'NC'. In some cases the value is affected by listed subspecies, e.g. <i>Pseudomys fieldi</i> has been removed from Appendix I, but since there is a listed subspecies, the current listing is 'I/NC'.
+
+Taxon concepts are deleted from the Species+ database only on rare occasions when they have been entered by mistake. API consumers can detect this event by checking the value of the 'active' flag, which is set to false in case of deleted taxa.
 
 Where more than 500 taxon concepts are returned, the request is paginated, showing 500 objects (or less by passing in an optional 'per_page' parameter) at a time. To fetch the remaining objects, you will need to make a new request and pass the optional ‘page’ parameter as below:
 
@@ -62,6 +69,7 @@ For convenience, a 'pagination' meta object is also included in the body of the 
         "rank":"SPECIES",
         "name_status":"A",
         "updated_at":"2014-12-11T15:39:51.620Z",
+        "active":true,
         "cites_listing":"I/II",
         "higher_taxa":{
           "kingdom":"Animalia",
@@ -129,6 +137,7 @@ For convenience, a 'pagination' meta object is also included in the body of the 
         <rank>SPECIES</rank>
         <name-status>A</name-status>
         <updated-at type="dateTime">2014-12-11T15:39:51Z</updated-at>
+        <active type="boolean">true</active>
         <cites-listing>I/II</cites-listing>
         <higher-taxa>
           <kingdom>Animalia</kingdom>

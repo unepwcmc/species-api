@@ -138,6 +138,18 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     end
   end
 
+  test "should return deleted taxa with active=false" do
+    tc = FactoryGirl.create(:taxon_concept, taxonomy: @cites)
+    tc.destroy # version object is stored at this point
+
+    @request.headers["X-Authentication-Token"] = @user.authentication_token
+    get :index
+    results = JSON.parse(response.body)
+
+    assert_equal 1, results['taxon_concepts'].length
+    assert_equal false, results['taxon_concepts'].first["active"]
+  end
+
   test "filters results by date with 'updated_since' params" do
     FactoryGirl.create(:taxon_concept, taxonomy: @cites, updated_at: 1.year.ago)
     FactoryGirl.create(:taxon_concept, taxonomy: @cites, updated_at: 1.month.ago)
@@ -167,6 +179,7 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
 
     get :index, name: "JOHN HAMMOND"
     results = JSON.parse(response.body)
+
     assert_equal "John Hammond", results['taxon_concepts'].first["full_name"]
     assert_equal 1, results['taxon_concepts'].length
   end

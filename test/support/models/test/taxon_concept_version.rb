@@ -1,0 +1,1 @@
+class Test::TaxonConceptVersion < ActiveRecord::Base; end

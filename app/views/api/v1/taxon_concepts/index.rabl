@@ -6,7 +6,7 @@ end
 
 child @taxon_concepts => :taxon_concepts do
 attributes :id, :full_name, :author_year, :rank, :name_status,
-  :taxonomy, :updated_at
+  :taxonomy, :updated_at, :active
 node(:higher_taxa) { |tc| tc.higher_taxa }
 node(:synonyms) { |tc| tc.synonyms }
 
