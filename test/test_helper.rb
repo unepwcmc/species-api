@@ -26,11 +26,12 @@ class ActionDispatch::IntegrationTest
     }.merge(opts)
     visit new_user_registration_path
     within('#new_user') do
-      fill_in 'Name', :with => user.name 
-      fill_in 'Email', :with => user.email 
+      fill_in 'Name', :with => user.name
+      fill_in 'Email', :with => user.email
       fill_in 'Password', :with => user.password
       fill_in 'Password confirmation', :with => user.password
       fill_in 'Organisation', :with => user.organisation
+      select 'Yes', from: 'user_is_cites_authority'
       find(:css, "#user_terms_and_conditions").set(options[:terms_and_conditions])
       click_button 'Sign up'
     end
@@ -39,7 +40,7 @@ class ActionDispatch::IntegrationTest
   def sign_in user
     visit new_user_session_path
     within('#new_user') do
-      fill_in 'Email', :with => user.email 
+      fill_in 'Email', :with => user.email
       fill_in 'Password', :with => user.password
       click_button 'Sign in'
     end
