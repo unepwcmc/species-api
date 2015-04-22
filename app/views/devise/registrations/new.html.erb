@@ -1,34 +1,8 @@
 <h3 class="first">Sign up</h3>
 
 <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: 'form-horizontal' }) do |f| %>
-  <%= render 'shared/form_errors' %>
 
-  <div class="form-group">
-    <%= f.label :name, class: "col-sm-2 control-label" %>
-    <div class="col-sm-10"><%= f.text_field :name, class: "form-control" %></div>
-  </div>
-
-  <div class="form-group">
-    <div class="col-sm-offset-2 col-sm-10">
-      <div class="checkbox">
-        <label>
-          <%= f.check_box :is_cites_authority %> I represent a CITES Authority
-        </label>
-      </div>
-    </div>
-  </div>
-
-  <div class="form-group">
-    <%= f.label :organisation, class: "col-sm-2 control-label" %>
-    <div class="col-sm-10"><%= f.text_field :organisation,
-      class: "form-control", data: {tags: @organisations.map{|o| {id: o, text: o}}} %></div>
-  </div>
-
-  <div class="form-group">
-    <%= f.label :country, class: "col-sm-2 control-label" %>
-    <div class="col-sm-10"><%= f.select :geo_entity_id, options_for_select(@countries["geo_entities"].map{ |c| [c["name"],c["id"]]}, f.object.geo_entity_id),
-      class: "form-control" %></div>
-  </div>
+  <%= render partial: 'form', locals: {f: f} %>
 
   <div class="form-group">
     <%= f.label :email, class: "col-sm-2 control-label" %>
@@ -54,7 +28,8 @@
     <div class="col-sm-offset-2 col-sm-10">
       <div class="checkbox">
         <label>
-          <%= f.check_box :terms_and_conditions %> I have read and agree to the Terms and Conditions
+          <%= f.check_box :terms_and_conditions %>
+          I have read and agree to the <%= link_to 'Terms and Conditions', root_url(anchor: 'terms_and_conditions') %>
         </label>
       </div>
     </div>

@@ -31,6 +31,7 @@ class User < ActiveRecord::Base
                    presence: true
   validates :terms_and_conditions, acceptance: true
   validates :organisation, presence: true
+  validates :is_cites_authority, presence: true
 
   has_many :api_requests
 
