@@ -6,7 +6,7 @@ class DashboardController < ApplicationController
 
   def generate_new_token
     current_user.generate_authentication_token
-    render :index, notice: "New token generated successfully!"
+    redirect_to dashboard_url, notice: "New token generated successfully!"
   end
 
   private
