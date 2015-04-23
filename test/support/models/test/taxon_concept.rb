@@ -51,7 +51,6 @@ class Test::TaxonConcept < ActiveRecord::Base
       name_status: taxon_concept.name_status
     )
     tcv.save
-    puts tcv.errors.inspect
   end
 
 end
