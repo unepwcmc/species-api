@@ -55,8 +55,7 @@ class User < ActiveRecord::Base
       t = SecureRandom.base64.tr('+/=', 'Qrt')
       break t unless User.exists?(authentication_token: t)
     end
-    self.authentication_token = token
-    self.save
+    self.update_attribute(:authentication_token, token)
   end
 
   private
