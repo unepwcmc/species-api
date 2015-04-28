@@ -38,6 +38,14 @@ class TaxonConcept < ActiveRecord::Base
     where("iso_code1 IS NOT NULL")
   }, class_name: CommonName
 
+  def is_accepted_name?
+    name_status == 'A'
+  end
+
+  def is_synonym?
+    name_status == 'S'
+  end
+
   def cites_suspensions_including_global
     CitesSuspension.where(trade_restrictions_including_global_where_clause)
   end

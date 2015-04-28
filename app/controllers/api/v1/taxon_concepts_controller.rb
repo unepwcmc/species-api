@@ -19,12 +19,13 @@ The following taxon concept fields are returned:
 [rank] one of +KINGDOM+, +PHYLUM+, +CLASS+, +ORDER+, +FAMILY+, +SUBFAMILY+, +GENUS+, +SPECIES+, +SUBSPECIES+, +VARIETY+
 [name_status] +A+ for accepted names, +S+ for synonyms (both types of names are taxon concepts in Species+)
 [updated_at] timestamp of last update to the taxon concept in Species+
-[cites_listing] value of current CITES listing (as per CITES Checklist). When taxon concept is removed from appendices this becomes +NC+. When taxon is split listed it becomes a concatenation of appendix symbols, e.g. +I/II/NC+
-[higher_taxa] object that gives scientific names of ancestors in the taxonomic tree
-[synonyms] list of synonyms
-[common_names] list of common names (with language given by ISO 639-1 code)
-[cites_listings] list of current CITES listings with annotations (there will be more than one element in this list in case of split listings)
 [active] if false, taxon concept has been deleted
+[synonyms] list of synonyms (only for accepted names, i.e. name_status == A)
+[higher_taxa] object that gives scientific names of ancestors in the taxonomic tree (only for accepted names)
+[common_names] list of common names (with language given by ISO 639-1 code; only for accepted names)
+[cites_listing] value of current CITES listing (as per CITES Checklist). When taxon concept is removed from appendices this becomes +NC+. When taxon is split listed it becomes a concatenation of appendix symbols, e.g. +I/II/NC+ (only for accepted names)
+[cites_listings] list of current CITES listings with annotations (there will be more than one element in this list in case of split listings; only for accepted names)
+[accepted_names] list of accepted names (only for synonyms, i.e. name_status == S)
 
 Note on deleted taxon concepts:
 
