@@ -2355,7 +2355,7 @@ CREATE FUNCTION rebuild_cites_eu_taxon_concepts_and_ancestors_mview() RETURNS vo
   BEGIN
     SELECT * INTO taxonomy FROM taxonomies WHERE name = 'CITES_EU';
     IF FOUND THEN
-      PERFORM rebuild_taxonomy_taxon_concepts_and_ancestors_mview(taxonomy);
+      PERFORM rebuild_taxonomy_tmp_taxon_concepts_mview(taxonomy);
     END IF;
   END;
   $$;
@@ -3070,7 +3070,7 @@ CREATE FUNCTION rebuild_cms_taxon_concepts_and_ancestors_mview() RETURNS void
   BEGIN
     SELECT * INTO taxonomy FROM taxonomies WHERE name = 'CMS';
     IF FOUND THEN
-      PERFORM rebuild_taxonomy_taxon_concepts_and_ancestors_mview(taxonomy);
+      PERFORM rebuild_taxonomy_tmp_taxon_concepts_mview(taxonomy);
     END IF;
   END;
   $$;
@@ -3119,7 +3119,7 @@ CREATE FUNCTION rebuild_designation_all_listing_changes_mview(taxonomy taxonomie
     SELECT listing_changes_mview_name('tmp', designation.name, events_ids)
     INTO tmp_lc_table_name;
 
-    SELECT LOWER(taxonomy.name) || '_taxon_concepts_and_ancestors_mview' INTO tc_table_name;
+    SELECT LOWER(taxonomy.name) || '_taxon_concepts_and_ancestors_view' INTO tc_table_name;
 
     EXECUTE 'DROP TABLE IF EXISTS ' || tmp_lc_table_name || ' CASCADE';
 
@@ -5355,6 +5355,7 @@ CREATE FUNCTION rebuild_taxonomy() RETURNS void
     AS $$
   BEGIN
     PERFORM rebuild_taxonomy_for_node(NULL);
+    REFRESH MATERIALIZED VIEW taxon_concepts_and_ancestors_mview;
   END;
   $$;
 
@@ -5429,61 +5430,6 @@ CREATE FUNCTION rebuild_taxonomy_for_node(node_id integer) RETURNS void
 
 
 --
--- Name: rebuild_taxonomy_taxon_concepts_and_ancestors_mview(taxonomies); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION rebuild_taxonomy_taxon_concepts_and_ancestors_mview(taxonomy taxonomies) RETURNS void
-    LANGUAGE plpgsql STRICT
-    AS $$
-  DECLARE
-    tc_table_name TEXT;
-    sql TEXT;
-  BEGIN
-    SELECT LOWER(taxonomy.name) || '_taxon_concepts_and_ancestors_mview' INTO tc_table_name;
-
-    EXECUTE 'DROP TABLE IF EXISTS ' || tc_table_name || ' CASCADE';
-
-    -- This query took like half a day to get right, so maybe it deserves a comment.
-    -- It uses a sql procedure (ary_higher_or_equal_ranks_names) to return all ranks above
-    -- the current taxon concept and then from those ranks get at actual ancestor ids.
-    -- The reason for doing it that way is to make use of ancestor data which we already store
-    -- for every taxon concept in columns named 'name_of_rank_id'.
-    -- We also want to know the tree distance between the current taxon concept and any
-    -- of its ancestors.
-    -- So we call the higher_or_equal_ranks_names procedure for every taxon concept,
-    -- and the only way to parametrise it correctly is to call it in the select clause.
-    -- Because it returns an array of ranks, and what we want is a set of (taxon concept, ancestor, distance),
-    -- we then go through the UNNEST thing in order to arrive at separate rows per ancestor.
-    -- In order to know the distance it is enough to know the index of the ancestor in the originally
-    -- returned array, because it is already sorted accordingly. That's what GENERATE_SUBSCRIPTS does.
-    -- Quite surprisingly, this worked.
-
-    sql := 'CREATE TEMP TABLE ' || tc_table_name || ' AS
-    SELECT id AS taxon_concept_id,
-    (
-      data->(LOWER(UNNEST(higher_or_equal_ranks_names(data->''rank_name''))) || ''_id'')
-    )::INT AS ancestor_taxon_concept_id,
-    GENERATE_SUBSCRIPTS(higher_or_equal_ranks_names(data->''rank_name''), 1) - 1 AS tree_distance
-    FROM taxon_concepts
-    WHERE name_status IN (''A'', ''N'') AND taxonomy_id = ' || taxonomy.id;
-
-    EXECUTE sql;
-
-    EXECUTE 'CREATE INDEX ON ' || tc_table_name || ' (ancestor_taxon_concept_id)';
-    
-    PERFORM rebuild_taxonomy_tmp_taxon_concepts_mview(taxonomy);
-  END
-  $$;
-
-
---
--- Name: FUNCTION rebuild_taxonomy_taxon_concepts_and_ancestors_mview(taxonomy taxonomies); Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON FUNCTION rebuild_taxonomy_taxon_concepts_and_ancestors_mview(taxonomy taxonomies) IS 'Procedure to create a helper table with all taxon - ancestor pairs in a given taxonomy.';
-
-
---
 -- Name: rebuild_taxonomy_tmp_taxon_concepts_mview(taxonomies); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -5494,6 +5440,10 @@ CREATE FUNCTION rebuild_taxonomy_tmp_taxon_concepts_mview(taxonomy taxonomies) R
     tc_table_name TEXT;
     sql TEXT;
   BEGIN
+    EXECUTE 'CREATE OR REPLACE VIEW ' || LOWER(taxonomy.name) || '_taxon_concepts_and_ancestors_view AS
+    SELECT * FROM taxon_concepts_and_ancestors_mview
+    WHERE taxonomy_id = ' || taxonomy.id;
+
     SELECT LOWER(taxonomy.name) || '_tmp_taxon_concepts_mview' INTO tc_table_name;
 
     EXECUTE 'DROP TABLE IF EXISTS ' || tc_table_name || ' CASCADE';
@@ -7350,39 +7300,65 @@ CREATE TABLE taxon_concept_references (
 
 
 --
+-- Name: taxon_concepts_and_ancestors_mview; Type: MATERIALIZED VIEW; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE MATERIALIZED VIEW taxon_concepts_and_ancestors_mview AS
+ SELECT taxon_concepts.id AS taxon_concept_id,
+    taxon_concepts.taxonomy_id,
+    ((taxon_concepts.data -> (lower(unnest(higher_or_equal_ranks_names(((taxon_concepts.data -> 'rank_name'::text))::character varying))) || '_id'::text)))::integer AS ancestor_taxon_concept_id,
+    (generate_subscripts(higher_or_equal_ranks_names(((taxon_concepts.data -> 'rank_name'::text))::character varying), 1) - 1) AS tree_distance
+   FROM taxon_concepts
+  WHERE ((taxon_concepts.name_status)::text = ANY ((ARRAY['A'::character varying, 'N'::character varying, 'H'::character varying])::text[]))
+  WITH NO DATA;
+
+
+--
 -- Name: api_taxon_references_view; Type: VIEW; Schema: public; Owner: -
 --
 
 CREATE VIEW api_taxon_references_view AS
- WITH RECURSIVE all_tc_refs AS (
+ SELECT tc_refs.id,
+    tc_refs.taxon_concept_id,
+    tc_refs.original_taxon_concept_id,
+    tc_refs.excluded_taxon_concepts_ids,
+    tc_refs.reference_id,
+    tc_refs.is_standard,
+    "references".citation
+   FROM (( SELECT cascaded_tc_refs_without_exclusions.id,
+            cascaded_tc_refs_without_exclusions.taxon_concept_id,
+            cascaded_tc_refs_without_exclusions.original_taxon_concept_id,
+            cascaded_tc_refs_without_exclusions.excluded_taxon_concepts_ids,
+            cascaded_tc_refs_without_exclusions.reference_id,
+            cascaded_tc_refs_without_exclusions.is_standard
+           FROM ( SELECT cascaded_tc_refs.id,
+                    cascaded_tc_refs.taxon_concept_id,
+                    cascaded_tc_refs.original_taxon_concept_id,
+                    cascaded_tc_refs.excluded_taxon_concepts_ids,
+                    cascaded_tc_refs.reference_id,
+                    cascaded_tc_refs.is_standard,
+                    cascaded_tc_refs.is_cascaded
+                   FROM (( SELECT tc_refs_1.id,
+                            tc_1.taxon_concept_id,
+                            tc_1.ancestor_taxon_concept_id AS original_taxon_concept_id,
+                            tc_refs_1.excluded_taxon_concepts_ids,
+                            tc_refs_1.reference_id,
+                            tc_refs_1.is_standard,
+                            tc_refs_1.is_cascaded
+                           FROM (taxon_concept_references tc_refs_1
+                             JOIN taxon_concepts_and_ancestors_mview tc_1 ON (((tc_refs_1.is_standard AND tc_refs_1.is_cascaded) AND (tc_1.ancestor_taxon_concept_id = tc_refs_1.taxon_concept_id))))) cascaded_tc_refs
+                     JOIN taxon_concepts tc ON ((cascaded_tc_refs.taxon_concept_id = tc.id)))
+                  WHERE ((cascaded_tc_refs.excluded_taxon_concepts_ids IS NULL) OR (NOT (ARRAY[((tc.data -> 'kingdom_id'::text))::integer, ((tc.data -> 'phylum_id'::text))::integer, ((tc.data -> 'class_id'::text))::integer, ((tc.data -> 'order_id'::text))::integer, ((tc.data -> 'family_id'::text))::integer, ((tc.data -> 'subfamily_id'::text))::integer, ((tc.data -> 'genus_id'::text))::integer, ((tc.data -> 'species_id'::text))::integer] && cascaded_tc_refs.excluded_taxon_concepts_ids)))) cascaded_tc_refs_without_exclusions
+        UNION ALL
          SELECT taxon_concept_references.id,
-            taxon_concept_references.taxon_concept_id AS original_taxon_concept_id,
             taxon_concept_references.taxon_concept_id,
-            taxon_concept_references.reference_id,
+            taxon_concept_references.taxon_concept_id,
             taxon_concept_references.excluded_taxon_concepts_ids,
-            taxon_concept_references.is_cascaded,
+            taxon_concept_references.reference_id,
             taxon_concept_references.is_standard
            FROM taxon_concept_references
-        UNION
-         SELECT h.id,
-            h.original_taxon_concept_id,
-            hi.id,
-            h.reference_id,
-            h.excluded_taxon_concepts_ids,
-            h.is_cascaded,
-            h.is_standard
-           FROM (taxon_concepts hi
-             JOIN all_tc_refs h ON (((((h.taxon_concept_id = hi.parent_id) AND (NOT (COALESCE(h.excluded_taxon_concepts_ids, ARRAY[]::integer[]) @> ARRAY[hi.id]))) AND h.is_cascaded) AND h.is_standard)))
-        )
- SELECT all_tc_refs.id,
-    all_tc_refs.taxon_concept_id,
-    all_tc_refs.original_taxon_concept_id,
-    all_tc_refs.excluded_taxon_concepts_ids,
-    all_tc_refs.reference_id,
-    all_tc_refs.is_standard,
-    refs.citation
-   FROM (all_tc_refs
-     JOIN "references" refs ON ((refs.id = all_tc_refs.reference_id)));
+          WHERE (NOT (taxon_concept_references.is_standard AND taxon_concept_references.is_cascaded))) tc_refs
+     JOIN "references" ON (("references".id = tc_refs.reference_id)));
 
 
 --
@@ -11869,7 +11845,14 @@ CREATE INDEX index_taggings_on_taggable_id_and_taggable_type_and_context ON tagg
 -- Name: index_taxon_concept_references_on_taxon_concept_id_and_ref_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
-CREATE INDEX index_taxon_concept_references_on_taxon_concept_id_and_ref_id ON taxon_concept_references USING btree (taxon_concept_id, reference_id);
+CREATE UNIQUE INDEX index_taxon_concept_references_on_taxon_concept_id_and_ref_id ON taxon_concept_references USING btree (taxon_concept_id, reference_id);
+
+
+--
+-- Name: index_taxon_concept_references_on_tc_id_is_std_is_cascaded; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX index_taxon_concept_references_on_tc_id_is_std_is_cascaded ON taxon_concept_references USING btree (is_standard, is_cascaded, taxon_concept_id);
 
 
 --
@@ -11891,6 +11874,13 @@ CREATE INDEX index_taxon_concept_versions_on_full_name_and_created_at ON taxon_c
 --
 
 CREATE INDEX index_taxon_concept_versions_on_taxonomy_name_and_created_at ON taxon_concept_versions USING btree (taxonomy_name, created_at);
+
+
+--
+-- Name: index_taxon_concepts_on_created_by_id_and_updated_by_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX index_taxon_concepts_on_created_by_id_and_updated_by_id ON taxon_concepts USING btree (created_by_id, updated_by_id);
 
 
 --
@@ -11940,6 +11930,13 @@ CREATE INDEX index_trade_shipments_on_appendix ON trade_shipments USING btree (a
 --
 
 CREATE INDEX index_trade_shipments_on_country_of_origin_id ON trade_shipments USING btree (country_of_origin_id);
+
+
+--
+-- Name: index_trade_shipments_on_created_by_id_and_updated_by_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX index_trade_shipments_on_created_by_id_and_updated_by_id ON trade_shipments USING btree (created_by_id, updated_by_id);
 
 
 --
@@ -12094,6 +12091,20 @@ CREATE INDEX index_versions_on_item_type_and_item_id ON versions USING btree (it
 --
 
 CREATE INDEX listing_changes_mview_display_in_index ON listing_changes_mview USING btree (is_current, display_in_index, designation_id);
+
+
+--
+-- Name: taxon_concepts_and_ancestors__ancestor_taxon_concept_id_tax_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE UNIQUE INDEX taxon_concepts_and_ancestors__ancestor_taxon_concept_id_tax_idx ON taxon_concepts_and_ancestors_mview USING btree (ancestor_taxon_concept_id, taxon_concept_id);
+
+
+--
+-- Name: taxon_concepts_and_ancestors_mview_taxonomy_id_idx; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX taxon_concepts_and_ancestors_mview_taxonomy_id_idx ON taxon_concepts_and_ancestors_mview USING btree (taxonomy_id);
 
 
 --
@@ -13876,6 +13887,12 @@ INSERT INTO schema_migrations (version) VALUES ('20150324114546');
 
 INSERT INTO schema_migrations (version) VALUES ('20150401123614');
 
+INSERT INTO schema_migrations (version) VALUES ('20150402111503');
+
+INSERT INTO schema_migrations (version) VALUES ('20150402111504');
+
+INSERT INTO schema_migrations (version) VALUES ('20150402131608');
+
 INSERT INTO schema_migrations (version) VALUES ('20150420100448');
 
 INSERT INTO schema_migrations (version) VALUES ('20150420151952');
@@ -13883,3 +13900,12 @@ INSERT INTO schema_migrations (version) VALUES ('20150420151952');
 INSERT INTO schema_migrations (version) VALUES ('20150421063910');
 
 INSERT INTO schema_migrations (version) VALUES ('20150421071444');
+
+INSERT INTO schema_migrations (version) VALUES ('20150421112808');
+
+INSERT INTO schema_migrations (version) VALUES ('20150422101115');
+
+INSERT INTO schema_migrations (version) VALUES ('20150427111732');
+
+INSERT INTO schema_migrations (version) VALUES ('20150428071201');
+
