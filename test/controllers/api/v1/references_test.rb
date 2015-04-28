@@ -5,8 +5,10 @@ class Api::V1::ReferencesControllerTest < ActionController::TestCase
     @user = FactoryGirl.create(:user)
     @admin = FactoryGirl.create(:user, role: 'admin')
     @contributor = FactoryGirl.create(:user, role: 'default')
-    @parent = FactoryGirl.create(:taxon_concept)
-    @taxon_concept = FactoryGirl.create(:taxon_concept, parent: @parent)
+    @taxonomy = FactoryGirl.create(:taxonomy, name: 'CITES_EU')
+    genus = FactoryGirl.create(:rank, name: 'GENUS')
+    @parent = FactoryGirl.create(:taxon_concept, taxonomy: @taxonomy, rank: genus)
+    @taxon_concept = FactoryGirl.create(:taxon_concept, taxonomy: @taxonomy, parent: @parent)
     @reference1 = FactoryGirl.create(:reference, citation: 'AAA')
     @reference2 = FactoryGirl.create(:reference, citation: 'BBB')
     FactoryGirl.create(:taxon_concept_reference,
@@ -14,6 +16,10 @@ class Api::V1::ReferencesControllerTest < ActionController::TestCase
     )
     FactoryGirl.create(:taxon_concept_reference,
       taxon_concept: @taxon_concept, reference: @reference2, is_standard: true
+    )
+    ActiveRecord::Base.connection.execute(<<-SQL
+      SELECT * FROM rebuild_taxonomy();
+    SQL
     )
   end
 
