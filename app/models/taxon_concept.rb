@@ -60,13 +60,15 @@ class TaxonConcept < ActiveRecord::Base
       ["taxon_concept_id = ?
       OR (
         taxon_concept_id IS NULL
-        AND matching_taxon_concept_ids @> ARRAY[?]::INT[]
+        AND geo_entity_id IN
+          (SELECT geo_entity_id FROM distributions WHERE distributions.taxon_concept_id = ?)
       )", self.id, self.id]
     else
       ["taxon_concept_id = ?
       OR (
         (taxon_concept_id IN (?) OR taxon_concept_id IS NULL)
-        AND matching_taxon_concept_ids @> ARRAY[?]::INT[]
+        AND geo_entity_id IN
+          (SELECT geo_entity_id FROM distributions WHERE distributions.taxon_concept_id = ?)
       )", self.id, children_and_ancestors_ids, self.id]
     end
   end
