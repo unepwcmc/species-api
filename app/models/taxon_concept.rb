@@ -47,45 +47,54 @@ class TaxonConcept < ActiveRecord::Base
   end
 
   def cites_suspensions_including_global
-    CitesSuspension.where(trade_restrictions_including_global_where_clause)
+    CitesSuspension.where(
+      [
+        "taxon_concept_id IN (:self_and_children)
+        OR (
+          NOT applies_to_import
+          AND (taxon_concept_id IN (:ancestors) OR taxon_concept_id IS NULL)
+          AND geo_entity_id IN
+            (SELECT geo_entity_id FROM distributions WHERE distributions.taxon_concept_id = :taxon_concept_id)
+        )
+        OR (
+          (applies_to_import OR geo_entity_id IS NULL)
+          AND taxon_concept_id IN (:ancestors)
+        )",
+        self_and_children: self_and_children_ids, ancestors: ancestors_ids, taxon_concept_id: self.id
+      ]
+    )
   end
 
   def cites_quotas_including_global
-    Quota.where(trade_restrictions_including_global_where_clause)
+    Quota.where(
+      [
+        "taxon_concept_id IN (:self_and_children)
+        OR (
+          (taxon_concept_id IN (:ancestors) OR taxon_concept_id IS NULL)
+          AND geo_entity_id IN
+            (SELECT geo_entity_id FROM distributions WHERE distributions.taxon_concept_id = :taxon_concept_id)
+        )",
+        self_and_children: self_and_children_ids, ancestors: ancestors_ids, taxon_concept_id: self.id
+      ]
+    )
   end
 
   private
-  def trade_restrictions_including_global_where_clause
-    if children_and_ancestors_ids.empty?
-      ["taxon_concept_id = ?
-      OR (
-        taxon_concept_id IS NULL
-        AND geo_entity_id IN
-          (SELECT geo_entity_id FROM distributions WHERE distributions.taxon_concept_id = ?)
-      )", self.id, self.id]
-    else
-      ["taxon_concept_id = ?
-      OR (
-        (taxon_concept_id IN (?) OR taxon_concept_id IS NULL)
-        AND geo_entity_id IN
-          (SELECT geo_entity_id FROM distributions WHERE distributions.taxon_concept_id = ?)
-      )", self.id, children_and_ancestors_ids, self.id]
-    end
+
+  def self_and_children_ids
+    [self.id] + children.pluck(:id)
   end
 
-  def children_and_ancestors_ids
-    (
-      children.pluck(:id) +
-      [
-        higher_taxa['kingdom_id'],
-        higher_taxa['phylum_id'],
-        higher_taxa['order_id'],
-        higher_taxa['class_id'],
-        higher_taxa['family_id'],
-        higher_taxa['subfamily_id'],
-        higher_taxa['genus_id']
-      ]
-    ).compact
+  def ancestors_ids
+    [
+      kingdom_id,
+      phylum_id,
+      class_id,
+      order_id,
+      family_id,
+      subfamily_id,
+      genus_id
+    ].compact
   end
 
 end
