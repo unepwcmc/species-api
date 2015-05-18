@@ -38,6 +38,7 @@ class Api::V1::CitesLegislationController < Api::V1::BaseController
 [start_date] date when suspension came into effect, YYYY-MM-DD
 [is_current] boolean flag indicating whether suspension is current
 [geo_entity] geographic location to which the suspension applies. See description of <tt>geo_entity</tt> object below.
+[applies_to_import] boolean flag which indcates whether suspension applies to import into the specified geographic location (applies to export by default).
 [start_notification] Suspension Notification document. See description of <tt>event</tt> object below.
 
 ==== geo_entity
@@ -135,6 +136,7 @@ class Api::V1::CitesLegislationController < Api::V1::BaseController
         "notes":"All commercial trade in specimens of CITES-listed species.",
         "start_date":"2004-07-30",
         "is_current":true,
+        "applies_to_import":false,
         "geo_entity":{
           "iso_code2":"SO",
           "name":"Somalia",
@@ -151,6 +153,7 @@ class Api::V1::CitesLegislationController < Api::V1::BaseController
         "notes":"The United States has suspended imports of sport-hunted trophies of African elephant taken in Zimbabwe on or after 4 April 2014.",
         "start_date":"2014-08-11",
         "is_current":true,
+        "applies_to_import":false,
         "geo_entity":{
           "iso_code2":"ZW",
           "name":"Zimbabwe",
@@ -238,6 +241,7 @@ class Api::V1::CitesLegislationController < Api::V1::BaseController
         <notes>All commercial trade in specimens of CITES-listed species.</notes>
         <start-date type="date">2004-07-30</start-date>
         <is-current type="boolean">true</is-current>
+        <applies-to-import type="boolean">false</applies-to-import>
         <geo-entity>
           <iso-code2>SO</iso-code2>
           <name>Somalia</name>
@@ -254,6 +258,7 @@ class Api::V1::CitesLegislationController < Api::V1::BaseController
         <notes>The United States has suspended imports of sport-hunted trophies of African elephant taken in Zimbabwe on or after 4 April 2014.</notes>
         <start-date type="date">2014-08-11</start-date>
         <is-current type="boolean">true</is-current>
+        <applies-to-import type="boolean">false</applies-to-import>
         <geo-entity>
           <iso-code2>ZW</iso-code2>
           <name>Zimbabwe</name>

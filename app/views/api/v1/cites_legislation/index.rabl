@@ -21,7 +21,8 @@ child @cites_quotas => :cites_quotas do
 end
 
 child @cites_suspensions => :cites_suspensions do
-  attributes :taxon_concept_id, :notes, :start_date, :is_current
+  attributes :taxon_concept_id, :notes, :start_date, :is_current,
+    :applies_to_import
 
   node(:geo_entity){ |cs| cs.geo_entity }
 
