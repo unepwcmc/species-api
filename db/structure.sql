@@ -6432,7 +6432,8 @@ CREATE TABLE trade_restrictions (
     nomenclature_note_en text,
     internal_notes text,
     nomenclature_note_es text,
-    nomenclature_note_fr text
+    nomenclature_note_fr text,
+    applies_to_import boolean DEFAULT false NOT NULL
 );
 
 
@@ -6572,6 +6573,7 @@ CREATE VIEW api_cites_suspensions_view AS
     tr.end_date,
     tr.is_current,
     tr.geo_entity_id,
+    tr.applies_to_import,
     tr.start_notification_id,
     tr.end_notification_id,
     tr.nomenclature_note_en,
@@ -6590,6 +6592,7 @@ CREATE VIEW api_cites_suspensions_view AS
             cites_suspensions_without_taxon_concept.end_date,
             cites_suspensions_without_taxon_concept.is_current,
             cites_suspensions_without_taxon_concept.geo_entity_id,
+            cites_suspensions_without_taxon_concept.applies_to_import,
             cites_suspensions_without_taxon_concept.start_notification_id,
             cites_suspensions_without_taxon_concept.end_notification_id,
             cites_suspensions_without_taxon_concept.nomenclature_note_en,
@@ -6604,6 +6607,7 @@ CREATE VIEW api_cites_suspensions_view AS
                     tr_1.end_date,
                     tr_1.is_current,
                     tr_1.geo_entity_id,
+                    tr_1.applies_to_import,
                     tr_1.start_notification_id,
                     tr_1.end_notification_id,
                     tr_1.nomenclature_note_en,
@@ -6621,6 +6625,7 @@ CREATE VIEW api_cites_suspensions_view AS
                             (tr_2.end_date)::date AS end_date,
                             tr_2.is_current,
                             tr_2.geo_entity_id,
+                            tr_2.applies_to_import,
                             tr_2.start_notification_id,
                             tr_2.end_notification_id,
                             tr_2.nomenclature_note_en,
@@ -7159,6 +7164,13 @@ CREATE TABLE api_taxon_concepts_view (
     order_name text,
     family_name text,
     genus_name text,
+    kingdom_id text,
+    phylum_id text,
+    class_id text,
+    order_id text,
+    family_id text,
+    subfamily_id text,
+    genus_id text,
     higher_taxa json,
     synonyms json,
     accepted_names json,
@@ -19798,6 +19810,13 @@ CREATE RULE "_RETURN" AS
     (tc.data -> 'order_name'::text) AS order_name,
     (tc.data -> 'family_name'::text) AS family_name,
     (tc.data -> 'genus_name'::text) AS genus_name,
+    (tc.data -> 'kingdom_id'::text) AS kingdom_id,
+    (tc.data -> 'phylum_id'::text) AS phylum_id,
+    (tc.data -> 'class_id'::text) AS class_id,
+    (tc.data -> 'order_id'::text) AS order_id,
+    (tc.data -> 'family_id'::text) AS family_id,
+    (tc.data -> 'subfamily_id'::text) AS subfamily_id,
+    (tc.data -> 'genus_id'::text) AS genus_id,
     row_to_json(ROW((tc.data -> 'kingdom_name'::text), (tc.data -> 'phylum_name'::text), (tc.data -> 'class_name'::text), (tc.data -> 'order_name'::text), (tc.data -> 'family_name'::text))::api_higher_taxa) AS higher_taxa,
     array_to_json(array_agg_notnull(ROW(synonyms.id, (synonyms.full_name)::text, (synonyms.author_year)::text, (synonyms.data -> 'rank_name'::text))::api_taxon_concept)) AS synonyms,
     NULL::json AS accepted_names,
@@ -19832,6 +19851,13 @@ UNION ALL
     NULL::text AS order_name,
     NULL::text AS family_name,
     NULL::text AS genus_name,
+    NULL::text AS kingdom_id,
+    NULL::text AS phylum_id,
+    NULL::text AS class_id,
+    NULL::text AS order_id,
+    NULL::text AS family_id,
+    NULL::text AS subfamily_id,
+    NULL::text AS genus_id,
     NULL::json AS higher_taxa,
     NULL::json AS synonyms,
     array_to_json(array_agg_notnull(ROW(accepted_names.id, (accepted_names.full_name)::text, (accepted_names.author_year)::text, (accepted_names.data -> 'rank_name'::text))::api_taxon_concept)) AS accepted_names,
@@ -19866,6 +19892,13 @@ UNION ALL
     NULL::text AS order_name,
     NULL::text AS family_name,
     NULL::text AS genus_name,
+    NULL::text AS kingdom_id,
+    NULL::text AS phylum_id,
+    NULL::text AS class_id,
+    NULL::text AS order_id,
+    NULL::text AS family_id,
+    NULL::text AS subfamily_id,
+    NULL::text AS genus_id,
     NULL::json AS higher_taxa,
     NULL::json AS synonyms,
     NULL::json AS accepted_names,
@@ -21471,4 +21504,10 @@ INSERT INTO schema_migrations (version) VALUES ('20150428071201');
 INSERT INTO schema_migrations (version) VALUES ('20150512124835');
 
 INSERT INTO schema_migrations (version) VALUES ('20150512222755');
+
+INSERT INTO schema_migrations (version) VALUES ('20150518120700');
+
+INSERT INTO schema_migrations (version) VALUES ('20150518122737');
+
+INSERT INTO schema_migrations (version) VALUES ('20150518131629');
 
