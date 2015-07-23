@@ -91,7 +91,7 @@ Rails.application.configure do
     :address => secrets['address'],
     :port => 587,
     :domain => secrets['domain'],
-    :authentication => :login,
+    :authentication => 'login',
     :user_name => secrets['username'],
     :password => secrets['password']
   }
