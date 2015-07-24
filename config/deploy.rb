@@ -29,6 +29,10 @@ set :linked_dirs, fetch(:linked_dirs, []).push('bin', 'log', 'tmp/pids', 'tmp/ca
 set :linked_files, %w{config/database.yml config/mailer_config.yml config/secrets.yml .env}
 
 
+set :ssh_options, {
+  forward_agent: true,
+}
+
 
 
 # Default value for :format is :pretty
