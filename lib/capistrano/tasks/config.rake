@@ -45,8 +45,8 @@ MAILER_ASSET_HOST_KEY:	#{fetch(:MAILER_ASSET_HOST_KEY)}
 MAILER_HOST_KEY:	#{fetch(:MAILER_HOST_KEY)}
 EOF
   on roles(:app) do
-     execute "mkdir -p #{shared_path}/config"
-     upload! StringIO.new(setup_config), "#{shared_path}/config/.env"
+     execute "mkdir -p #{shared_path}"
+     upload! StringIO.new(env_config), "#{shared_path}/.env"
     end
   end
 end

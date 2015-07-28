@@ -26,7 +26,7 @@ set :scm, :git
 set :scm_username, "unepwcmc-read"
 
 set :linked_dirs, fetch(:linked_dirs, []).push('bin', 'log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'vendor/bundle', 'public/system')
-set :linked_files, %w{config/database.yml config/mailer_config.yml config/secrets.yml .env}
+set :linked_files, %w{config/database.yml config/secrets.yml .env}
 
 
 set :ssh_options, {
