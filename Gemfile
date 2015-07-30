@@ -63,7 +63,9 @@ group :development do
   gem 'capistrano-rvm'
   gem 'capistrano-ext'
   gem 'capistrano-maintenance', '~> 1.0'
+  gem 'capistrano-passenger', '~> 0.1.1', require: false
 end
+
 
 group :development, :test do
   gem 'byebug'
