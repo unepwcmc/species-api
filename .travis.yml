@@ -1,7 +1,7 @@
 language: ruby
 bundler_args: --without development production staging
 rvm:
-  - 2.1.1
+  - 2.1.6
 addons:
   postgresql: 9.3
 # uncomment this line if your project needs to run something other than `rake`:
