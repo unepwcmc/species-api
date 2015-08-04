@@ -4,16 +4,11 @@ lock '3.4.0'
 set :application, "species-api"
 set :repo_url, 'git@github.com:unepwcmc/species-api.git'
 
-
-
 set :rvm_type, :user
 set :rvm_ruby_version, '2.2.2'
 
-
 set :deploy_user, 'wcmc'
 set :deploy_to, "/home/#{fetch(:deploy_user)}/#{fetch(:application)}"
-
-
 
 # Default branch is :master
 # ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
@@ -28,12 +23,9 @@ set :scm_username, "unepwcmc-read"
 set :linked_dirs, fetch(:linked_dirs, []).push('bin', 'log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'vendor/bundle', 'public/system')
 set :linked_files, %w{config/database.yml config/secrets.yml .env}
 
-
 set :ssh_options, {
   forward_agent: true,
 }
-
-
 
 # Default value for :format is :pretty
 # set :format, :pretty
@@ -56,6 +48,4 @@ set :pty, true
 # Default value for keep_releases is 5
 set :keep_releases, 5
 
-
 set :passenger_restart_with_touch, false
-
