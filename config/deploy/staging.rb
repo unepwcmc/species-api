@@ -5,7 +5,7 @@ server "139.162.195.186", roles: %w{app web db}
 
 set :domain, "139.162.195.186"
 
-set :application, "sapi-api"
+set :application, "species-api"
 
 set :server_name, "#{fetch(:application)}.#{fetch(:domain)}"
 

@@ -60,7 +60,7 @@ server {
   keepalive_timeout 5;
   root #{deploy_to}/current/public;
   passenger_enabled on;
-  passenger_ruby /home/#{fetch(:deploy_user)}/.rvm/#{fetch(:rvm_ruby_version)}/wrappers/ruby;
+  passenger_ruby /home/#{fetch(:deploy_user)}/.rvm/gems/ruby-#{fetch(:rvm_ruby_version)}/wrappers/ruby;
   rails_env #{fetch(:rails_env)};
   gzip on;
   location ^~ /assets/ {
