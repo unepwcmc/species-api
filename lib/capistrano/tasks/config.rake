@@ -10,7 +10,8 @@ namespace :config do
   database: #{fetch(:db_name)}
   username: #{fetch(:db_user)}
   password: #{fetch(:db_pass)}
-  host: #{fetch(:db_host)}
+#  host: #{fetch(:db_host)}
+  socket: /var/run/postgresql/.s.PGSQL.5432
 EOF
     on roles(:app) do
       execute "mkdir -p #{shared_path}/config"
