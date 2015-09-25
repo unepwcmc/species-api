@@ -57,11 +57,14 @@ gem 'sdoc', '~> 0.4.0',          group: :doc
 gem 'spring',        group: :development
 
 group :development do
-  gem 'capistrano', '~> 2.15.5'
-  gem 'capistrano-ext'
-  gem 'rvm-capistrano', require: false
-  gem 'brightbox', '~> 2.4.4'
+  gem 'capistrano', '~> 3.4.0'
+  gem 'capistrano-rails'
+  gem 'capistrano-bundler'
+  gem 'capistrano-rvm'
+  gem 'capistrano-maintenance', '~> 1.0', require: false
+  gem 'capistrano-passenger', '~> 0.1.1', require: false
 end
+
 
 group :development, :test do
   gem 'byebug'
