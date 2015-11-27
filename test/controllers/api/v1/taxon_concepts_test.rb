@@ -303,7 +303,6 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
 
   test 'it returns a bad request error when incorrectly formatted data' do
     @request.headers["X-Authentication-Token"] = @user.authentication_token
-    @controller.expects(:create_api_request)
     get :index, updated_since: '2012-122-12'
     assert_response 400
   end
