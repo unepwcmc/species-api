@@ -11,10 +11,7 @@ child @taxon_concepts => :taxon_concepts do
   node(:synonyms, if: :is_accepted_name?) { |tc| tc.synonyms }
 
   node(:common_names, if: :is_accepted_name?) { |tc|
-    common_names = tc.common_names_with_iso_code
-    unless @languages.nil?
-      common_names = common_names.select{ |cn| @languages.include?(cn.iso_code1) }
-    end
+    common_names = tc.common_names_with_iso_code(@languages)
     common_names.map do |cn|
       {:name => cn.name, :language => cn.iso_code1}
     end
@@ -26,7 +23,9 @@ child @taxon_concepts => :taxon_concepts do
       {
         :appendix => cl.species_listing_name,
         :annotation => cl.annotation,
-        :hash_annotation => cl.hash_annotation
+        :hash_annotation => cl.hash_annotation,
+        :effective_at => cl.effective_at,
+        :party=> cl.party
       }
     end
   }

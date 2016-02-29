@@ -200,8 +200,10 @@ For convenience, a 'pagination' meta object is also included in the body of the 
     taxon_per_page = TaxonConcept.per_page
     new_per_page = params[:per_page] && params[:per_page].to_i < taxon_per_page ? params[:per_page] : taxon_per_page
     @taxon_concepts = TaxonConcept.
-      includes(:current_cites_additions, :common_names_with_iso_code).
-      references(:current_cites_additions, :common_names_with_iso_code).
+      select([
+        :id, :full_name, :author_year, :name_status, :rank, :cites_listing,
+        :higher_taxa, :synonyms, :accepted_names, :updated_at, :active
+      ]).
       paginate(
         page: params[:page],
         per_page: new_per_page
@@ -224,13 +226,8 @@ For convenience, a 'pagination' meta object is also included in the body of the 
       @taxon_concepts = @taxon_concepts.where("updated_at >= ?", params[:updated_since])
     end
 
-    taxonomy_is_cites_eu = if params[:taxonomy]
-      case params[:taxonomy].downcase
-        when 'cms'
-          false
-        else
-          true
-        end
+    taxonomy_is_cites_eu = if params[:taxonomy] && params[:taxonomy].downcase == 'cms'
+      false
     else
       true
     end

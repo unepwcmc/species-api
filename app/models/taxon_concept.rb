@@ -31,12 +31,6 @@ class TaxonConcept < ActiveRecord::Base
   has_many :eu_listings
   has_many :eu_decisions
   has_many :taxon_references
-  has_many :current_cites_additions, -> (tc){
-    where("is_current and change_type_name = 'ADDITION'")
-  }, class_name: CitesListing
-  has_many :common_names_with_iso_code, -> (tc){
-    where("iso_code1 IS NOT NULL")
-  }, class_name: CommonName
 
   def is_accepted_name?
     name_status == 'A'
@@ -44,6 +38,33 @@ class TaxonConcept < ActiveRecord::Base
 
   def is_synonym?
     name_status == 'S'
+  end
+
+  def common_names_with_iso_code(languages = nil)
+    result = common_names.select([
+      :iso_code1,
+      :name
+    ]).where("iso_code1 IS NOT NULL")
+    if languages && !languages.empty?
+      result = result.where(iso_code1: languages)
+    end
+    result
+  end
+
+  def current_cites_additions
+    cites_listings.select([
+      :effective_at,
+      :species_listing_name,
+      :party_en,
+      :party_es,
+      :party_fr,
+      :annotation_en,
+      :annotation_es,
+      :annotation_fr,
+      :hash_annotation_en,
+      :hash_annotation_es,
+      :hash_annotation_fr
+    ]).where(is_current: true, change_type_name: 'ADDITION')
   end
 
   def cites_suspensions_including_global
