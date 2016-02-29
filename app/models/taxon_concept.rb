@@ -31,10 +31,10 @@ class TaxonConcept < ActiveRecord::Base
   has_many :eu_listings
   has_many :eu_decisions
   has_many :taxon_references
-  has_many :current_cites_additions, -> (tc){
+  has_many :current_cites_additions, -> {
     where("is_current and change_type_name = 'ADDITION'")
   }, class_name: CitesListing
-  has_many :common_names_with_iso_code, -> (tc){
+  has_many :common_names_with_iso_code, -> {
     where("iso_code1 IS NOT NULL")
   }, class_name: CommonName
 
