@@ -26,7 +26,9 @@ child @taxon_concepts => :taxon_concepts do
       {
         :appendix => cl.species_listing_name,
         :annotation => cl.annotation,
-        :hash_annotation => cl.hash_annotation
+        :hash_annotation => cl.hash_annotation,
+        :effective_at => cl.effective_at,
+        :party=> cl.party
       }
     end
   }
