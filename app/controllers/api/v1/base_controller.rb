@@ -27,8 +27,8 @@ class Api::V1::BaseController < Api::BaseController
     end
 
     def validate_params
-      never_unpermitted = ActionController::Parameters::NEVER_UNPERMITTED_PARAMS
-      unpermitted_keys = params.keys - permitted_params.map(&:to_s) - never_unpermitted
+      always_permitted = ActionController::Parameters.always_permitted_parameters
+      unpermitted_keys = params.keys - permitted_params.map(&:to_s) - always_permitted
       if unpermitted_keys.any?
         track_api_error("Unpermitted parameters (#{unpermitted_keys.join(', ')})", 422)
         return false
