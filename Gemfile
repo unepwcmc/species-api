@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '4.2.4'
+gem 'rails', '4.2.5.1'
 gem 'apipie-rails' # Documentation
 gem 'devise'
 gem 'annotate'
