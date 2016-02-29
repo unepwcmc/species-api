@@ -226,13 +226,8 @@ For convenience, a 'pagination' meta object is also included in the body of the 
       @taxon_concepts = @taxon_concepts.where("updated_at >= ?", params[:updated_since])
     end
 
-    taxonomy_is_cites_eu = if params[:taxonomy]
-      case params[:taxonomy].downcase
-        when 'cms'
-          false
-        else
-          true
-        end
+    taxonomy_is_cites_eu = if params[:taxonomy] && params[:taxonomy].downcase == 'cms'
+      false
     else
       true
     end
