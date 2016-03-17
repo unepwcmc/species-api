@@ -1,6 +1,7 @@
 require 'test_helper'
 
 class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
+  include ActiveSupport::Testing::TimeHelpers
   def setup
     @user = FactoryGirl.create(:user)
     @admin = FactoryGirl.create(:user, role: 'admin')
@@ -151,8 +152,28 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
   end
 
   test "filters results by date with 'updated_since' params" do
-    FactoryGirl.create(:taxon_concept, taxonomy: @cites, updated_at: 1.year.ago)
-    FactoryGirl.create(:taxon_concept, taxonomy: @cites, updated_at: 1.month.ago)
+    travel -1.year do
+      FactoryGirl.create(:taxon_concept, taxonomy: @cites)
+    end
+    travel -1.month do
+      FactoryGirl.create(:taxon_concept, taxonomy: @cites)
+    end
+    @request.headers["X-Authentication-Token"] = @user.authentication_token
+
+    get :index, updated_since: 2.months.ago.to_s
+    results = JSON.parse(response.body)
+    assert_equal 1, results['taxon_concepts'].length
+  end
+
+  test "returns taxa with self or dependents updated_since" do
+    tc = nil
+    travel -1.year do
+      tc = FactoryGirl.create(:taxon_concept, taxonomy: @cites)
+      FactoryGirl.create(:taxon_concept, taxonomy: @cites)
+    end
+    travel -1.month do
+      FactoryGirl.create(:distribution, taxon_concept: tc, updated_at: 1.month.ago)
+    end
     @request.headers["X-Authentication-Token"] = @user.authentication_token
 
     get :index, updated_since: 2.months.ago.to_s
