@@ -69,6 +69,12 @@ server {
     add_header Cache-Control public;
   }
 
+  add_header 'Access-Control-Allow-Origin' *;
+  add_header 'Access-Control-Allow-Methods' "GET, POST, PUT, DELETE, OPTIONS";
+  add_header 'Access-Control-Allow-Headers' "X-Requested-With, X-Prototype-Version";
+  add_header 'Access-Control-Max-Age' 1728000;
+
+
   error_page 503 @503;
   # Return a 503 error if the maintenance page exists.
   if (-f #{deploy_to}/shared/public/system/maintenance.html) {
