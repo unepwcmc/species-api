@@ -63,6 +63,7 @@ group :development do
   gem 'capistrano-rvm'
   gem 'capistrano-maintenance', '~> 1.0', require: false
   gem 'capistrano-passenger', '~> 0.1.1', require: false
+  gem 'rack-cors', :require => 'rack/cors'
 end
 
 group :development, :test do
