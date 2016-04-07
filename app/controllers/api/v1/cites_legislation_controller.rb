@@ -9,6 +9,7 @@ class Api::V1::CitesLegislationController < Api::V1::BaseController
 
   description <<-EOS
 ==== cites_listings
+[id] these records may cascade from higher taxonomic level, so this value is inherited and the same record may be returned in different contexts.
 [taxon_concept_id] always present
 [is_current] boolean flag indicating whether listing chane is current
 [appendix] CITES appendix, one of <tt>I</tt>, <tt>II</tt> or <tt>III</tt>
@@ -23,6 +24,7 @@ class Api::V1::CitesLegislationController < Api::V1::BaseController
 [hash_annotation] where applicable, <tt>#</tt> annotation (plants). See description of <tt>annotation</tt> object below.
 
 ==== cites_quotas
+[id] these records may cascade from higher taxonomic level, so this value is inherited and the same record may be returned in different contexts.
 [taxon_concept_id] always present
 [quota] numeric value
 [publication_date] date when quota was published, YYYY-MM-DD
@@ -33,6 +35,7 @@ class Api::V1::CitesLegislationController < Api::V1::BaseController
 [geo_entity] geographic location to which the quota applies. See description of <tt>geo_entity</tt> object below.
 
 ==== cites_suspensions
+[id] these records may cascade from higher taxonomic level, so this value is inherited and the same record may be returned in different contexts.
 [taxon_concept_id] empty when suspension applies to all taxa in given location
 [notes]
 [start_date] date when suspension came into effect, YYYY-MM-DD
