@@ -1,2 +1,2 @@
 collection @references
-attributes :citation, :is_standard
+attributes :id, :citation, :is_standard
