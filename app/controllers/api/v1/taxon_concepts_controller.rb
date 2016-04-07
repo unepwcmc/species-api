@@ -27,11 +27,20 @@ The following taxon concept fields are returned:
 [cites_listings] list of current CITES listings with annotations (there will be more than one element in this list in case of split listings; only for accepted names)
 [accepted_names] list of accepted names (only for synonyms, i.e. name_status == S)
 
-Note on deleted taxon concepts:
+==== Note on deleted taxon concepts
 
 In the event of removal from CITES appendices, a taxon is not deleted from the Species+ DB. As a historically listed taxon it remains in the database, and in most cases the value of current CITES listing becomes 'NC'. In some cases the value is affected by listed subspecies, e.g. <i>Pseudomys fieldi</i> has been removed from Appendix I, but since there is a listed subspecies, the current listing is 'I/NC'.
 
 Taxon concepts are deleted from the Species+ database only on rare occasions when they have been entered by mistake. API consumers can detect this event by checking the value of the 'active' flag, which is set to false in case of deleted taxa.
+
+==== Note on +updated_since+
+
+The +updated_since+ parameter is intended to be used in order to allow API clients to only fetch taxon concepts updated since the last run of the synchronisation job. Those taxa will include:
+- Taxa that have been newly added. This can be verified by checking against the list of existing identifiers.
+- Taxa that have been deleted. This can be inferred by the value of the active flag.
+- Taxa that have been updated, and that includes changes to the taxon concept record as well as linked records (names, distribution, references, CITES or EU legislation). There is no way to infer which piece of information was changed and in such cases a full re-synchronisation of all infomation on that taxon concept is recommended.
+
+==== Note on pagination
 
 Where more than 500 taxon concepts are returned, the request is paginated, showing 500 objects (or less by passing in an optional 'per_page' parameter) at a time. To fetch the remaining objects, you will need to make a new request and pass the optional ‘page’ parameter as below:
 
