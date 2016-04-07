@@ -21,6 +21,7 @@ child @taxon_concepts => :taxon_concepts do
   node(:cites_listings, if: :is_accepted_name?) { |tc|
     tc.current_cites_additions.map do |cl|
       {
+        :id => cl.id,
         :appendix => cl.species_listing_name,
         :annotation => cl.annotation,
         :hash_annotation => cl.hash_annotation,
