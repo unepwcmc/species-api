@@ -1,7 +1,7 @@
 object @taxon_concept => :eu_legislation
 
 child @eu_listings => :eu_listings do
-  attributes :taxon_concept_id, :is_current
+  attributes :id, :taxon_concept_id, :is_current
   attributes :species_listing_name => :annex
   attributes :change_type, :effective_at
 
@@ -13,7 +13,7 @@ child @eu_listings => :eu_listings do
 end
 
 child @eu_decisions => :eu_decisions do
-  attributes :taxon_concept_id, :notes, :start_date, :is_current
+  attributes :id, :taxon_concept_id, :notes, :start_date, :is_current
 
   node(:eu_decision_type){ |ed| ed.eu_decision_type }
 
