@@ -1,7 +1,7 @@
 object @taxon_concept => :cites_legislation
 
 child @cites_listings => :cites_listings do
-  attributes :taxon_concept_id, :is_current
+  attributes :id, :taxon_concept_id, :is_current
   attributes :species_listing_name => :appendix
   attributes :change_type, :effective_at
 
@@ -13,7 +13,7 @@ child @cites_listings => :cites_listings do
 end
 
 child @cites_quotas => :cites_quotas do
-  attributes :taxon_concept_id, :quota, :publication_date, :notes, :url, :public_display, :is_current
+  attributes :id, :taxon_concept_id, :quota, :publication_date, :notes, :url, :public_display, :is_current
 
   node(:unit){ |cs| cs.unit }
 
@@ -21,7 +21,7 @@ child @cites_quotas => :cites_quotas do
 end
 
 child @cites_suspensions => :cites_suspensions do
-  attributes :taxon_concept_id, :notes, :start_date, :is_current,
+  attributes :id, :taxon_concept_id, :notes, :start_date, :is_current,
     :applies_to_import
 
   node(:geo_entity){ |cs| cs.geo_entity }
