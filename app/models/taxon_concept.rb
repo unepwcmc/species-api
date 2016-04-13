@@ -53,6 +53,7 @@ class TaxonConcept < ActiveRecord::Base
 
   def current_cites_additions
     cites_listings.select([
+      :id,
       :effective_at,
       :species_listing_name,
       :party_en,

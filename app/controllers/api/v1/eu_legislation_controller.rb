@@ -9,6 +9,7 @@ class Api::V1::EuLegislationController < Api::V1::BaseController
 
   description <<-EOS
 ==== eu_listings
+[id] these records may cascade from higher taxonomic level, so this value is inherited and the same record may be returned in different contexts.
 [taxon_concept_id] always present
 [is_current] boolean flag indicating whether listing change is current
 [annex] EU annex, one of <tt>A</tt>, <tt>B</tt>, <tt>C</tt>, <tt>D</tt>
@@ -21,6 +22,7 @@ class Api::V1::EuLegislationController < Api::V1::BaseController
 [hash_annotation] where applicable, <tt>#</tt> annotation (plants). See description of <tt>annotation</tt> object below.
 
 ==== eu_decisions
+[id] these records may cascade from higher taxonomic level, so this value is inherited and the same record may be returned in different contexts.
 [taxon_concept_id] always present
 [notes]
 [start_date] date when decision came into effect, YYYY-MM-DD
