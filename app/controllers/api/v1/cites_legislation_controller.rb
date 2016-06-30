@@ -32,7 +32,7 @@ class Api::V1::CitesLegislationController < Api::V1::BaseController
 [taxon_concept_id] always present
 [quota] numeric value
 [publication_date] date when quota was published, YYYY-MM-DD
-[notes] [unlimited length]
+[notes] comments [unlimited length]
 [url] URL of original document [unlimited length]
 [is_current] boolean flag indicating whether quota is current
 [unit] quota unit, see description of <tt>trade_code</tt> below
@@ -41,7 +41,7 @@ class Api::V1::CitesLegislationController < Api::V1::BaseController
 ==== cites_suspensions
 [id] these records may cascade from higher taxonomic level, so this value is inherited and the same record may be returned in different contexts.
 [taxon_concept_id] empty when suspension applies to all taxa in given location
-[notes] [unlimited length]
+[notes] comments [unlimited length]
 [start_date] date when suspension came into effect, YYYY-MM-DD
 [is_current] boolean flag indicating whether suspension is current
 [geo_entity] geographic location to which the suspension applies. See description of <tt>geo_entity</tt> object below.

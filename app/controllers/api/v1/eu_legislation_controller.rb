@@ -26,7 +26,7 @@ class Api::V1::EuLegislationController < Api::V1::BaseController
 ==== eu_decisions
 [id] these records may cascade from higher taxonomic level, so this value is inherited and the same record may be returned in different contexts.
 [taxon_concept_id] always present
-[notes]
+[notes] comments [unlimited length]
 [start_date] date when decision came into effect, YYYY-MM-DD
 [is_current] boolean flag indicating whether decision is current
 [eu_decision_type] type of decision. See description of eu_decision_type object below.
