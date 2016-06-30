@@ -7,11 +7,11 @@ class Api::V1::DistributionsController < Api::V1::BaseController
   api :GET, '/:taxon_concept_id/distributions', 'Lists distributions for a given taxon concept'
 
   description <<-EOS
-[iso_code2] ISO 3166-1 alpha-2
-[name] name of country / territory (translated based on locale)
-[type] one of <tt>COUNTRY</tt> or <tt>TERRITORY</tt>
-[tags] array of distribution tags, e.g. <tt>extinct</tt> (strings)
-[references] array of citations (strings)
+[iso_code2] ISO 3166-1 alpha-2 [max 255 characters]
+[name] name of country / territory (translated based on locale) [max 255 characters]
+[type] one of <tt>COUNTRY</tt> or <tt>TERRITORY</tt> [max 255 characters]
+[tags] array of distribution tags, e.g. <tt>extinct</tt> [strings max 255 characters each]
+[references] array of citations [strings of unlimited length]
   EOS
 
   param :taxon_concept_id, String, desc: 'Taxon Concept ID', required: true

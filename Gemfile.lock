@@ -50,7 +50,7 @@ GEM
       rake (~> 10.4)
     api_pagination_headers (2.0.1)
       rails (~> 4.1)
-    apipie-rails (0.3.1)
+    apipie-rails (0.3.6)
       json
     appsignal (1.0.3)
       rack
