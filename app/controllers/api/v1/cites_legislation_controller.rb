@@ -12,12 +12,16 @@ class Api::V1::CitesLegislationController < Api::V1::BaseController
 [id] these records may cascade from higher taxonomic level, so this value is inherited and the same record may be returned in different contexts.
 [taxon_concept_id] always present
 [is_current] boolean flag indicating whether listing chane is current
-[appendix] CITES appendix, one of <tt>I</tt>, <tt>II</tt> or <tt>III</tt>
+[appendix] CITES appendix, one of <tt>I</tt>, <tt>II</tt> or <tt>III</tt> [max 255 characters]
 [change_type] type of listing change, one of:
 <tt>+</tt>: inclusion in appendix,
+
 <tt>-</tt>: removal from appendix,
+
 <tt>R+</tt>: reservation entered,
+
 <tt>R-</tt>: reservation withdrawn
+
 [effective_at] date when listing change came into effect, YYYY-MM-DD
 [party] where applicable, CITES party involved in the listing change. See description of <tt>geo_entity</tt> object below.
 [annotation] text of annotation (translated based on locale)
@@ -28,8 +32,8 @@ class Api::V1::CitesLegislationController < Api::V1::BaseController
 [taxon_concept_id] always present
 [quota] numeric value
 [publication_date] date when quota was published, YYYY-MM-DD
-[notes]
-[url] URL of original document
+[notes] [unlimited length]
+[url] URL of original document [unlimited length]
 [is_current] boolean flag indicating whether quota is current
 [unit] quota unit, see description of <tt>trade_code</tt> below
 [geo_entity] geographic location to which the quota applies. See description of <tt>geo_entity</tt> object below.
@@ -37,7 +41,7 @@ class Api::V1::CitesLegislationController < Api::V1::BaseController
 ==== cites_suspensions
 [id] these records may cascade from higher taxonomic level, so this value is inherited and the same record may be returned in different contexts.
 [taxon_concept_id] empty when suspension applies to all taxa in given location
-[notes]
+[notes] [unlimited length]
 [start_date] date when suspension came into effect, YYYY-MM-DD
 [is_current] boolean flag indicating whether suspension is current
 [geo_entity] geographic location to which the suspension applies. See description of <tt>geo_entity</tt> object below.
@@ -45,22 +49,22 @@ class Api::V1::CitesLegislationController < Api::V1::BaseController
 [start_notification] Suspension Notification document. See description of <tt>event</tt> object below.
 
 ==== geo_entity
-[iso_code2] ISO 3166-1 alpha-2
-[name] name of country / territory (translated based on locale)
-[type] one of <tt>COUNTRY</tt> or <tt>TERRITORY</tt>
+[iso_code2] ISO 3166-1 alpha-2 [max 255 characters]
+[name] name of country / territory (translated based on locale) [max 255 characters]
+[type] one of <tt>COUNTRY</tt> or <tt>TERRITORY</tt> [max 255 characters]
 
 ==== trade_code
-[code] CITES trade code
-[name] full name name (translated based on locale)
+[code] CITES trade code [max 255 characters]
+[name] name (translated based on locale) [max 255 characters]
 
 ==== event
-[name] name of event
+[name] name of event [max 255 characters]
 [date] date of event
-[url] URL of document
+[url] URL of document [unlimited length]
 
 ==== annotation
-[symbol] symbol of annotation
-[note] text of annotation (translated based on locale)
+[symbol] symbol of annotation [max 255 characters]
+[note] text of annotation (translated based on locale) [unlimited length]
 
 
   EOS

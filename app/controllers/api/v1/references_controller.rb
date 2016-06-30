@@ -7,7 +7,7 @@ class Api::V1::ReferencesController < Api::V1::BaseController
   api :GET, '/:taxon_concept_id/references', 'Lists references for a given taxon concept'
 
   description <<-EOS
-[citation] reference citation
+[citation] reference citation [unlimited length]
 [is_standard] boolean flag that indicates whether this is a CITES standard reference
   EOS
 
