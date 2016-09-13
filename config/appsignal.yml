@@ -14,6 +14,9 @@ default: &defaults
   # ignore_actions:
   #   - ApplicationController#isup
 
+  ignore_errors:
+    - ActiveRecord::RecordNotFound
+
 # Configuration per environment, leave out an environment or set active
 # to false to not push metrics for that environment.
 production:
