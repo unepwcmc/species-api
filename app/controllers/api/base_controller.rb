@@ -44,8 +44,7 @@ class Api::BaseController < ApplicationController
   # rescue_from method for recording API Metrics on 500 errors
   def track_this_error(exception)
     if Rails.env.production? || Rails.env.staging?
-      ExceptionNotifier.notify_exception(exception,
-        :env => request.env, :data => {:message => "Something went wrong"})
+      Appsignal.add_exception(exception) if defined? Appsignal
     else
       Rails.logger.error exception.message
       Rails.logger.error exception.backtrace.join("\n")
