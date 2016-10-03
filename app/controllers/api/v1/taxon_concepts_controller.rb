@@ -44,11 +44,11 @@ The +updated_since+ parameter is intended to be used in order to allow API clien
 
 Where more than 500 taxon concepts are returned, the request is paginated, showing 500 objects (or less by passing in an optional 'per_page' parameter) at a time. To fetch the remaining objects, you will need to make a new request and pass the optional ‘page’ parameter as below:
 
-  http://api.speciesplus.net/api/v1/taxon_concepts?page=2&per_page=25
+  https://api.speciesplus.net/api/v1/taxon_concepts?page=2&per_page=25
 
 Information about the remaining pages is provided in the Link header of the API response. For example, making the above request for page two, with a limit of 25 objects per page would return the following in the link header along with a total-count header:
 
-  Link: <http://api.speciesplus.net/api/v1/taxon_concepts?page=3&per_page=25>; rel="next", <http://api.speciesplus.net/api/v1/taxon_concepts?page=2570&per_page=25>; rel="last"
+  Link: <https://api.speciesplus.net/api/v1/taxon_concepts?page=3&per_page=25>; rel="next", <https://api.speciesplus.net/api/v1/taxon_concepts?page=2570&per_page=25>; rel="last"
   Total-Count: 64230
 
 If there are additional pages, the link header will contain the URL for the next page of results, followed by the URL for the last page of results. The Total-Count header shows the total number of objects returned for this call, regardless of pagination.
