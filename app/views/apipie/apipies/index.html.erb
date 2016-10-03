@@ -34,15 +34,19 @@
   <p>There are a number of free tools available that allow you to test the API before you start integrating it in your systems. For example, <code>curl</code> is a popular command-line tool that could be used for this purpose:</p>
 
   <p>
-  <code>curl -i "http://api.speciesplus.net/api/v1/taxon_concepts.xml?name=Mammalia" -H "X-Authentication-Token:YOUR_TOKEN_HERE"</code>
+  <code>curl -i "https://api.speciesplus.net/api/v1/taxon_concepts.xml?name=Mammalia" -H "X-Authentication-Token:YOUR_TOKEN_HERE"</code>
   </p>
+
+  <div class="well alert alert-info">
+    Please note: we now support encrypted connections, please switch your integrations to use https://api.speciesplus.net.
+  </div>
 
   <p>There are also a number of tools that can be installed as an add-on to your browser; they can be found for example by searching for "rest client" in the add-ons repository for your browser.</p>
 
   <h4>Formats</h4>
   <p>All endpoint can return both JSON and XML data. The default is JSON, if you would like to receive XML data, you can add .xml to the endpoint as below:</p>
 
-  <div class="well"><pre>http://api.speciesplus.net/api/v1/taxon_concepts.xml</pre></div>
+  <div class="well"><pre>https://api.speciesplus.net/api/v1/taxon_concepts.xml</pre></div>
 
   <h4>Optional parameters</h4>
   <p>Whereas authentication is passed via a HTTP header, other parameters for refining your response data are provided via the query string. These are detailed below and where appropriate in the documentation for each endpoint. Parameters can be combined.</p>
