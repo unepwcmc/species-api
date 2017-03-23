@@ -75,7 +75,7 @@ p.browsehappy a {
   color: darkRed;
 }
 
-#wrapper { min-height: 100%; 
+#wrapper { min-height: 100%;
   min-height: 100%;
   height: auto !important;
   height: 100%;
@@ -136,12 +136,12 @@ span.beta{
 	position: relative;
 }
 #nav > li:first-child { background: none; }
-#nav > li > a { 
+#nav > li > a {
  	color: #2d3237;
 	text-decoration: none;
 	}
-	
-#nav > li > a:hover { 
+
+#nav > li > a:hover {
 	border-bottom: 1px dotted #2D3237;
 	-webkit-transition: all 0.5s ease;
 	-moz-transition: all 0.5s ease;
@@ -149,7 +149,7 @@ span.beta{
 	-o-transition: all 0.5s ease;
 	transition: all 0.5s ease;
 	}
-	
+
 #nav > li.add {
 	border-left: 1px solid #2d3237;
 	border-right: 1px solid #2d3237;
@@ -157,8 +157,8 @@ span.beta{
 }
 
 #nav > li.add > a { text-decoration: none; }
-#nav > li.add > a:hover { 
-  border-bottom: none;; 
+#nav > li.add > a:hover {
+  border-bottom: none;;
   }
 #nav > li > ul > li {
 	float: left;
@@ -197,11 +197,7 @@ span.beta{
 }
 .power-by {
 	float: right;
-	padding: 30px 0 0;
-}
-
-body.inner .power-by {
-  padding: 50px 0 0;
+	padding: 40px 0 0;
 }
 
 .power-by img { display: block; }
@@ -213,10 +209,6 @@ body.inner .power-by {
 }
 #footer .sponsor {
 	float: left;
-  padding: 30px 0 0;
-}
-
-body.inner #footer .sponsor {
   padding: 50px 0 0;
 }
 
