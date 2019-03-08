@@ -298,9 +298,14 @@ class Api::V1::EuLegislationController < Api::V1::BaseController
 
   def index
     set_legislation_scope
-    @taxon_concept = TaxonConcept.find(params[:taxon_concept_id])
-    @eu_listings = @taxon_concept.eu_listings.in_scope(@legislation_scope)
-    @eu_decisions = @taxon_concept.eu_decisions.in_scope(@legislation_scope)
+    @taxon_concept, @eu_listings, @eu_decisions =
+      Rails.cache.fetch(cache_key, expires_in: 1.minute) do
+        [
+          tc = TaxonConcept.find(params[:taxon_concept_id]),
+          tc.eu_listings.in_scope(@legislation_scope).to_a,
+          tc.eu_decisions.in_scope(@legislation_scope).to_a
+        ]
+      end
   end
 
   def permitted_params
