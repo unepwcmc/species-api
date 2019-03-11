@@ -208,27 +208,16 @@ For convenience, a 'pagination' meta object is also included in the body of the 
   def index
     taxon_per_page = TaxonConcept.per_page
     new_per_page = params[:per_page] && params[:per_page].to_i < taxon_per_page ? params[:per_page] : taxon_per_page
-    @taxon_concepts = Rails.cache.fetch(cache_key, expires_in: 2.minutes) do
-      taxon_concepts = TaxonConcept.joins(:common_names, :cites_listings).
-        select([
-          'api_taxon_concepts_view.id', :full_name, :author_year, :name_status, :rank, :cites_listing,
-          'higher_taxa::jsonb', 'synonyms::jsonb', 'accepted_names::jsonb', :updated_at, :active,
-          'ARRAY_TO_JSON(ARRAY_AGG(api_common_names_view.*)) AS test_common_names',
-          'ARRAY_TO_JSON(ARRAY_AGG(api_cites_listing_changes_view.*)) AS test_cites_listings'
+    @taxon_concepts = Rails.cache.fetch(cache_key, expires_in: 1.minute) do
+      taxon_concepts = TaxonConcept.select([
+          'api_taxon_concepts_view.id', 'full_name', 'author_year', 'name_status',
+          'rank', 'api_taxon_concepts_view.cites_listing',
+          'api_taxon_concepts_view.higher_taxa::jsonb', 'synonyms::jsonb', 'accepted_names::jsonb', 'api_taxon_concepts_view.updated_at', 'api_taxon_concepts_view.active'
         ]).
         paginate(
           page: params[:page],
           per_page: new_per_page
-        ).order(:taxonomic_position)
-
-      #filter common names by iso code depending on language
-      taxon_concepts = taxon_concepts.where('api_common_names_view.iso_code1 IS NOT NULL')
-      if @languages && !@languages.empty?
-        taxon_concepts = taxon_concepts.where(filter_by_language)
-      end
-
-      #filter current cites additions
-      taxon_concepts = taxon_concepts.where("api_cites_listing_changes_view.is_current IS TRUE AND api_cites_listing_changes_view.change_type_name = 'ADDITION'")
+        ).order('taxonomic_position')
 
       if params[:with_descendants] == "true" && params[:name]
         taxon_concepts = taxon_concepts.where("lower(full_name) = :name
@@ -253,13 +242,18 @@ For convenience, a 'pagination' meta object is also included in the body of the 
         true
       end
 
-      res = taxon_concepts.where(taxonomy_is_cites_eu: taxonomy_is_cites_eu).group([
-        'api_taxon_concepts_view.id', :full_name, :author_year, :name_status, :rank, :cites_listing,
-        'higher_taxa::jsonb', 'synonyms::jsonb', 'accepted_names::jsonb', :updated_at, :active,
-        :taxonomic_position
-      ])
+      taxon_concepts = taxon_concepts.where("taxonomy_is_cites_eu = ?", taxonomy_is_cites_eu)
+      total_entries = taxon_concepts.total_entries
 
-      res.to_a
+      taxon_concepts = taxon_concepts.map do |tc|
+        tc.common_names_list = tc.common_names_with_iso_code(@languages).to_a
+        tc.cites_listings_list = tc.current_cites_additions.to_a
+        tc
+      end
+
+      WillPaginate::Collection.create(params[:page] || 1, new_per_page, total_entries) do |pager|
+         pager.replace(taxon_concepts)
+      end
     end
 
     render 'api/v1/taxon_concepts/index'

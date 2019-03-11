@@ -11,7 +11,7 @@ child @taxon_concepts => :taxon_concepts do
   node(:synonyms, if: :is_accepted_name?) { |tc| tc.synonyms }
 
   node(:common_names, if: :is_accepted_name?) { |tc|
-    common_names = tc['test_common_names'] || []
+    common_names = tc.common_names_list.compact || []
     common_names.map do |cn|
       {:name => cn['name'], :language => cn['iso_code1']}
     end
@@ -19,7 +19,7 @@ child @taxon_concepts => :taxon_concepts do
 
   attribute :cites_listing, if: :is_accepted_name?
   node(:cites_listings, if: :is_accepted_name?) { |tc|
-    cites_listings = tc['test_cites_listings'] || []
+    cites_listings = tc.cites_listings_list.compact || []
     cites_listings.map do |cl|
       {
         :id => cl['id'],
