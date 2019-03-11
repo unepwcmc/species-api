@@ -11,23 +11,21 @@ child @taxon_concepts => :taxon_concepts do
   node(:synonyms, if: :is_accepted_name?) { |tc| tc.synonyms }
 
   node(:common_names, if: :is_accepted_name?) { |tc|
-    common_names = tc.common_names_list.compact || []
-    common_names.map do |cn|
-      {:name => cn['name'], :language => cn['iso_code1']}
+    tc.common_names_list.map do |cn|
+      {:name => cn.name, :language => cn.iso_code1}
     end
   }
 
   attribute :cites_listing, if: :is_accepted_name?
   node(:cites_listings, if: :is_accepted_name?) { |tc|
-    cites_listings = tc.cites_listings_list.compact || []
-    cites_listings.map do |cl|
+    tc.cites_listings_list.map do |cl|
       {
-        :id => cl['id'],
-        :appendix => cl['species_listing_name'],
-        :annotation => cl['annotation'],
-        :hash_annotation => cl['hash_annotation'],
-        :effective_at => cl['effective_at'],
-        :party=> cl['party']
+        :id => cl.id,
+        :appendix => cl.species_listing_name,
+        :annotation => cl.annotation,
+        :hash_annotation => cl.hash_annotation,
+        :effective_at => cl.effective_at,
+        :party=> cl.party
       }
     end
   }

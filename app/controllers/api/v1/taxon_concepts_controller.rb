@@ -210,14 +210,13 @@ For convenience, a 'pagination' meta object is also included in the body of the 
     new_per_page = params[:per_page] && params[:per_page].to_i < taxon_per_page ? params[:per_page] : taxon_per_page
     @taxon_concepts = Rails.cache.fetch(cache_key, expires_in: 1.minute) do
       taxon_concepts = TaxonConcept.select([
-          'api_taxon_concepts_view.id', 'full_name', 'author_year', 'name_status',
-          'rank', 'api_taxon_concepts_view.cites_listing',
-          'api_taxon_concepts_view.higher_taxa::jsonb', 'synonyms::jsonb', 'accepted_names::jsonb', 'api_taxon_concepts_view.updated_at', 'api_taxon_concepts_view.active'
+        :id, :full_name, :author_year, :name_status, :rank, :cites_listing,
+        :higher_taxa, :synonyms, :accepted_names, :updated_at, :active
         ]).
         paginate(
           page: params[:page],
           per_page: new_per_page
-        ).order('taxonomic_position')
+        ).order(:taxonomic_position)
 
       if params[:with_descendants] == "true" && params[:name]
         taxon_concepts = taxon_concepts.where("lower(full_name) = :name
@@ -242,7 +241,7 @@ For convenience, a 'pagination' meta object is also included in the body of the 
         true
       end
 
-      taxon_concepts = taxon_concepts.where("taxonomy_is_cites_eu = ?", taxonomy_is_cites_eu)
+      taxon_concepts = taxon_concepts.where(taxonomy_is_cites_eu: taxonomy_is_cites_eu)
       total_entries = taxon_concepts.total_entries
 
       taxon_concepts = taxon_concepts.map do |tc|
@@ -260,11 +259,6 @@ For convenience, a 'pagination' meta object is also included in the body of the 
   end
 
   private
-
-  def filter_by_language
-    languages = @languages.map { |l| "'#{l}'" }.join(',')
-    "api_common_names_view.iso_code1 IN (#{languages})"
-  end
 
   #overrides method from parent controller
   def set_language
