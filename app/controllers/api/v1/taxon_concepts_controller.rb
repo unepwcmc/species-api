@@ -208,7 +208,7 @@ For convenience, a 'pagination' meta object is also included in the body of the 
   def index
     taxon_per_page = TaxonConcept.per_page
     new_per_page = params[:per_page] && params[:per_page].to_i < taxon_per_page ? params[:per_page] : taxon_per_page
-    @taxon_concepts = Rails.cache.fetch(cache_key, expires_in: 1.minute) do
+    @taxon_concepts = Rails.cache.fetch(cache_key, expires_in: 1.month) do
       taxon_concepts = TaxonConcept.select([
         :id, :full_name, :author_year, :name_status, :rank, :cites_listing,
         :higher_taxa, :synonyms, :accepted_names, :updated_at, :active

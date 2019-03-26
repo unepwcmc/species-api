@@ -299,7 +299,7 @@ class Api::V1::EuLegislationController < Api::V1::BaseController
   def index
     set_legislation_scope
     @taxon_concept, @eu_listings, @eu_decisions =
-      Rails.cache.fetch(cache_key, expires_in: 1.minute) do
+      Rails.cache.fetch(cache_key, expires_in: 1.month) do
         [
           tc = TaxonConcept.find(params[:taxon_concept_id]),
           tc.eu_listings.in_scope(@legislation_scope).to_a,

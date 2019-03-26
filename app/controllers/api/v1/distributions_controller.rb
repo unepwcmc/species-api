@@ -80,7 +80,7 @@ class Api::V1::DistributionsController < Api::V1::BaseController
 
   def index
     @distributions =
-      Rails.cache.fetch(cache_key, expires_in: 1.minute) do
+      Rails.cache.fetch(cache_key, expires_in: 1.month) do
         TaxonConcept.find(params[:taxon_concept_id]).distributions.to_a
       end
   end

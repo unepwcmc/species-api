@@ -47,7 +47,7 @@ class Api::V1::ReferencesController < Api::V1::BaseController
 
   def index
     @references =
-      Rails.cache.fetch(cache_key, expires_in: 1.minute) do
+      Rails.cache.fetch(cache_key, expires_in: 1.month) do
         TaxonConcept.find(params[:taxon_concept_id]).
           taxon_references.order(:citation)
       end

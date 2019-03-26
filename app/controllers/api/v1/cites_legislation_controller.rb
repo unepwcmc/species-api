@@ -290,7 +290,7 @@ class Api::V1::CitesLegislationController < Api::V1::BaseController
   def index
     set_legislation_scope
     @taxon_concept, @cites_listings, @cites_suspensions, @cites_quotas =
-      Rails.cache.fetch(cache_key, expires_in: 1.minute) do
+      Rails.cache.fetch(cache_key, expires_in: 1.month) do
         [
           tc = TaxonConcept.find(params[:taxon_concept_id]),
           tc.cites_listings.in_scope(@legislation_scope).to_a,
