@@ -46,8 +46,11 @@ class Api::V1::ReferencesController < Api::V1::BaseController
   error code: 500, desc: "Internal Server Error"
 
   def index
-    @references = TaxonConcept.find(params[:taxon_concept_id]).
-      taxon_references.order(:citation)
+    @references =
+      Rails.cache.fetch(cache_key, expires_in: 1.month) do
+        TaxonConcept.find(params[:taxon_concept_id]).
+          taxon_references.order(:citation)
+      end
   end
 
   def permitted_params

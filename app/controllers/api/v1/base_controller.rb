@@ -34,4 +34,9 @@ class Api::V1::BaseController < Api::BaseController
         return false
       end
     end
+
+    def cache_key
+      key = params.slice(*permitted_params).values.join('')
+      [controller_name, key].join('_')
+    end
 end

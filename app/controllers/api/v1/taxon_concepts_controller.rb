@@ -208,40 +208,52 @@ For convenience, a 'pagination' meta object is also included in the body of the 
   def index
     taxon_per_page = TaxonConcept.per_page
     new_per_page = params[:per_page] && params[:per_page].to_i < taxon_per_page ? params[:per_page] : taxon_per_page
-    @taxon_concepts = TaxonConcept.
-      select([
+    @taxon_concepts = Rails.cache.fetch(cache_key, expires_in: 1.month) do
+      taxon_concepts = TaxonConcept.select([
         :id, :full_name, :author_year, :name_status, :rank, :cites_listing,
         :higher_taxa, :synonyms, :accepted_names, :updated_at, :active
-      ]).
-      paginate(
-        page: params[:page],
-        per_page: new_per_page
-      ).order(:taxonomic_position)
+        ]).
+        paginate(
+          page: params[:page],
+          per_page: new_per_page
+        ).order(:taxonomic_position)
 
-    if params[:with_descendants] == "true" && params[:name]
-      @taxon_concepts = @taxon_concepts.where("lower(full_name) = :name
-                                              OR lower(genus_name) = :name
-                                              OR lower(family_name) = :name
-                                              OR lower(order_name) = :name
-                                              OR lower(class_name) = :name
-                                              OR lower(phylum_name) = :name
-                                              OR lower(kingdom_name) = :name
-                                              ", name: params[:name].downcase)
-    elsif params[:name]
-      @taxon_concepts = @taxon_concepts.where("lower(full_name) = ?", params[:name].downcase)
+      if params[:with_descendants] == "true" && params[:name]
+        taxon_concepts = taxon_concepts.where("lower(full_name) = :name
+                                                OR lower(genus_name) = :name
+                                                OR lower(family_name) = :name
+                                                OR lower(order_name) = :name
+                                                OR lower(class_name) = :name
+                                                OR lower(phylum_name) = :name
+                                                OR lower(kingdom_name) = :name
+                                                ", name: params[:name].downcase)
+      elsif params[:name]
+        taxon_concepts = taxon_concepts.where("lower(full_name) = ?", params[:name].downcase)
+      end
+
+      if params[:updated_since]
+        taxon_concepts = taxon_concepts.where("updated_at >= ?", params[:updated_since])
+      end
+
+      taxonomy_is_cites_eu = if params[:taxonomy] && params[:taxonomy].downcase == 'cms'
+        false
+      else
+        true
+      end
+
+      taxon_concepts = taxon_concepts.where(taxonomy_is_cites_eu: taxonomy_is_cites_eu)
+      total_entries = taxon_concepts.total_entries
+
+      taxon_concepts = taxon_concepts.map do |tc|
+        tc.common_names_list = tc.common_names_with_iso_code(@languages).to_a
+        tc.cites_listings_list = tc.current_cites_additions.to_a
+        tc
+      end
+
+      WillPaginate::Collection.create(params[:page] || 1, new_per_page, total_entries) do |pager|
+         pager.replace(taxon_concepts)
+      end
     end
-
-    if params[:updated_since]
-      @taxon_concepts = @taxon_concepts.where("updated_at >= ?", params[:updated_since])
-    end
-
-    taxonomy_is_cites_eu = if params[:taxonomy] && params[:taxonomy].downcase == 'cms'
-      false
-    else
-      true
-    end
-
-    @taxon_concepts = @taxon_concepts.where(taxonomy_is_cites_eu: taxonomy_is_cites_eu)
 
     render 'api/v1/taxon_concepts/index'
   end

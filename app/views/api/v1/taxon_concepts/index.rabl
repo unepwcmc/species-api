@@ -11,15 +11,14 @@ child @taxon_concepts => :taxon_concepts do
   node(:synonyms, if: :is_accepted_name?) { |tc| tc.synonyms }
 
   node(:common_names, if: :is_accepted_name?) { |tc|
-    common_names = tc.common_names_with_iso_code(@languages)
-    common_names.map do |cn|
+    tc.common_names_list.map do |cn|
       {:name => cn.name, :language => cn.iso_code1}
     end
   }
 
   attribute :cites_listing, if: :is_accepted_name?
   node(:cites_listings, if: :is_accepted_name?) { |tc|
-    tc.current_cites_additions.map do |cl|
+    tc.cites_listings_list.map do |cl|
       {
         :id => cl.id,
         :appendix => cl.species_listing_name,

@@ -24,6 +24,8 @@ class TaxonConcept < ActiveRecord::Base
   self.primary_key = :id
   self.per_page = 500
 
+  attr_accessor :common_names_list, :cites_listings_list
+
   has_many :children, class_name: TaxonConcept, foreign_key: :parent_id
   has_many :distributions
   has_many :common_names
