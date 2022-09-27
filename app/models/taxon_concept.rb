@@ -24,7 +24,7 @@ class TaxonConcept < ActiveRecord::Base
   self.primary_key = :id
   self.per_page = 500
 
-  attr_accessor :common_names_list, :cites_listings_list
+  attr_accessor :common_names_list, :cites_listings_list, :eu_listings_list
 
   has_many :children, class_name: TaxonConcept, foreign_key: :parent_id
   has_many :distributions
@@ -57,6 +57,24 @@ class TaxonConcept < ActiveRecord::Base
     cites_listings.select([
       :id,
       :effective_at,
+      :species_listing_name,
+      :party_en,
+      :party_es,
+      :party_fr,
+      :annotation_en,
+      :annotation_es,
+      :annotation_fr,
+      :hash_annotation_en,
+      :hash_annotation_es,
+      :hash_annotation_fr
+    ]).where(is_current: true, change_type_name: 'ADDITION')
+  end
+
+  def current_eu_listings
+    eu_listings.select([
+      :id,
+      :effective_at,
+      :eu_regulation,
       :species_listing_name,
       :party_en,
       :party_es,

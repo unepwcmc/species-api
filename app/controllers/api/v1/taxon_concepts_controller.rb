@@ -247,6 +247,7 @@ For convenience, a 'pagination' meta object is also included in the body of the 
       taxon_concepts = taxon_concepts.map do |tc|
         tc.common_names_list = tc.common_names_with_iso_code(@languages).to_a
         tc.cites_listings_list = tc.current_cites_additions.to_a
+        tc.eu_listings_list = tc.current_eu_listings.to_a
         tc
       end
 
