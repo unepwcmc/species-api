@@ -1,6 +1,6 @@
 class Api::V1::TaxonConceptsController < Api::V1::BaseController
   after_action only: [:index] { set_pagination_headers(:taxon_concepts) }
-  before_action :validate_params, only: [:index]
+  before_action :validate_params, :set_eu_listings_display, only: [:index]
 
   resource_description do
     formats ['JSON', 'XML']
@@ -273,10 +273,14 @@ For convenience, a 'pagination' meta object is also included in the body of the 
     @languages = params[:language].delete(' ').split(',').map! { |lang| lang.upcase } unless params[:language].nil?
   end
 
+  def set_eu_listings_display
+    @eu_listings = params[:with_eu_listings]
+  end
+
   def permitted_params
     [
-      :page, :per_page, :updated_since, :name,
-      :with_descendants, :taxonomy, :language, :format
+      :page, :per_page, :updated_since, :name, :format,
+      :with_descendants, :taxonomy, :language, :with_eu_listings
     ]
   end
 
