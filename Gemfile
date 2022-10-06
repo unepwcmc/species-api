@@ -16,6 +16,8 @@ gem 'httparty'
 gem 'select2-rails'
 gem 'groupdate'
 gem "chartkick"
+gem 'ed25519'
+gem 'bcrypt_pbkdf'
 
 group :test do
   gem 'shoulda'
@@ -55,12 +57,12 @@ gem 'sdoc', '~> 0.4.0',          group: :doc
 gem 'spring',        group: :development
 
 group :development do
-  gem 'capistrano', '~> 3.4.0'
+  gem 'capistrano', '~> 3.16.0', require: false
   gem 'capistrano-rails'
-  gem 'capistrano-bundler'
-  gem 'capistrano-rvm'
+  gem 'capistrano-bundler', '~> 2.0.1', require: false
+  gem 'capistrano-rvm',   '~> 0.1.2', require: false
   gem 'capistrano-maintenance', '~> 1.0', require: false
-  gem 'capistrano-passenger', '~> 0.1.1', require: false
+  gem 'capistrano-passenger', '~> 0.2.1', require: false
   gem 'rack-cors', :require => 'rack/cors'
 end
 
