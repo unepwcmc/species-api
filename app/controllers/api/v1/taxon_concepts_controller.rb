@@ -63,7 +63,7 @@ For convenience, a 'pagination' meta object is also included in the body of the 
   param :with_descendants, String, desc: 'Broadens the above search by name to include higher taxa. Value must be true or false', required: false
   param :taxonomy, String, desc: 'Filter taxon concepts by taxonomy, accepts either CITES or CMS as its value. Defaults to CITES if no value is specified', required: false
   param :language, String, desc: 'Filter languages returned for common names. Value should be a single country code or a comma separated string of country codes (e.g. language=EN,PL,IT). Defaults to showing all available languages if no language parameter is specified', required: false
-  param :with_eu_listings, [true, false], desc: 'Include EU listing data. Value must be true or false, defaults to false', required: false
+  param :with_eu_listings, String, desc: 'Include EU listing data. Value must be true or false, defaults to false', required: false
 
   example <<-EOS
   {
