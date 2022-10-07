@@ -63,6 +63,7 @@ For convenience, a 'pagination' meta object is also included in the body of the 
   param :with_descendants, String, desc: 'Broadens the above search by name to include higher taxa. Value must be true or false', required: false
   param :taxonomy, String, desc: 'Filter taxon concepts by taxonomy, accepts either CITES or CMS as its value. Defaults to CITES if no value is specified', required: false
   param :language, String, desc: 'Filter languages returned for common names. Value should be a single country code or a comma separated string of country codes (e.g. language=EN,PL,IT). Defaults to showing all available languages if no language parameter is specified', required: false
+  param :with_eu_listings, [true, false], desc: 'Include EU listing data. Value must be true or false, defaults to false', required: false
 
   example <<-EOS
   {
@@ -124,6 +125,24 @@ For convenience, a 'pagination' meta object is also included in the body of the 
             "appendix":"I",
             "annotation":"Included in Appendix I, except the populations of Botswana, Namibia, South Africa and Zimbabwe, which are included in Appendix II.",
             "hash_annotation":null
+          }
+        ],
+        "eu_listings":[
+          {
+            "id":"32796"
+            "annex":"A"
+            "annotation":"Except for the populations of Botswana, Namibia, South Africa and Zimbabwe, which are included in Annex B."
+            "hash_annotation":nil
+            "effective_at":"2022-01-19"
+            "party":nil
+          },
+          {
+            "id":"34129"
+            "annex":"B"
+            "annotation":"Only the populations of Botswana, Namibia, South Africa and Zimbabwe; all other populations are included in Annex A. [...]"
+            "hash_annotation":nil
+            "effective_at":"2022-01-19"
+            "party":nil
           }
         ]
       }
@@ -194,6 +213,24 @@ For convenience, a 'pagination' meta object is also included in the body of the 
             <hash-annotation nil="true"/>
           </cites-listing>
         </cites-listings>
+        <eu-listings>
+          <eu-listing>
+            <id type="integer">32796</id>
+            <annex>A</annex>
+            <annotation>Except for the populations of Botswana, Namibia, South Africa and Zimbabwe, which are [...]</annotation>
+            <hash-annotation inl="true"/>
+            <effective-at>2022-01-19</effective-at>
+            <party nil="true"/>
+          </eu-listing>
+          <eu-listing>
+            <id type="integer">34129</id>
+            <annex>B</annex>
+            <annotation>Only the populations of Botswana, Namibia, South Africa and Zimbabwe; all other populations are [...]</annotation>
+            <hash-annotation inl="true"/>
+            <effective-at>2022-01-19</effective-at>
+            <party nil="true"/>
+          </eu-listing>
+        </eu-listings>
       </taxon-concept>
     </taxon-concepts>
   </hash>
