@@ -68,6 +68,24 @@ class TaxonConcept < ActiveRecord::Base
     ]).where(is_current: true, change_type_name: 'ADDITION')
   end
 
+  def current_eu_listings
+    eu_listings.select([
+      :id,
+      :effective_at,
+      :eu_regulation,
+      :species_listing_name,
+      :party_en,
+      :party_es,
+      :party_fr,
+      :annotation_en,
+      :annotation_es,
+      :annotation_fr,
+      :hash_annotation_en,
+      :hash_annotation_es,
+      :hash_annotation_fr
+    ]).where(is_current: true, change_type_name: 'ADDITION')
+  end
+
   def cites_suspensions_including_global
     CitesSuspension.where(
       [
