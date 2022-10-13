@@ -25,6 +25,8 @@ The following taxon concept fields are returned:
 [common_names] list of common names (with language given by ISO 639-1 code; only for accepted names) [name, language max 255 characters]
 [cites_listing] value of current CITES listing (as per CITES Checklist). When taxon concept is removed from appendices this becomes +NC+. When taxon is split listed it becomes a concatenation of appendix symbols, e.g. +I/II/NC+ (only for accepted names) [max 255 characters]
 [cites_listings] list of current CITES listings with annotations (there will be more than one element in this list in case of split listings; only for accepted names) [appendix max 255 characters; annotation, hash_annotation unlimited length]
+[eu_listing] value of current EU listing. When taxon concept is removed from annexes this becomes +NC+. When taxon is split listed it becomes a concatenation of annex symbols, e.g. +A/B/NC+ (only for accepted names) [max 255 characters]
+[eu_listings] list of current EU listings with annotations (there will be more than one element in this list in case of split listings; only for accepted names) [appendix max 255 characters; annotation, hash_annotation unlimited length]
 [accepted_names] list of accepted names (only for synonyms, i.e. name_status == S) [full_name, author_year and rank follow the same length constraints as respective properties of the main taxon concept]
 
 ==== Note on deleted taxon concepts
