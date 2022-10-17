@@ -30,5 +30,22 @@ child @taxon_concepts => :taxon_concepts do
       }
     end
   }
+
+  attribute :eu_listing, if: :is_accepted_name?
+  if @eu_listings == 'true'
+    node(:eu_listings, if: :is_accepted_name?) { |tc|
+      tc.current_eu_listings.map do |el|
+        {
+          :id => el.id,
+          :annex => el.species_listing_name,
+          :annotation => el.annotation,
+          :hash_annotation => el.hash_annotation,
+          :effective_at => el.effective_at,
+          :party=> el.party
+        }
+      end
+    }
+  end
+
   node(:accepted_names, if: :is_synonym?) { |tc| tc.accepted_names }
 end
