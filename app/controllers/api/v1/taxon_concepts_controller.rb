@@ -227,12 +227,18 @@ For convenience, a 'pagination' meta object is also included in the body of the 
                                                 OR lower(phylum_name) = :name
                                                 OR lower(kingdom_name) = :name
                                                 ", name: params[:name].downcase)
+      elsif params[:name] && params[:fuzzy]
+        taxon_concepts = taxon_concepts.where("lower(full_name) ILIKE ?", "%#{params[:name].downcase}%")
       elsif params[:name]
         taxon_concepts = taxon_concepts.where("lower(full_name) = ?", params[:name].downcase)
       end
 
       if params[:updated_since]
         taxon_concepts = taxon_concepts.where("updated_at >= ?", params[:updated_since])
+      end
+
+      if params[:rank]
+        taxon_concepts = taxon_concepts.where("rank = ?", params[:rank])
       end
 
       taxonomy_is_cites_eu = if params[:taxonomy] && params[:taxonomy].downcase == 'cms'
@@ -274,8 +280,8 @@ For convenience, a 'pagination' meta object is also included in the body of the 
 
   def permitted_params
     [
-      :page, :per_page, :updated_since, :name,
-      :with_descendants, :taxonomy, :language, :format
+      :page, :per_page, :updated_since, :name, :fuzzy,
+      :rank, :with_descendants, :taxonomy, :language, :format
     ]
   end
 
