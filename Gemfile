@@ -62,6 +62,12 @@ group :development do
   gem 'capistrano-maintenance', '~> 1.0', require: false
   gem 'capistrano-passenger', '~> 0.1.1', require: false
   gem 'rack-cors', :require => 'rack/cors'
+
+  # Support ed25519 SSH keys
+  gem 'rbnacl', '4.0.2'
+  gem 'rbnacl-libsodium', '1.0.16'
+  gem 'bcrypt_pbkdf', '1.1.0'
+  gem 'ed25519', '1.2.4'
 end
 
 group :development, :test do
