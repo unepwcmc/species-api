@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 gem 'rails', '4.2.5.2'
 gem 'apipie-rails' # Documentation
-gem 'devise', '>= 3.5.4'
+gem 'devise', '>= 3.5.10'
 gem 'annotate'
 gem 'sass-rails'#,   '~> 3.2.3'
 gem 'uglifier'#, '>= 1.0.3'

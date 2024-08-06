@@ -48,7 +48,7 @@ GEM
       rack
       thread_safe
     arel (6.0.3)
-    bcrypt (3.1.10)
+    bcrypt (3.1.12)
     builder (3.2.2)
     byebug (4.0.2)
       columnize (= 0.9.0)
@@ -104,7 +104,7 @@ GEM
       compass (~> 1.0.0)
       sass-rails (<= 5.0.1)
       sprockets (< 2.13)
-    devise (3.5.6)
+    devise (3.5.10)
       bcrypt (~> 3.0)
       orm_adapter (~> 0.1)
       railties (>= 3.2.6, < 5)
@@ -253,7 +253,7 @@ GEM
       execjs (>= 0.3.0)
       json (>= 1.8.0)
     valuable (0.9.9)
-    warden (1.2.6)
+    warden (1.2.7)
       rack (>= 1.0)
     will_paginate (3.0.7)
     xpath (2.0.0)
@@ -280,7 +280,7 @@ DEPENDENCIES
   coffee-rails (~> 4.0.0)
   compass
   compass-rails
-  devise (>= 3.5.4)
+  devise (>= 3.5.10)
   dotenv-rails
   factory_girl_rails
   groupdate
@@ -308,4 +308,4 @@ DEPENDENCIES
   will_paginate
 
 BUNDLED WITH
-   1.10.6
+   1.17.3
