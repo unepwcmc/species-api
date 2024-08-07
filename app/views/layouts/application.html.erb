@@ -40,6 +40,8 @@
 
 </head>
 <body class="inner">
+  <a href="#feedback_modal" class="btn-fixed-vertical btn-page-feedback">Feedback</a>
+  <%= render "layouts/feedback_modal" %>
   <div id="wrapper">
     <div class="w1">
       <div id="header">
@@ -77,6 +79,9 @@
         <a href="http://www.unep-wcmc.org">
           <%= image_tag("https://s3.amazonaws.com/wcmc.logo/UN-Environment-WCMC+logo+2017+grey.svg", alt: 'Powered by logo', width: 100 , height: 66) %>
         </a>
+      </div>
+      <div class="footer-feedback">
+        <a href="#feedback_modal"><i class="fa fa-envelope"></i> Send feedback</a>
       </div>
     </div>
   </div>
