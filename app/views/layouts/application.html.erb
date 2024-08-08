@@ -40,6 +40,8 @@
 
 </head>
 <body class="inner">
+  <a href="#feedback_modal" class="btn-fixed-vertical btn-page-feedback">Feedback</a>
+  <%= render "layouts/feedback_modal" %>
   <div id="wrapper">
     <div class="w1">
       <div id="header">
@@ -78,27 +80,10 @@
           <%= image_tag("https://s3.amazonaws.com/wcmc.logo/UN-Environment-WCMC+logo+2017+grey.svg", alt: 'Powered by logo', width: 100 , height: 66) %>
         </a>
       </div>
+      <div class="footer-feedback">
+        <a href="#feedback_modal"><i class="fa fa-envelope"></i> Send feedback</a>
+      </div>
     </div>
   </div>
-
-  <% if ["development", "production"].include? Rails.env %>
-    <!-- UserVoice JavaScript SDK (only needed once on a page) -->
-    <script>(function(){var uv=document.createElement('script');uv.type='text/javascript';uv.async=true;uv.src='//widget.uservoice.com/jTNaQjW8TOHM5SR03PSoyA.js';var s=document.getElementsByTagName('script')[0];s.parentNode.insertBefore(uv,s)})()</script>
-
-    <!-- A tab to launch the Classic Widget -->
-    <script>
-    UserVoice = window.UserVoice || [];
-    UserVoice.push(['showTab', 'classic_widget', {
-      mode: 'support',
-      primary_color: '#cc6d00',
-      link_color: '#007dbf',
-      support_tab_name: 'Feedback',
-      tab_label: 'Feedback',
-      tab_color: '#cc6d00',
-      tab_position: 'middle-right',
-      tab_inverted: false
-    }]);
-    </script>
-  <% end %>
  </body>
 </html>
