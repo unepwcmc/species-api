@@ -362,6 +362,7 @@ body.inner #footer .holder{
   clear: both;
   margin-left: auto;
   width: fit-content;
+  min-width: 100px; /* to be same size as logo */
   a {
     color: #648aa2;
     text-decoration: none;
