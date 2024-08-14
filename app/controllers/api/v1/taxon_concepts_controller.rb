@@ -258,16 +258,16 @@ For convenience, a 'pagination' meta object is also included in the body of the 
       ).order(:taxonomic_position)
 
     if params[:with_descendants] == "true" && params[:name]
-      @taxon_concepts = @taxon_concepts.where("lower(full_name) = :name
-                                              OR lower(genus_name) = :name
-                                              OR lower(family_name) = :name
-                                              OR lower(order_name) = :name
-                                              OR lower(class_name) = :name
-                                              OR lower(phylum_name) = :name
-                                              OR lower(kingdom_name) = :name
-                                              ", name: params[:name].downcase)
+      @taxon_concepts = @taxon_concepts.where("UPPER(full_name) = :name
+                                              OR UPPER(genus_name) = :name
+                                              OR UPPER(family_name) = :name
+                                              OR UPPER(order_name) = :name
+                                              OR UPPER(class_name) = :name
+                                              OR UPPER(phylum_name) = :name
+                                              OR UPPER(kingdom_name) = :name
+                                              ", name: params[:name].upcase)
     elsif params[:name]
-      @taxon_concepts = @taxon_concepts.where("lower(full_name) = ?", params[:name].downcase)
+      @taxon_concepts = @taxon_concepts.where("UPPER(full_name) = ?", params[:name].upcase)
     end
 
     if params[:updated_since]
