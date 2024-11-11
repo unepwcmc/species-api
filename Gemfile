@@ -22,12 +22,12 @@ gem 'api_pagination_headers', '>= 2.1.1'
 gem 'traco', '~> 3.1.6' # TODO: switch to mobility
 gem 'httparty', '~> 0.13.3'
 gem 'select2-rails', '~> 3.5.9.3'
-gem 'groupdate', '~> 2.4.0'
+gem 'groupdate', '~> 4.0.0'
 gem "chartkick", '~> 1.3.2'
 
 group :test do
   gem 'shoulda'
-  gem 'capybara', '~> 2.4.4'
+  gem 'capybara', '~> 2.8'
   gem 'factory_girl_rails', '~> 4.5.0' # UPGRADE TODO: gem 'factory_bot_rails', '4.11.1'
   gem 'simplecov', '~> 0.17.1', require: false
   # gem 'codeclimate-test-reporter', require: nil # UPGRADE: removed
@@ -57,7 +57,7 @@ gem 'jquery-rails', '~> 4.6.0'
 # Turbolinks makes following links in your web application faster. Read more: https://github.com/rails/turbolinks
 gem 'turbolinks', '~> 2.5.3'
 # Build JSON / XML API
-gem 'rabl', '~> 0.12.0'
+gem 'rabl', '~> 0.14.0'
 # Also add either `oj` or `yajl-ruby` as the JSON parser
 gem 'oj', '~> 2.12.1'
 # bundle exec rake doc:rails generates the API under doc/api.
