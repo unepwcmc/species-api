@@ -37,7 +37,8 @@ Rails.application.configure do
 
   config.middleware.insert_before 0, "Rack::Cors", :debug => true, :logger => (-> { Rails.logger }) do
     allow do
-      origins '*'
+      origins 'localhost:*'
+      resource '*', headers: :any, methods: :any, credentials: true
 
       resource '/cors',
         :headers => :any,
