@@ -24,34 +24,34 @@ class Api::V1::ReferencesControllerTest < ActionController::TestCase
   end
 
   test "should return 401 with no token" do
-    get :index, taxon_concept_id: @taxon_concept.id
+    get :index, params: { taxon_concept_id: @taxon_concept.id }
     assert_response 401
   end
 
   test "should be successful with token" do
     @request.headers["X-Authentication-Token"] = @user.authentication_token
 
-    get :index, taxon_concept_id: @taxon_concept.id
+    get :index, params: { taxon_concept_id: @taxon_concept.id }
     assert_response :success
   end
 
   test "admin user should be able to access api" do
     @request.headers["X-Authentication-Token"] = @admin.authentication_token
 
-    get :index, taxon_concept_id: @taxon_concept.id
+    get :index, params: { taxon_concept_id: @taxon_concept.id }
     assert_response :success
   end
 
   test "contributor should not be able to access api" do
     @request.headers["X-Authentication-Token"] = @contributor.authentication_token
 
-    get :index, taxon_concept_id: @taxon_concept.id
+    get :index, params: { taxon_concept_id: @taxon_concept.id }
     assert_response 401
   end
 
   test "returns both inherited and taxon-level standard references" do
     @request.headers["X-Authentication-Token"] = @user.authentication_token
-    get :index, taxon_concept_id: @taxon_concept.id
+    get :index, params: { taxon_concept_id: @taxon_concept.id }
 
     results = JSON.parse(response.body)
     assert_equal 2, results.size

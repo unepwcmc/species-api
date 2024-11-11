@@ -67,34 +67,34 @@ class Api::V1::EuLegislationControllerTest < ActionController::TestCase
   end
 
   test "should return 401 with no token" do
-    get :index, taxon_concept_id: @taxon_concept.id
+    get :index, params: { taxon_concept_id: @taxon_concept.id }
     assert_response 401
   end
 
   test "should be successful with token" do
     @request.headers["X-Authentication-Token"] = @user.authentication_token
 
-    get :index, taxon_concept_id: @taxon_concept.id
+    get :index, params: { taxon_concept_id: @taxon_concept.id }
     assert_response :success
   end
 
   test "admin user should be able to access api" do
     @request.headers["X-Authentication-Token"] = @admin.authentication_token
 
-    get :index, taxon_concept_id: @taxon_concept.id
+    get :index, params: { taxon_concept_id: @taxon_concept.id }
     assert_response :success
   end
 
   test "contributor should not be able to access api" do
     @request.headers["X-Authentication-Token"] = @contributor.authentication_token
 
-    get :index, taxon_concept_id: @taxon_concept.id
+    get :index, params: { taxon_concept_id: @taxon_concept.id }
     assert_response 401
   end
 
   test "returns both EU opinions and suspensions" do
     @request.headers["X-Authentication-Token"] = @user.authentication_token
-    get :index, taxon_concept_id: @taxon_concept.id
+    get :index, params: { taxon_concept_id: @taxon_concept.id }
 
     results = JSON.parse(response.body)
     eu_decisions = results['eu_decisions']
@@ -103,7 +103,7 @@ class Api::V1::EuLegislationControllerTest < ActionController::TestCase
 
   test "returns both current and historic EU decisions when requested" do
     @request.headers["X-Authentication-Token"] = @user.authentication_token
-    get :index, taxon_concept_id: @taxon_concept.id, scope: :all
+    get :index, params: { taxon_concept_id: @taxon_concept.id, scope: :all }
 
     results = JSON.parse(response.body)
     eu_decisions = results['eu_decisions']
@@ -112,7 +112,7 @@ class Api::V1::EuLegislationControllerTest < ActionController::TestCase
 
   test "returns both annex listings and reservations" do
     @request.headers["X-Authentication-Token"] = @user.authentication_token
-    get :index, taxon_concept_id: @taxon_concept.id
+    get :index, params: { taxon_concept_id: @taxon_concept.id }
 
     results = JSON.parse(response.body)
     eu_listings = results['eu_listings']
@@ -121,7 +121,7 @@ class Api::V1::EuLegislationControllerTest < ActionController::TestCase
 
   test "returns both current and historic listings and reservations when requested" do
     @request.headers["X-Authentication-Token"] = @user.authentication_token
-    get :index, taxon_concept_id: @taxon_concept.id, scope: :all
+    get :index, params: { taxon_concept_id: @taxon_concept.id, scope: :all }
 
     results = JSON.parse(response.body)
     eu_listings = results['eu_listings']

@@ -25,11 +25,11 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
   end
 
   def create_taxon_concept_tree
-    kingdom = FactoryGirl.create(:taxon_concept, taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'Animalia'), 
+    kingdom = FactoryGirl.create(:taxon_concept, taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'Animalia'),
       rank: FactoryGirl.create(:rank, name: 'KINGDOM', display_name_en: 'Kingdom'))
 
     phylum = FactoryGirl.create(:taxon_concept, parent: kingdom,
-      taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'Chordata'), rank: FactoryGirl.create(:rank, name: 'PHYLUM', display_name_en: 'Phylum')) 
+      taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'Chordata'), rank: FactoryGirl.create(:rank, name: 'PHYLUM', display_name_en: 'Phylum'))
     @klass = FactoryGirl.create(:taxon_concept, parent: phylum,
       taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'Mammalia'),
       rank: FactoryGirl.create(:rank, name: 'CLASS', display_name_en: 'Class')
@@ -129,7 +129,7 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     FactoryGirl.create(:taxon_concept, taxonomy: @cites)
 
     @request.headers["X-Authentication-Token"] = @user.authentication_token
-    get :index, per_page: 1
+    get :index, params: { per_page: 1 }
     # should report total count of taxa
     assert_equal 2, response['Total-Count'].to_i
     links = LinkHeader.parse(response['Link']).links
@@ -160,7 +160,7 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     end
     @request.headers["X-Authentication-Token"] = @user.authentication_token
 
-    get :index, updated_since: 2.months.ago.to_s
+    get :index, params: { updated_since: 2.months.ago.to_s }
     results = JSON.parse(response.body)
     assert_equal 1, results['taxon_concepts'].length
   end
@@ -176,7 +176,7 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     end
     @request.headers["X-Authentication-Token"] = @user.authentication_token
 
-    get :index, updated_since: 2.months.ago.to_s
+    get :index, params: { updated_since: 2.months.ago.to_s }
     results = JSON.parse(response.body)
     assert_equal 1, results['taxon_concepts'].length
   end
@@ -198,7 +198,7 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     )
     @request.headers["X-Authentication-Token"] = @user.authentication_token
 
-    get :index, name: "JOHN HAMMOND"
+    get :index, params: { name: "JOHN HAMMOND" }
     results = JSON.parse(response.body)
 
     assert_equal "John Hammond", results['taxon_concepts'].first["full_name"]
@@ -209,14 +209,14 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     create_taxon_concept_tree
 
     @request.headers["X-Authentication-Token"] = @user.authentication_token
-    get :index, name: "Mammalia", with_descendants: 'true'
+    get :index, params: { name: "Mammalia", with_descendants: 'true' }
 
     results = JSON.parse(response.body)
     assert_equal 5, results['taxon_concepts'].length
 
     create_canis_tree_and_taxon_concepts
 
-    get :index, name: "Canis", with_descendants: 'true'
+    get :index, params: { name: "Canis", with_descendants: 'true' }
     results = JSON.parse(response.body)
     assert_equal 2, results['taxon_concepts'].length
 
@@ -226,7 +226,7 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     create_taxon_concept_tree
 
     @request.headers["X-Authentication-Token"] = @user.authentication_token
-    get :index, name: "Mammalia"
+    get :index, params: { name: "Mammalia" }
 
     results = JSON.parse(response.body)
     assert_equal 1, results['taxon_concepts'].length
@@ -238,7 +238,7 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     cms_tc = FactoryGirl.create(:taxon_concept, taxonomy: cms)
     @request.headers["X-Authentication-Token"] = @user.authentication_token
 
-    get :index, taxonomy: "CMS"
+    get :index, params: { taxonomy: "CMS" }
     results = JSON.parse(response.body)
 
     assert_equal cms_tc.id, results['taxon_concepts'].first["id"]
@@ -248,7 +248,7 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
   test "it returns all common names with no language parameter" do
     create_common_names
     @request.headers["X-Authentication-Token"] = @user.authentication_token
-    get :index, name: @taxon_concept.full_name
+    get :index, params: { name: @taxon_concept.full_name }
     results = JSON.parse(response.body)
     taxon_concept = results['taxon_concepts'].first
     common_names = taxon_concept['common_names']
@@ -258,7 +258,7 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
   test "it returns correct countries with a single language parameter" do
     create_common_names
     @request.headers["X-Authentication-Token"] = @user.authentication_token
-    get :index, name: @taxon_concept.full_name, language: 'PL'
+    get :index, params: { name: @taxon_concept.full_name, language: 'PL' }
     results = JSON.parse(response.body)
     taxon_concept = results['taxon_concepts'].first
     common_names = taxon_concept['common_names']
@@ -269,7 +269,7 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
   test "it returns correct countries with an array in the language parameter" do
     create_common_names
     @request.headers["X-Authentication-Token"] = @user.authentication_token
-    get :index, name: @taxon_concept.full_name, language: 'PL,IT'
+    get :index, params: { name: @taxon_concept.full_name, language: 'PL,IT' }
     results = JSON.parse(response.body)
     taxon_concept = results['taxon_concepts'].first
     common_names = taxon_concept['common_names']
@@ -284,7 +284,7 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     @request.headers["X-Authentication-Token"] = @user.authentication_token
 
     assert_difference 'ApiRequest.count' do
-      get :index, updated_since: 2.months.ago.to_s
+      get :index, params: { updated_since: 2.months.ago.to_s }
     end
 
     assert_not_nil ApiRequest.last.params
@@ -301,7 +301,7 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
   test 'it returns an unprocessable entity response when taxonomy is not cms or cites' do
     @request.headers["X-Authentication-Token"] = @user.authentication_token
     assert_difference 'ApiRequest.count' do
-      get :index, taxonomy: 'something'
+      get :index, params: { taxonomy: 'something' }
     end
     assert_response 422
   end
@@ -309,7 +309,7 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
   test 'it returns an unprocessable entity response when with_descendants is specified without name' do
     @request.headers["X-Authentication-Token"] = @user.authentication_token
     assert_difference 'ApiRequest.count' do
-      get :index, with_descendants: 'true'
+      get :index, params: { with_descendants: 'true' }
     end
     assert_response 422
   end
@@ -317,21 +317,21 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
   test 'it returns an unprocessable entity response when unpermitted parameters are specified' do
     @request.headers["X-Authentication-Token"] = @user.authentication_token
     assert_difference 'ApiRequest.count' do
-      get :index, aparam: 'something'
+      get :index, params: { aparam: 'something' }
     end
     assert_response 422
   end
 
   test 'it returns a bad request error when incorrectly formatted data' do
     @request.headers["X-Authentication-Token"] = @user.authentication_token
-    get :index, updated_since: '2012-122-12'
+    get :index, params: { updated_since: '2012-122-12' }
     assert_response 400
   end
 
   test 'it returns a bad request error when incorrect page value' do
     @request.headers["X-Authentication-Token"] = @user.authentication_token
     assert_difference 'ApiRequest.count' do
-      get :index, page: 'something'
+      get :index, params: { page: 'something' }
     end
     assert_response 400
   end
@@ -340,7 +340,7 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
   #   @request.headers["X-Authentication-Token"] = @user.authentication_token
 
   #   assert_difference 'ApiRequest.count' do
-  #     get :index, updated_since: '33'
+  #     get :index, params: { updated_since: '33' }
   #   end
 
   #   assert_equal 500, ApiRequest.last.response_status
