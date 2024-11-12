@@ -15,7 +15,7 @@ development:
 
 test:
   <<: *default
-  database: sapi_test
+  database: sapi_species_api_test
   pool: 5
   timeout: 5000
 
