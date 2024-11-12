@@ -1,1 +1,1 @@
-class Test::Reference < ActiveRecord::Base; end
+class Test::Reference < ApplicationRecord; end

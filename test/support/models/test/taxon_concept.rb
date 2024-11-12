@@ -2,7 +2,7 @@ require Rails.root + 'test/support/models/test/rank.rb'
 require Rails.root + 'test/support/models/test/taxon_name.rb'
 require Rails.root + 'test/support/models/test/taxonomy.rb'
 
-class Test::TaxonConcept < ActiveRecord::Base
+class Test::TaxonConcept < ApplicationRecord
   belongs_to :rank, class_name: 'Test::Rank'
   belongs_to :taxon_name, class_name: 'Test::TaxonName'
   belongs_to :taxonomy, class_name: 'Test::Taxonomy'

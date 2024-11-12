@@ -1,1 +1,1 @@
-class Test::TaxonConceptVersion < ActiveRecord::Base; end
+class Test::TaxonConceptVersion < ApplicationRecord; end

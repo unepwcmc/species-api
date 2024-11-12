@@ -1,1 +1,1 @@
-class Test::TaxonName < ActiveRecord::Base; end
+class Test::TaxonName < ApplicationRecord; end

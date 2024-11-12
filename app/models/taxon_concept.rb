@@ -18,7 +18,7 @@
 #  updated_at           :datetime
 #
 
-class TaxonConcept < ActiveRecord::Base
+class TaxonConcept < ApplicationRecord
   after_initialize :readonly!
   self.table_name = :api_taxon_concepts_view
   self.primary_key = :id

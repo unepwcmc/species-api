@@ -38,7 +38,7 @@
 #  change_type_order          :integer
 #
 
-class EuListing < ActiveRecord::Base
+class EuListing < ApplicationRecord
   include Scope
   after_initialize :readonly!
   self.table_name = :api_eu_listing_changes_view

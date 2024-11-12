@@ -1,2 +1,2 @@
-class Test::Event < ActiveRecord::Base
+class Test::Event < ApplicationRecord
 end

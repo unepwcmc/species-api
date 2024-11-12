@@ -15,7 +15,7 @@
 #  updated_at      :datetime
 #
 
-class ApiRequest < ActiveRecord::Base
+class ApiRequest < ApplicationRecord
   serialize :params, JSON
 
   belongs_to :user

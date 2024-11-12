@@ -1,2 +1,2 @@
-class Test::TradeCode < ActiveRecord::Base
+class Test::TradeCode < ApplicationRecord
 end
