@@ -41,11 +41,11 @@ group :staging, :production do
 end
 
 # Use postgresql as the database for Active Record
-gem 'pg', '~> 0.18.1'
+gem 'pg', '~> 1.2'
 # gem 'schema_plus', '~> 2.1.0' # was 1.8.7
-gem 'schema_associations';
-gem 'schema_auto_foreign_keys';
-gem 'schema_validations';
+gem 'schema_associations', '~> 1.2.7';
+gem 'schema_auto_foreign_keys', '~> 0.1.3';
+gem 'schema_validations', '~> 2.3.0';
 # Use CoffeeScript for .js.coffee assets and views
 gem 'coffee-rails', '~> 4'
 
