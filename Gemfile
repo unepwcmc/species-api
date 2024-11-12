@@ -8,7 +8,6 @@ gem 'loofah', '~> 2.19.1'
 gem 'nokogiri', '~> 1.6.0'
 gem 'rails-dom-testing', '~> 2.0', '< 2.2.0'
 
-
 gem 'apipie-rails', '~> 0.6'
 gem 'devise', '>= 3.5.10'
 gem 'annotate', '3.1.0'
@@ -23,7 +22,8 @@ gem 'traco', '~> 3.1.6' # TODO: switch to mobility
 gem 'httparty', '~> 0.13.3'
 gem 'select2-rails', '~> 3.5.9.3'
 gem 'groupdate', '~> 4.0.0'
-gem "chartkick", '~> 1.3.2'
+gem 'chartkick', '~> 1.3.2'
+gem 'listen', '>= 3.0.5', '< 3.2'
 
 group :test do
   gem 'shoulda'
