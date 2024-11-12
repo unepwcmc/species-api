@@ -9,7 +9,7 @@ gem 'nokogiri', '~> 1.6.0'
 gem 'rails-dom-testing', '~> 2.0', '< 2.2.0'
 
 
-gem 'apipie-rails', '~> 0.3.6' # Documentation
+gem 'apipie-rails', '~> 0.6'
 gem 'devise', '>= 3.5.10'
 gem 'annotate', '3.1.0'
 gem 'sass-rails', '5.0.7'
