@@ -10,13 +10,13 @@ FactoryGirl.define do
     sequence(:name_en) { |n| "name en"}
     sequence(:name_es) { |n| "name es"}
     sequence(:name_fr) { |n| "name fr"}
-    long_name "Whatever"
-    iso_code2 "GB"
-    iso_code3 "Longer"
-    is_current true
+    long_name { 'Whatever' }
+    iso_code2 { 'GB' }
+    iso_code3 { 'GBR' }
+    is_current { true }
   end
 
   factory :geo_entity_type, class: Test::GeoEntityType do
-    name 'COUNTRY'
+    name { 'COUNTRY' }
   end
 end

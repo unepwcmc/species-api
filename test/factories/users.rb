@@ -22,11 +22,11 @@
 
 FactoryGirl.define do
   factory :user do
-    name "John"
+    name { 'John' }
     sequence(:email) { |n| "user#{n}@example.com" }
-    password "test1234"
-    role 'api'
-    is_cites_authority true
-    organisation 'Ministry of Environment'
+    password { 'test1234' }
+    role { 'api' }
+    is_cites_authority { true }
+    organisation { 'Ministry of Environment' }
   end
 end
