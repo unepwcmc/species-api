@@ -3,10 +3,10 @@ require Rails.root + 'test/support/models/test/taxon_name.rb'
 require Rails.root + 'test/support/models/test/taxonomy.rb'
 
 class Test::TaxonConcept < ActiveRecord::Base
-  belongs_to :rank, class_name: Test::Rank
-  belongs_to :taxon_name, class_name: Test::TaxonName
-  belongs_to :taxonomy, class_name: Test::Taxonomy
-  belongs_to :parent, foreign_key: :parent_id, class_name: Test::TaxonConcept
+  belongs_to :rank, class_name: 'Test::Rank'
+  belongs_to :taxon_name, class_name: 'Test::TaxonName'
+  belongs_to :taxonomy, class_name: 'Test::Taxonomy'
+  belongs_to :parent, foreign_key: :parent_id, class_name: 'Test::TaxonConcept'
 
   #initializes data and full name with values from parent
   before_validation do |taxon_concept|
