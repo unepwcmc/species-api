@@ -18,7 +18,7 @@ gem 'compass', '~> 1.0.3'
 gem 'compass-rails', '~> 4.0.0'
 gem 'will_paginate', '~> 3.0.7'
 gem 'api_pagination_headers', '>= 2.1.1'
-gem 'traco', '~> 3.1.6' # TODO: switch to mobility
+gem 'traco', '~> 5.3.3' # TODO: switch to mobility
 gem 'httparty', '~> 0.13.3'
 gem 'select2-rails', '~> 3.5.9.3'
 gem 'groupdate', '~> 4.0.0'
