@@ -6,7 +6,10 @@ class Test::TaxonConcept < ApplicationRecord
   belongs_to :rank, class_name: 'Test::Rank'
   belongs_to :taxon_name, class_name: 'Test::TaxonName'
   belongs_to :taxonomy, class_name: 'Test::Taxonomy'
-  belongs_to :parent, foreign_key: :parent_id, class_name: 'Test::TaxonConcept'
+  belongs_to :parent, foreign_key: :parent_id, class_name: 'Test::TaxonConcept', optional: true
+  belongs_to :created_by, foreign_key: :created_by_id, class_name: 'User', optional: true
+  belongs_to :updated_by, foreign_key: :updated_by, class_name: 'User', optional: true
+  belongs_to :dependents_updated_by, foreign_key: :dependents_updated_by, class_name: 'User', optional: true
 
   #initializes data and full name with values from parent
   before_validation do |taxon_concept|

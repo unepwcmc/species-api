@@ -2,10 +2,11 @@ require 'test_helper'
 
 class Api::V1::EuLegislationControllerTest < ActionController::TestCase
   def setup
+    @taxonomy = FactoryGirl.create(:taxonomy, name: 'CITES_EU')
+    @eu_designation = FactoryGirl.create(:designation, taxonomy: @taxonomy, name: 'EU')
     @user = FactoryGirl.create(:user)
     @admin = FactoryGirl.create(:user, role: 'admin')
     @contributor = FactoryGirl.create(:user, role: 'default')
-    @taxonomy = FactoryGirl.create(:taxonomy, name: 'CITES_EU')
     @taxon_concept = FactoryGirl.create(:taxon_concept,
       taxonomy: @taxonomy,
       parent: FactoryGirl.create(:taxon_concept,
@@ -16,16 +17,16 @@ class Api::V1::EuLegislationControllerTest < ActionController::TestCase
     @country_geo_entity_type = FactoryGirl.create(:geo_entity_type, name: 'COUNTRY')
     @geo_entity = FactoryGirl.create(:geo_entity, geo_entity_type: @country_geo_entity_type)
     @distribution = FactoryGirl.create(:distribution, taxon_concept: @taxon_concept, geo_entity: @geo_entity)
-    @current_start_event = FactoryGirl.create(:eu_suspension_regulation, is_current: true)
-    @historic_start_event = FactoryGirl.create(:eu_suspension_regulation, is_current: false)
+    @current_start_event = FactoryGirl.create(:eu_suspension_regulation,  designation: @eu_designation, is_current: true)
+    @historic_start_event = FactoryGirl.create(:eu_suspension_regulation, designation: @eu_designation,  is_current: false)
     @suspension = FactoryGirl.create(:eu_suspension,
-      taxon_concept: @taxon_concept, start_event: @current_start_event
+      taxon_concept: @taxon_concept,
+      start_event: @current_start_event
     )
     @opinion = FactoryGirl.create(:eu_opinion, taxon_concept: @taxon_concept)
     @historic_suspension = FactoryGirl.create(:eu_suspension,
       taxon_concept: @taxon_concept, start_event: @historic_start_event, is_current: false
     )
-    @eu_designation = FactoryGirl.create(:designation, taxonomy: @taxonomy, name: 'EU')
     @addition_change_type = FactoryGirl.create(:change_type, designation: @eu_designation, name: 'ADDITION')
     @deletion_change_type = FactoryGirl.create(:change_type, designation: @eu_designation, name: 'DELETION')
     @reservation_change_type = FactoryGirl.create(:change_type, designation: @eu_designation, name: 'RESERVATION')

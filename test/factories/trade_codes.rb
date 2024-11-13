@@ -1,4 +1,5 @@
 Dir[Rails.root.join("test/support/models/*.rb")].each {|f| require f}
+
 FactoryGirl.define do
   factory :trade_code, class: Test::TradeCode do
     factory :source, :class => Test::Source do

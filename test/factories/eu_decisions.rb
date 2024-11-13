@@ -1,9 +1,10 @@
 Dir[Rails.root.join("test/support/models/*.rb")].each {|f| require f}
+
 FactoryGirl.define do
   factory :eu_decision, class: Test::EuDecision do
-    taxon_concept
-    geo_entity
-    eu_decision_type
+    association :taxon_concept
+    association :geo_entity
+    association :eu_decision_type
 
     factory :eu_opinion, class: Test::EuOpinion do
       type { 'EuOpinion' }
@@ -12,7 +13,8 @@ FactoryGirl.define do
 
     factory :eu_suspension, class: Test::EuSuspension do
       type { 'EuSuspension' }
-      start_event
+      association :start_event
+      association :end_event
     end
   end
 

@@ -5,5 +5,9 @@ require Rails.root + 'test/support/models/test/common_name.rb'
 class Test::TaxonCommon < ApplicationRecord
   belongs_to :taxon_concept, class_name: 'Test::TaxonConcept'
   belongs_to :common_name, class_name: 'Test::CommonName'
+
+  belongs_to :created_by, foreign_key: :created_by_id, class_name: 'User', optional: true
+  belongs_to :updated_by, foreign_key: :updated_by, class_name: 'User', optional: true
+
   after_save Test::TaxonConceptTouch.new
 end

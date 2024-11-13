@@ -1,9 +1,10 @@
 Dir[Rails.root.join("test/support/models/*.rb")].each {|f| require f}
+
 FactoryGirl.define do
   factory :taxon_concept, class: Test::TaxonConcept do
-    taxonomy
-    taxon_name
-    rank
+    association :taxonomy
+    association :taxon_name
+    association :rank
     sequence(:full_name) { |n| "Canis lupus#{n}" }
     name_status { 'A' }
   end
