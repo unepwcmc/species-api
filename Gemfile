@@ -1,9 +1,9 @@
 source 'https://rubygems.org'
 
-gem 'rails', '5.1.7'
+gem 'rails', '5.2.8.1'
 
 # Dependency resolution for Rails 5
-gem 'railties', '5.1.7'
+gem 'railties', '5.2.8.1'
 gem 'loofah', '~> 2.19.1'
 gem 'nokogiri', '~> 1.6.0'
 gem 'rails-dom-testing', '~> 2.0', '< 2.2.0'
