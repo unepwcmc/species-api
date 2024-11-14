@@ -1,4 +1,4 @@
-#secrets = Rails.application.secrets.mailer
+mailer_secrets = Rails.application.secrets.mailer
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
@@ -84,16 +84,16 @@ Rails.application.configure do
   config.active_record.dump_schema_after_migration = false
 
   config.action_mailer.delivery_method = :smtp
-  config.action_mailer.asset_host = secrets['asset_host']
-  config.action_mailer.default_url_options = { :host => secrets['host'] }
+  config.action_mailer.asset_host = mailer_secrets['asset_host']
+  config.action_mailer.default_url_options = { :host => mailer_secrets['host'] }
   config.action_mailer.smtp_settings = {
     :enable_starttls_auto => true,
-    :address => secrets['address'],
+    :address => mailer_secrets['address'],
     :port => 587,
-    :domain => secrets['domain'],
+    :domain => mailer_secrets['domain'],
     :authentication => :login,
-    :user_name => secrets['username'],
-    :password => secrets['password']
+    :user_name => mailer_secrets['username'],
+    :password => mailer_secrets['password']
   }
   config.active_support.test_order = :sorted
 end
