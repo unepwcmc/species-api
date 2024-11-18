@@ -24,6 +24,13 @@ module SpeciesPlusAPI
     # The default locale is :en and all translations from config/locales/*.rb,yml are auto loaded.
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
     # config.i18n.default_locale = :de
+
+    # Raises error for missing translations.
+    # config.i18n.raise_on_missing_translations = true
+
+    # Annotate rendered view with file names.
+    # config.action_view.annotate_rendered_view_with_filenames = true
+
     config.active_record.schema_format = :sql
 
     if Rails.env == 'test'
