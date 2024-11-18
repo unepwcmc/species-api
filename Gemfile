@@ -1,14 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '5.2.8.1'
-
-# Dependency resolution for Ruby 2.7.0
-gem 'rdoc', '~> 5'
-
-# Dependency resolution for Rails 5
-gem 'railties', '5.2.8.1'
-gem 'loofah', '~> 2.19.1'
-gem 'rails-dom-testing', '~> 2.2.0'
+gem 'rails', '6.0.6.1'
 
 # Use Puma as the app server
 gem 'puma', '~> 3.11'
@@ -23,7 +15,7 @@ gem 'devise', '>= 3.5.10'
 gem 'annotate', '3.1.0'
 
 # Frontend CSS and minification
-gem 'sass-rails', '5.0.7'
+gem 'sass-rails', '~> 5.0.8'
 gem 'uglifier', '~> 2.7.2'
 gem 'susy', '~> 2.2.14'
 gem 'compass', '~> 1.0.3'
@@ -82,9 +74,9 @@ end
 gem 'pg', '~> 1.2'
 
 # gem 'schema_plus', '~> 2.1.0' # was 1.8.7
-gem 'schema_associations', '~> 1.2.7';
-gem 'schema_auto_foreign_keys', '~> 0.1.3';
-gem 'schema_validations', '~> 2.3.0';
+gem 'schema_associations', '~> 1.4.0';
+gem 'schema_auto_foreign_keys', '~> 1.1.0';
+gem 'schema_validations', '~> 2.4.1';
 
 # Use CoffeeScript for .js.coffee assets and views
 gem 'coffee-rails', '~> 4'
