@@ -2,6 +2,11 @@ source 'https://rubygems.org'
 
 gem 'rails', '6.0.6.1'
 
+# Fix error:
+# > visit_Psych_Nodes_Alias: Alias parsing was not enabled.
+# > To enable it, pass `aliases: true` to `Psych::load` or `Psych::safe_load`.
+gem 'psych', '< 4'
+
 # Use Puma as the app server
 gem 'puma', '~> 3.11'
 
@@ -79,7 +84,7 @@ gem 'schema_auto_foreign_keys', '~> 1.1.0';
 gem 'schema_validations', '~> 2.4.1';
 
 # Use CoffeeScript for .js.coffee assets and views
-gem 'coffee-rails', '~> 4'
+gem 'coffee-rails', '~> 5.0.0'
 
 # See https://github.com/sstephenson/execjs#readme for more supported runtimes
 # gem 'therubyracer',  platforms: :ruby
