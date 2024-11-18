@@ -2,6 +2,9 @@ source 'https://rubygems.org'
 
 gem 'rails', '5.2.8.1'
 
+# Dependency resolution for Ruby 2.7.0
+gem 'rdoc', '~> 5'
+
 # Dependency resolution for Rails 5
 gem 'railties', '5.2.8.1'
 gem 'loofah', '~> 2.19.1'
@@ -41,7 +44,7 @@ gem 'api_pagination_headers', '>= 2.1.1'
 gem 'traco', '~> 5.3.3' # TODO: switch to mobility
 
 # HTTP user agent
-gem 'httparty', '~> 0.13.3'
+gem 'httparty', '~> 0.22'
 
 group :test do
   # Test assertion library.
@@ -102,7 +105,7 @@ gem 'rabl', '~> 0.14.0'
 gem 'oj', '~> 3'
 
 # bundle exec rake doc:rails generates the API under doc/api.
-gem 'sdoc', '~> 0.4.0', group: :doc
+gem 'sdoc', '~> 1.1.0', group: :doc
 
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.1.0', require: false
