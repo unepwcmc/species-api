@@ -35,7 +35,7 @@ gem 'chartkick', '~> 1.3.2'
 gem 'groupdate', '~> 4.0.0'
 
 # pagination
-gem 'will_paginate', '~> 3.0.7'
+gem 'will_paginate', '~> 4.0.0'
 gem 'api_pagination_headers', '>= 2.1.1'
 
 # i18n
