@@ -26,7 +26,6 @@ module SpeciesPlusAPI
     # config.i18n.default_locale = :de
     config.active_record.schema_format = :sql
 
-    # UPGRADE TODO: consider if this should be in test environment only, i.e. if Rails.env == 'test'
     if Rails.env == 'test'
       config.autoload_paths += [
         "#{config.root}/test/support/models",
