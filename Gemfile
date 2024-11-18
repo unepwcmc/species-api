@@ -51,7 +51,7 @@ group :test do
   gem 'capybara', '~> 2.8'
 
   # Helps build test fixtures
-  gem 'factory_girl_rails', '~> 4.5.0' # UPGRADE TODO: gem 'factory_bot_rails', '4.11.1'
+  gem 'factory_bot_rails', '~> 4.11.1'
 
   # coverage reports
   gem 'simplecov', '~> 0.17.1', require: false

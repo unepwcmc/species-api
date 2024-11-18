@@ -3,53 +3,53 @@ require 'test_helper'
 class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
   include ActiveSupport::Testing::TimeHelpers
   def setup
-    @user = FactoryGirl.create(:user)
-    @admin = FactoryGirl.create(:user, role: 'admin')
-    @contributor = FactoryGirl.create(:user, role: 'default')
-    @cites = FactoryGirl.create(:taxonomy, name: 'CITES_EU')
+    @user = FactoryBot.create(:user)
+    @admin = FactoryBot.create(:user, role: 'admin')
+    @contributor = FactoryBot.create(:user, role: 'default')
+    @cites = FactoryBot.create(:taxonomy, name: 'CITES_EU')
   end
 
   def create_common_names
-    @lang_en = FactoryGirl.create(:language, iso_code1: 'EN')
-    @lang_pl = FactoryGirl.create(:language, iso_code1: 'PL')
-    @lang_it = FactoryGirl.create(:language, iso_code1: 'IT')
+    @lang_en = FactoryBot.create(:language, iso_code1: 'EN')
+    @lang_pl = FactoryBot.create(:language, iso_code1: 'PL')
+    @lang_it = FactoryBot.create(:language, iso_code1: 'IT')
 
-    @en_name = FactoryGirl.create(:common_name, language: @lang_en)
-    @pl_name = FactoryGirl.create(:common_name, language: @lang_pl)
-    @it_name = FactoryGirl.create(:common_name, language: @lang_it)
+    @en_name = FactoryBot.create(:common_name, language: @lang_en)
+    @pl_name = FactoryBot.create(:common_name, language: @lang_pl)
+    @it_name = FactoryBot.create(:common_name, language: @lang_it)
 
-    @taxon_concept = FactoryGirl.create(:taxon_concept)
-    FactoryGirl.create(:taxon_common, common_name: @en_name, taxon_concept: @taxon_concept)
-    FactoryGirl.create(:taxon_common, common_name: @pl_name, taxon_concept: @taxon_concept)
-    FactoryGirl.create(:taxon_common, common_name: @it_name, taxon_concept: @taxon_concept)
+    @taxon_concept = FactoryBot.create(:taxon_concept)
+    FactoryBot.create(:taxon_common, common_name: @en_name, taxon_concept: @taxon_concept)
+    FactoryBot.create(:taxon_common, common_name: @pl_name, taxon_concept: @taxon_concept)
+    FactoryBot.create(:taxon_common, common_name: @it_name, taxon_concept: @taxon_concept)
   end
 
   def create_taxon_concept_tree
-    kingdom = FactoryGirl.create(:taxon_concept, taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'Animalia'),
-      rank: FactoryGirl.create(:rank, name: 'KINGDOM', display_name_en: 'Kingdom'))
+    kingdom = FactoryBot.create(:taxon_concept, taxon_name: FactoryBot.create(:taxon_name, scientific_name: 'Animalia'),
+      rank: FactoryBot.create(:rank, name: 'KINGDOM', display_name_en: 'Kingdom'))
 
-    phylum = FactoryGirl.create(:taxon_concept, parent: kingdom,
-      taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'Chordata'), rank: FactoryGirl.create(:rank, name: 'PHYLUM', display_name_en: 'Phylum'))
-    @klass = FactoryGirl.create(:taxon_concept, parent: phylum,
-      taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'Mammalia'),
-      rank: FactoryGirl.create(:rank, name: 'CLASS', display_name_en: 'Class')
+    phylum = FactoryBot.create(:taxon_concept, parent: kingdom,
+      taxon_name: FactoryBot.create(:taxon_name, scientific_name: 'Chordata'), rank: FactoryBot.create(:rank, name: 'PHYLUM', display_name_en: 'Phylum'))
+    @klass = FactoryBot.create(:taxon_concept, parent: phylum,
+      taxon_name: FactoryBot.create(:taxon_name, scientific_name: 'Mammalia'),
+      rank: FactoryBot.create(:rank, name: 'CLASS', display_name_en: 'Class')
     )
-    order = FactoryGirl.create(:taxon_concept, parent: @klass,
-      taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'Psittaciformes'),
-      rank: FactoryGirl.create(:rank, name: 'ORDER', display_name_en: 'Order')
+    order = FactoryBot.create(:taxon_concept, parent: @klass,
+      taxon_name: FactoryBot.create(:taxon_name, scientific_name: 'Psittaciformes'),
+      rank: FactoryBot.create(:rank, name: 'ORDER', display_name_en: 'Order')
     )
-    family = FactoryGirl.create(:taxon_concept, parent: order,
-      taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'Psittacidae'),
-      rank: FactoryGirl.create(:rank, name: 'FAMILY', display_name_en: 'Family')
+    family = FactoryBot.create(:taxon_concept, parent: order,
+      taxon_name: FactoryBot.create(:taxon_name, scientific_name: 'Psittacidae'),
+      rank: FactoryBot.create(:rank, name: 'FAMILY', display_name_en: 'Family')
     )
-    genus = FactoryGirl.create(:taxon_concept, parent: family,
-      taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'Psittacus'),
-      rank: FactoryGirl.create(:rank, name: 'GENUS', display_name_en: 'Genus')
+    genus = FactoryBot.create(:taxon_concept, parent: family,
+      taxon_name: FactoryBot.create(:taxon_name, scientific_name: 'Psittacus'),
+      rank: FactoryBot.create(:rank, name: 'GENUS', display_name_en: 'Genus')
     )
 
-    taxon_concept = FactoryGirl.create(:taxon_concept,
-      parent: genus, taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'WRGTEH'),
-      rank: FactoryGirl.create(:rank, name: 'SPECIES', display_name_en: "Species")
+    taxon_concept = FactoryBot.create(:taxon_concept,
+      parent: genus, taxon_name: FactoryBot.create(:taxon_name, scientific_name: 'WRGTEH'),
+      rank: FactoryBot.create(:rank, name: 'SPECIES', display_name_en: "Species")
     )
 
     ActiveRecord::Base.connection.execute(<<-SQL
@@ -59,36 +59,36 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
   end
 
   def create_canis_tree_and_taxon_concepts
-    order = FactoryGirl.create(:taxon_concept, parent: @klass,
-      taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'Carnivora'),
-      rank: FactoryGirl.create(:rank, name: 'ORDER', display_name_en: 'Order')
+    order = FactoryBot.create(:taxon_concept, parent: @klass,
+      taxon_name: FactoryBot.create(:taxon_name, scientific_name: 'Carnivora'),
+      rank: FactoryBot.create(:rank, name: 'ORDER', display_name_en: 'Order')
     )
-    family = FactoryGirl.create(:taxon_concept, parent: order,
-      taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'Canidae'),
-      rank: FactoryGirl.create(:rank, name: 'FAMILY', display_name_en: 'Family')
+    family = FactoryBot.create(:taxon_concept, parent: order,
+      taxon_name: FactoryBot.create(:taxon_name, scientific_name: 'Canidae'),
+      rank: FactoryBot.create(:rank, name: 'FAMILY', display_name_en: 'Family')
     )
 
-    genus_rank = FactoryGirl.create(:rank, name: 'GENUS', display_name_en: 'Genus')
+    genus_rank = FactoryBot.create(:rank, name: 'GENUS', display_name_en: 'Genus')
 
-    genus = FactoryGirl.create(:taxon_concept, parent: family,
-      taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'Canis'),
+    genus = FactoryBot.create(:taxon_concept, parent: family,
+      taxon_name: FactoryBot.create(:taxon_name, scientific_name: 'Canis'),
       rank: genus_rank
     )
 
-    other_genus = FactoryGirl.create(:taxon_concept, parent: family,
-      taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'Testus'),
+    other_genus = FactoryBot.create(:taxon_concept, parent: family,
+      taxon_name: FactoryBot.create(:taxon_name, scientific_name: 'Testus'),
       rank: genus_rank
     )
 
-    species_rank = FactoryGirl.create(:rank, name: 'SPECIES', display_name_en: "Species")
+    species_rank = FactoryBot.create(:rank, name: 'SPECIES', display_name_en: "Species")
 
-    taxon_concept = FactoryGirl.create(:taxon_concept,
-      parent: genus, taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'lupus'),
+    taxon_concept = FactoryBot.create(:taxon_concept,
+      parent: genus, taxon_name: FactoryBot.create(:taxon_name, scientific_name: 'lupus'),
       rank: species_rank
     )
 
-    other_taxon_concept = FactoryGirl.create(:taxon_concept,
-      parent: other_genus, taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'Canis'),
+    other_taxon_concept = FactoryBot.create(:taxon_concept,
+      parent: other_genus, taxon_name: FactoryBot.create(:taxon_name, scientific_name: 'Canis'),
       rank: species_rank
     )
 
@@ -125,8 +125,8 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
   end
 
   test "should return page 1 with pagination headers" do
-    tc = FactoryGirl.create(:taxon_concept, taxonomy: @cites)
-    FactoryGirl.create(:taxon_concept, taxonomy: @cites)
+    tc = FactoryBot.create(:taxon_concept, taxonomy: @cites)
+    FactoryBot.create(:taxon_concept, taxonomy: @cites)
 
     @request.headers["X-Authentication-Token"] = @user.authentication_token
     get :index, params: { per_page: 1 }
@@ -140,7 +140,7 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
   end
 
   test "should return deleted taxa with active=false" do
-    tc = FactoryGirl.create(:taxon_concept, taxonomy: @cites)
+    tc = FactoryBot.create(:taxon_concept, taxonomy: @cites)
     tc.destroy # version object is stored at this point
 
     @request.headers["X-Authentication-Token"] = @user.authentication_token
@@ -153,10 +153,10 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
 
   test "filters results by date with 'updated_since' params" do
     travel -1.year do
-      FactoryGirl.create(:taxon_concept, taxonomy: @cites)
+      FactoryBot.create(:taxon_concept, taxonomy: @cites)
     end
     travel -1.month do
-      FactoryGirl.create(:taxon_concept, taxonomy: @cites)
+      FactoryBot.create(:taxon_concept, taxonomy: @cites)
     end
     @request.headers["X-Authentication-Token"] = @user.authentication_token
 
@@ -168,11 +168,11 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
   test "returns taxa with self or dependents updated_since" do
     tc = nil
     travel -1.year do
-      tc = FactoryGirl.create(:taxon_concept, taxonomy: @cites)
-      FactoryGirl.create(:taxon_concept, taxonomy: @cites)
+      tc = FactoryBot.create(:taxon_concept, taxonomy: @cites)
+      FactoryBot.create(:taxon_concept, taxonomy: @cites)
     end
     travel -1.month do
-      FactoryGirl.create(:distribution, taxon_concept: tc, updated_at: 1.month.ago)
+      FactoryBot.create(:distribution, taxon_concept: tc, updated_at: 1.month.ago)
     end
     @request.headers["X-Authentication-Token"] = @user.authentication_token
 
@@ -182,16 +182,16 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
   end
 
   test "filters results by name with 'name' params (case insensitive)" do
-    FactoryGirl.create(
+    FactoryBot.create(
       :taxon_concept,
-      taxon_name: FactoryGirl.create(
+      taxon_name: FactoryBot.create(
         :taxon_name, scientific_name: "John Hammond"
       ),
       taxonomy: @cites
     )
-    FactoryGirl.create(
+    FactoryBot.create(
       :taxon_concept,
-      taxon_name: FactoryGirl.create(
+      taxon_name: FactoryBot.create(
         :taxon_name, scientific_name: "Ingen"
       ),
       taxonomy: @cites
@@ -233,9 +233,9 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
   end
 
   test "filters results by name with 'taxonomy' params" do
-    cms = FactoryGirl.create(:taxonomy, name: 'CMS')
-    cites_tc = FactoryGirl.create(:taxon_concept, taxonomy: @cites)
-    cms_tc = FactoryGirl.create(:taxon_concept, taxonomy: cms)
+    cms = FactoryBot.create(:taxonomy, name: 'CMS')
+    cites_tc = FactoryBot.create(:taxon_concept, taxonomy: @cites)
+    cms_tc = FactoryBot.create(:taxon_concept, taxonomy: cms)
     @request.headers["X-Authentication-Token"] = @user.authentication_token
 
     get :index, params: { taxonomy: "CMS" }
@@ -279,8 +279,8 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
   end
 
   test "it records a request with params" do
-    FactoryGirl.create(:taxon_concept, taxonomy: @cites, updated_at: 1.year.ago)
-    FactoryGirl.create(:taxon_concept, taxonomy: @cites, updated_at: 1.month.ago)
+    FactoryBot.create(:taxon_concept, taxonomy: @cites, updated_at: 1.year.ago)
+    FactoryBot.create(:taxon_concept, taxonomy: @cites, updated_at: 1.month.ago)
     @request.headers["X-Authentication-Token"] = @user.authentication_token
 
     assert_difference 'ApiRequest.count' do

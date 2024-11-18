@@ -1,6 +1,6 @@
 Dir[Rails.root.join("test/support/models/*.rb")].each {|f| require f}
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :event, class: Test::Event do
     sequence(:name) {|n| "CoP#{n}"}
     effective_at { '2014-12-01' }

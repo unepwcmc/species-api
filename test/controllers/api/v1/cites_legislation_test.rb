@@ -2,49 +2,49 @@ require 'test_helper'
 
 class Api::V1::CitesLegislationControllerTest < ActionController::TestCase
   def setup
-    @user = FactoryGirl.create(:user)
-    @admin = FactoryGirl.create(:user, role: 'admin')
-    @contributor = FactoryGirl.create(:user, role: 'default')
-    @taxonomy = FactoryGirl.create(:taxonomy, name: 'CITES_EU')
-    @taxon_concept = FactoryGirl.create(:taxon_concept,
+    @user = FactoryBot.create(:user)
+    @admin = FactoryBot.create(:user, role: 'admin')
+    @contributor = FactoryBot.create(:user, role: 'default')
+    @taxonomy = FactoryBot.create(:taxonomy, name: 'CITES_EU')
+    @taxon_concept = FactoryBot.create(:taxon_concept,
       taxonomy: @taxonomy,
-      parent: FactoryGirl.create(:taxon_concept,
-        rank: FactoryGirl.create(:rank, name: 'GENUS', display_name_en: 'Genus'),
-        taxon_name: FactoryGirl.create(:taxon_name, scientific_name: 'Canis')
+      parent: FactoryBot.create(:taxon_concept,
+        rank: FactoryBot.create(:rank, name: 'GENUS', display_name_en: 'Genus'),
+        taxon_name: FactoryBot.create(:taxon_name, scientific_name: 'Canis')
       )
     )
-    @country_geo_entity_type = FactoryGirl.create(:geo_entity_type, name: 'COUNTRY')
-    @geo_entity = FactoryGirl.create(:geo_entity, geo_entity_type: @country_geo_entity_type)
-    @cites_designation = FactoryGirl.create(:designation, taxonomy: @taxonomy, name: 'CITES')
-    @taxon_level_suspension = FactoryGirl.create(:cites_suspension, taxon_concept: @taxon_concept)
-    @distribution = FactoryGirl.create(:distribution, taxon_concept: @taxon_concept, geo_entity: @geo_entity)
-    @global_suspension = FactoryGirl.create(:cites_suspension, geo_entity: @geo_entity, taxon_concept: nil)
-    @historic_suspension = FactoryGirl.create(:cites_suspension, taxon_concept: @taxon_concept, is_current: false)
-    @taxon_level_quota = FactoryGirl.create(:quota, taxon_concept: @taxon_concept)
-    @global_quota = FactoryGirl.create(:quota, geo_entity: @geo_entity, taxon_concept: nil)
-    @historic_quota = FactoryGirl.create(:quota, taxon_concept: @taxon_concept, is_current: false)
-    @addition_change_type = FactoryGirl.create(:change_type, designation: @cites_designation, name: 'ADDITION')
-    @deletion_change_type = FactoryGirl.create(:change_type, designation: @cites_designation, name: 'DELETION')
-    @reservation_change_type = FactoryGirl.create(:change_type, designation: @cites_designation, name: 'RESERVATION')
-    @appendixI_species_listing = FactoryGirl.create(:species_listing,
+    @country_geo_entity_type = FactoryBot.create(:geo_entity_type, name: 'COUNTRY')
+    @geo_entity = FactoryBot.create(:geo_entity, geo_entity_type: @country_geo_entity_type)
+    @cites_designation = FactoryBot.create(:designation, taxonomy: @taxonomy, name: 'CITES')
+    @taxon_level_suspension = FactoryBot.create(:cites_suspension, taxon_concept: @taxon_concept)
+    @distribution = FactoryBot.create(:distribution, taxon_concept: @taxon_concept, geo_entity: @geo_entity)
+    @global_suspension = FactoryBot.create(:cites_suspension, geo_entity: @geo_entity, taxon_concept: nil)
+    @historic_suspension = FactoryBot.create(:cites_suspension, taxon_concept: @taxon_concept, is_current: false)
+    @taxon_level_quota = FactoryBot.create(:quota, taxon_concept: @taxon_concept)
+    @global_quota = FactoryBot.create(:quota, geo_entity: @geo_entity, taxon_concept: nil)
+    @historic_quota = FactoryBot.create(:quota, taxon_concept: @taxon_concept, is_current: false)
+    @addition_change_type = FactoryBot.create(:change_type, designation: @cites_designation, name: 'ADDITION')
+    @deletion_change_type = FactoryBot.create(:change_type, designation: @cites_designation, name: 'DELETION')
+    @reservation_change_type = FactoryBot.create(:change_type, designation: @cites_designation, name: 'RESERVATION')
+    @appendixI_species_listing = FactoryBot.create(:species_listing,
       designation: @cites_designation, name: 'Appendix I', abbreviation: 'I'
     )
-    @appendixII_species_listing = FactoryGirl.create(:species_listing,
+    @appendixII_species_listing = FactoryBot.create(:species_listing,
       designation: @cites_designation, name: 'Appendix II', abbreviation: 'II'
     )
-    @appendixI_listing = FactoryGirl.create(:listing_change,
+    @appendixI_listing = FactoryBot.create(:listing_change,
       taxon_concept: @taxon_concept,
       change_type: @addition_change_type,
       species_listing: @appendixI_species_listing,
       is_current: true
     )
-    @appendixI_reservation = FactoryGirl.create(:listing_change,
+    @appendixI_reservation = FactoryBot.create(:listing_change,
       taxon_concept: @taxon_concept,
       change_type: @reservation_change_type,
       species_listing: @appendixI_species_listing,
       is_current: true
     )
-    @appendixII_listing = FactoryGirl.create(:listing_change,
+    @appendixII_listing = FactoryBot.create(:listing_change,
       taxon_concept: @taxon_concept,
       change_type: @addition_change_type,
       species_listing: @appendixII_species_listing,

@@ -20,7 +20,7 @@
 #  authentication_token   :string(255)
 #
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :user do
     name { 'John' }
     sequence(:email) { |n| "user#{n}@example.com" }

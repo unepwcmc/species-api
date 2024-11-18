@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :designation, class: Test::Designation do
     association :taxonomy
     name { 'CITES' }

@@ -1,6 +1,6 @@
 Dir[Rails.root.join("test/support/models/*.rb")].each {|f| require f}
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :taxon_concept_reference, class: Test::TaxonConceptReference do
     association :taxon_concept
     association :reference

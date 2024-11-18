@@ -2,7 +2,7 @@ require 'test_helper'
 
 class UserSignsUpTest < ActionDispatch::IntegrationTest
   def setup
-    @user = FactoryGirl.build(:user)
+    @user = FactoryBot.build(:user)
   end
 
   test "user signs up with valid information" do
@@ -20,7 +20,7 @@ class UserSignsUpTest < ActionDispatch::IntegrationTest
   end
 
   test "user signs up without organisation" do
-    @user = FactoryGirl.build(:user, organisation: nil)
+    @user = FactoryBot.build(:user, organisation: nil)
     assert_no_difference 'User.count' do
       sign_up @user
     end

@@ -1,6 +1,6 @@
 Dir[Rails.root.join("test/support/models/*.rb")].each {|f| require f}
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :eu_decision, class: Test::EuDecision do
     association :taxon_concept
     association :geo_entity

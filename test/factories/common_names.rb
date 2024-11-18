@@ -1,6 +1,6 @@
 Dir[Rails.root.join("test/support/models/*.rb")].each {|f| require f}
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :common_name, class: Test::CommonName do
     sequence(:name) { |n| "Common name #{n}" }
     association :language
