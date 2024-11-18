@@ -45,7 +45,7 @@ group :test do
   # UPGRADE TODO: Shoulda is tested and supported against Ruby 3.0+, Rails 6.1+,
   # RSpec 3.x, Minitest 4.x, and Test::Unit 3.x. For Ruby < 3 and Rails < 6.1
   # compatibility, please use v4.0.0.
-  gem 'shoulda', '~> 4'
+  gem 'shoulda', '~> 5.0.0.rc1'
 
   # Integration testing
   gem 'capybara', '~> 2.8'
