@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 
   get 'dashboard/index', as: 'dashboard'
   post 'dashboard/generate_new_token', to: 'dashboard#generate_new_token', as: 'generate_new_token'
@@ -19,6 +20,4 @@ Rails.application.routes.draw do
   apipie
   match 'nomenclature' => 'static_pages#nomenclature', :via => [:get]
   root 'static_pages#index'
-
-  # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 end
