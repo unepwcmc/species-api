@@ -5,8 +5,7 @@ gem 'rails', '5.2.8.1'
 # Dependency resolution for Rails 5
 gem 'railties', '5.2.8.1'
 gem 'loofah', '~> 2.19.1'
-gem 'nokogiri', '~> 1.6.0'
-gem 'rails-dom-testing', '~> 2.0', '< 2.2.0'
+gem 'rails-dom-testing', '~> 2.2.0'
 
 # Use Puma as the app server
 gem 'puma', '~> 3.11'
@@ -100,7 +99,7 @@ gem 'turbolinks', '~> 2.5.3'
 gem 'rabl', '~> 0.14.0'
 
 # Also add either `oj` or `yajl-ruby` as the JSON parser
-gem 'oj', '~> 2.12.1'
+gem 'oj', '~> 3'
 
 # bundle exec rake doc:rails generates the API under doc/api.
 gem 'sdoc', '~> 0.4.0', group: :doc
@@ -135,7 +134,7 @@ end
 
 group :development, :test do
   # A better debugger
-  gem 'byebug', '~> 4.0.2'
+  gem 'byebug', '~> 10.0.2'
 end
 
 # Error monitoring
