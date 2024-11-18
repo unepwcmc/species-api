@@ -1,11 +1,8 @@
 source 'https://rubygems.org'
 
-gem 'rails', '6.0.6.1'
+gem 'rails', '6.1.7.10'
 
-# Fix error:
-# > visit_Psych_Nodes_Alias: Alias parsing was not enabled.
-# > To enable it, pass `aliases: true` to `Psych::load` or `Psych::safe_load`.
-gem 'psych', '< 4'
+gem 'psych', '~> 4'
 
 # Use Puma as the app server
 gem 'puma', '~> 4.1'
@@ -27,7 +24,7 @@ gem 'compass', '~> 1.0.3'
 gem 'compass-rails', '~> 4.0.0'
 
 # Frontend components
-gem 'select2-rails', '~> 3.5.9.3'
+gem 'select2-rails', '~> 4.0.13'
 gem 'chartkick', '~> 1.3.2'
 
 # Provides group_by_day et al. on ActiveRecord models and queries
