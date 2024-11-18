@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 gem 'rails', '4.2.5.2'
 gem 'apipie-rails' # Documentation
-gem 'devise', '>= 3.5.4'
+gem 'devise', '>= 3.5.10'
 gem 'annotate'
 gem 'sass-rails'#,   '~> 3.2.3'
 gem 'uglifier'#, '>= 1.0.3'
@@ -62,6 +62,12 @@ group :development do
   gem 'capistrano-maintenance', '~> 1.0', require: false
   gem 'capistrano-passenger', '~> 0.1.1', require: false
   gem 'rack-cors', :require => 'rack/cors'
+
+  # Support ed25519 SSH keys
+  gem 'rbnacl', '4.0.2'
+  gem 'rbnacl-libsodium', '1.0.16'
+  gem 'bcrypt_pbkdf', '1.1.0'
+  gem 'ed25519', '1.2.4'
 end
 
 group :development, :test do

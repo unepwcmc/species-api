@@ -1,6 +1,6 @@
 class Api::V1::TaxonConceptsController < Api::V1::BaseController
   after_action only: [:index] { set_pagination_headers(:taxon_concepts) }
-  before_action :validate_params, only: [:index]
+  before_action :validate_params, :set_eu_listings_display, only: [:index]
 
   resource_description do
     formats ['JSON', 'XML']
@@ -25,6 +25,8 @@ The following taxon concept fields are returned:
 [common_names] list of common names (with language given by ISO 639-1 code; only for accepted names) [name, language max 255 characters]
 [cites_listing] value of current CITES listing (as per CITES Checklist). When taxon concept is removed from appendices this becomes +NC+. When taxon is split listed it becomes a concatenation of appendix symbols, e.g. +I/II/NC+ (only for accepted names) [max 255 characters]
 [cites_listings] list of current CITES listings with annotations (there will be more than one element in this list in case of split listings; only for accepted names) [appendix max 255 characters; annotation, hash_annotation unlimited length]
+[eu_listing] value of current EU listing. When taxon concept is removed from annexes this becomes +NC+. When taxon is split listed it becomes a concatenation of annex symbols, e.g. +A/B/NC+ (only for accepted names) [max 255 characters]
+[eu_listings] list of current EU listings with annotations (there will be more than one element in this list in case of split listings; only for accepted names) [appendix max 255 characters; annotation, hash_annotation unlimited length]
 [accepted_names] list of accepted names (only for synonyms, i.e. name_status == S) [full_name, author_year and rank follow the same length constraints as respective properties of the main taxon concept]
 
 ==== Note on deleted taxon concepts
@@ -63,6 +65,7 @@ For convenience, a 'pagination' meta object is also included in the body of the 
   param :with_descendants, String, desc: 'Broadens the above search by name to include higher taxa. Value must be true or false', required: false
   param :taxonomy, String, desc: 'Filter taxon concepts by taxonomy, accepts either CITES or CMS as its value. Defaults to CITES if no value is specified', required: false
   param :language, String, desc: 'Filter languages returned for common names. Value should be a single country code or a comma separated string of country codes (e.g. language=EN,PL,IT). Defaults to showing all available languages if no language parameter is specified', required: false
+  param :with_eu_listings, String, desc: 'Include EU listing data. Value must be true or false, defaults to false', required: false
 
   example <<-EOS
   {
@@ -124,6 +127,24 @@ For convenience, a 'pagination' meta object is also included in the body of the 
             "appendix":"I",
             "annotation":"Included in Appendix I, except the populations of Botswana, Namibia, South Africa and Zimbabwe, which are included in Appendix II.",
             "hash_annotation":null
+          }
+        ],
+        "eu_listings":[
+          {
+            "id":"32796"
+            "annex":"A"
+            "annotation":"Except for the populations of Botswana, Namibia, South Africa and Zimbabwe, which are included in Annex B."
+            "hash_annotation":nil
+            "effective_at":"2022-01-19"
+            "party":nil
+          },
+          {
+            "id":"34129"
+            "annex":"B"
+            "annotation":"Only the populations of Botswana, Namibia, South Africa and Zimbabwe; all other populations are included in Annex A. [...]"
+            "hash_annotation":nil
+            "effective_at":"2022-01-19"
+            "party":nil
           }
         ]
       }
@@ -194,6 +215,24 @@ For convenience, a 'pagination' meta object is also included in the body of the 
             <hash-annotation nil="true"/>
           </cites-listing>
         </cites-listings>
+        <eu-listings>
+          <eu-listing>
+            <id type="integer">32796</id>
+            <annex>A</annex>
+            <annotation>Except for the populations of Botswana, Namibia, South Africa and Zimbabwe, which are [...]</annotation>
+            <hash-annotation inl="true"/>
+            <effective-at>2022-01-19</effective-at>
+            <party nil="true"/>
+          </eu-listing>
+          <eu-listing>
+            <id type="integer">34129</id>
+            <annex>B</annex>
+            <annotation>Only the populations of Botswana, Namibia, South Africa and Zimbabwe; all other populations are [...]</annotation>
+            <hash-annotation inl="true"/>
+            <effective-at>2022-01-19</effective-at>
+            <party nil="true"/>
+          </eu-listing>
+        </eu-listings>
       </taxon-concept>
     </taxon-concepts>
   </hash>
@@ -272,10 +311,14 @@ For convenience, a 'pagination' meta object is also included in the body of the 
     @languages = params[:language].delete(' ').split(',').map! { |lang| lang.upcase } unless params[:language].nil?
   end
 
+  def set_eu_listings_display
+    @eu_listings = params[:with_eu_listings]
+  end
+
   def permitted_params
     [
       :page, :per_page, :updated_since, :name,
-      :with_descendants, :taxonomy, :language, :format
+      :with_descendants, :taxonomy, :language, :format, :with_eu_listings
     ]
   end
 
@@ -285,7 +328,8 @@ For convenience, a 'pagination' meta object is also included in the body of the 
       :updated_since,
       :page,
       :per_page,
-      :with_descendants
+      :with_descendants,
+      :with_eu_listings
     ].each do |param|
       unless send(:"validate_#{param}_format")
         track_api_error("Invalid parameter format: #{param}", 400) and return
@@ -318,5 +362,10 @@ For convenience, a 'pagination' meta object is also included in the body of the 
   def validate_with_descendants_format
     return true unless params[:with_descendants]
     /^(true|false)$/.match(params[:with_descendants])
+  end
+
+  def validate_with_eu_listings_format
+    return true unless params[:with_eu_listings]
+    /^(true|false)$/.match(params[:with_eu_listings])
   end
 end

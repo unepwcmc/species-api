@@ -1,5 +1,5 @@
 set :stage, :staging
-set :branch, :master
+set :branch, ENV['CAP_BRANCH'] || 'master' # note, not develop, oddly.
 
 server "sapi-staging.linode.unep-wcmc.org", user: "wcmc", roles: %w{app web db}
 
