@@ -34,7 +34,7 @@ gem 'select2-rails', '~> 3.5.9.3'
 gem 'chartkick', '~> 1.3.2'
 
 # Provides group_by_day et al. on ActiveRecord models and queries
-gem 'groupdate', '~> 4.0.0'
+gem 'groupdate', '~> 6.2.1'
 
 # pagination
 gem 'will_paginate', '~> 4.0.0'
