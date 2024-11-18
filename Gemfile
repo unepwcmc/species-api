@@ -8,12 +8,12 @@ gem 'rails', '6.0.6.1'
 gem 'psych', '< 4'
 
 # Use Puma as the app server
-gem 'puma', '~> 3.11'
+gem 'puma', '~> 4.1'
 
 gem 'apipie-rails', '~> 0.6'
 
 # devise provides authentication
-gem 'devise', '>= 3.5.10'
+gem 'devise', '~> 4.9.4'
 
 # annotate maintains comments at the top of model files describing the schema,
 # using the database as the source of truth
@@ -35,7 +35,7 @@ gem 'groupdate', '~> 6.2.1'
 
 # pagination
 gem 'will_paginate', '~> 4.0.0'
-gem 'api_pagination_headers', '>= 2.1.1'
+gem 'api_pagination_headers', '~> 2.1.1'
 
 # i18n
 gem 'traco', '~> 5.3.3' # TODO: switch to mobility
@@ -96,7 +96,7 @@ gem 'jquery-rails', '~> 4.6.0'
 gem 'turbolinks', '~> 2.5.3'
 
 # Build JSON / XML API
-gem 'rabl', '~> 0.14.0'
+gem 'rabl', '~> 0.16.1'
 
 # Also add either `oj` or `yajl-ruby` as the JSON parser
 gem 'oj', '~> 3'
@@ -105,12 +105,12 @@ gem 'oj', '~> 3'
 gem 'sdoc', '~> 1.1.0', group: :doc
 
 # Reduces boot times through caching; required in config/boot.rb
-gem 'bootsnap', '>= 1.1.0', require: false
+gem 'bootsnap', '~> 1.18.4', require: false
 
 group :development do
   # Access an interactive console on exception pages or by calling 'console' anywhere in the code.
   gem 'web-console', '~> 3.7.0'
-  gem 'listen', '>= 3.0.5', '< 3.2'
+  gem 'listen', '~> 3.2'
 
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring', '~> 1.6.4'
