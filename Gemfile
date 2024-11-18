@@ -19,9 +19,6 @@ gem 'annotate', '3.1.0'
 # Frontend CSS and minification
 gem 'sass-rails', '~> 5.0.8'
 gem 'uglifier', '~> 2.7.2'
-gem 'susy', '~> 2.2.14'
-gem 'compass', '~> 1.0.3'
-gem 'compass-rails', '~> 4.0.0'
 
 # Frontend components
 gem 'select2-rails', '~> 4.0.13'
