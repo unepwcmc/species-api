@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '6.1.7.10'
+gem 'rails', '7.0.8.6'
 
 gem 'psych', '~> 4'
 
@@ -12,9 +12,9 @@ gem 'apipie-rails', '~> 0.6'
 # devise provides authentication
 gem 'devise', '~> 4.9.4'
 
-# annotate maintains comments at the top of model files describing the schema,
-# using the database as the source of truth
-gem 'annotate', '3.1.0'
+# Maintains comments at the top of model files describing the schema,
+# using the database as the source of truth (replaces annotate).
+gem 'annotaterb', '~> 4.13.0'
 
 # Frontend CSS and minification
 gem 'sass-rails', '~> 5.0.8'
