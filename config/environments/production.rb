@@ -1,7 +1,5 @@
 require 'active_support/core_ext/integer/time'
 
-mailer_secrets = Rails.application.credentials[:mailer]
-
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
@@ -103,6 +101,7 @@ Rails.application.configure do
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
 
+  mailer_secrets = Rails.application.credentials[:mailer]
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.asset_host = mailer_secrets[:asset_host]
   config.action_mailer.default_url_options = { :host => mailer_secrets[:host] }
