@@ -2,6 +2,9 @@ source 'https://rubygems.org'
 
 gem 'rails', '7.1.5'
 
+# must be 0.1.1 or deploy fails, due to conflict with bundler
+gem 'base64', '0.1.1'
+
 gem 'psych', '~> 4'
 
 # Use Puma as the app server
