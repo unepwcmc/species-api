@@ -104,16 +104,16 @@ Rails.application.configure do
   config.active_record.dump_schema_after_migration = false
 
   config.action_mailer.delivery_method = :smtp
-  config.action_mailer.asset_host = mailer_secrets['asset_host']
-  config.action_mailer.default_url_options = { :host => mailer_secrets['host'] }
+  config.action_mailer.asset_host = mailer_secrets[:asset_host]
+  config.action_mailer.default_url_options = { :host => mailer_secrets[:host] }
   config.action_mailer.smtp_settings = {
     :enable_starttls_auto => true,
-    :address => mailer_secrets['address'],
+    :address => mailer_secrets[:address],
     :port => 587,
-    :domain => mailer_secrets['domain'],
-    :authentication => 'login',
-    :user_name => mailer_secrets['username'],
-    :password => mailer_secrets['password']
+    :domain => mailer_secrets[:domain],
+    :authentication => :login,
+    :user_name => mailer_secrets[:username],
+    :password => mailer_secrets[:password]
   }
 
   # Inserts middleware to perform automatic connection switching.
