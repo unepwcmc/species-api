@@ -52,7 +52,6 @@ group :test do
 
   # coverage reports
   gem 'simplecov', '~> 0.17.1', require: false
-  # gem 'codeclimate-test-reporter', require: nil # UPGRADE: removed
 
   # Used in test/controllers/api/v1/taxon_concepts_test.rb to parse HTTP
   # link headers and verify they're correct

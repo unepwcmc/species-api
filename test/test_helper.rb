@@ -4,12 +4,6 @@ ENV['RAILS_ENV'] ||= 'test'
 
 formatters = [SimpleCov::Formatter::HTMLFormatter]
 
-if ENV['CODECLIMATE_REPO_TOKEN']
-  require 'codeclimate-test-reporter'
-  formatters.push CodeClimate::TestReporter::Formatter
-end
-
-
 SimpleCov.formatter SimpleCov::Formatter::MultiFormatter.new([*formatters])
 SimpleCov.start 'rails'
 SimpleCov.command_name 'test'
