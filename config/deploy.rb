@@ -58,18 +58,4 @@ set :appsignal_config,
   push_api_key: secrets['appsignal_push_api_key'],
   active: true
 
-set :slack_token, secrets['slack_exception_notification_webhook_url'] # comes from inbound webhook integration
-set :slack_room, '#speciesplus' # the room to send the message to
-set :slack_subdomain, 'wcmc' # if your subdomain is example.slack.com
-
-set :slack_application, 'SAPI' # override Capistrano `application`
-deployment_plants = [
-  [ 'Ophrys apifera', ':white_flower:' ],
-]
-
-shuffle_deployer = deployment_plants.shuffle.first
-
-set :slack_username, shuffle_deployer[0] # displayed as name of message sender
-set :slack_emoji, shuffle_deployer[1] # will be used as the avatar for the message
-
 require 'appsignal/capistrano'
