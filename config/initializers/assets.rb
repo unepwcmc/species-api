@@ -10,3 +10,8 @@ Rails.application.config.assets.version = '1.0'
 # application.js, application.css, and all non-JS/CSS in the app/assets
 # folder are already added.
 # Rails.application.config.assets.precompile += %w( admin.js admin.css )
+
+# select2-rails 3.5.10 https://rubygems.org/gems/select2-rails/versions/3.5.10
+Rails.application.config.assets.precompile += %w[
+  select2.png select2-spinner.gif select2x2.png
+]

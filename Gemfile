@@ -18,7 +18,7 @@ gem 'annotaterb', '~> 4.13.0'
 
 # Frontend CSS and minification
 gem 'sass-rails', '~> 5.0.8'
-gem 'uglifier', '~> 2.7.2'
+gem 'terser', '~> 1.2.3'
 
 # Frontend components
 gem 'select2-rails', '~> 4.0.13'
@@ -110,6 +110,7 @@ group :development do
   gem 'capistrano', '3.18.0', require: false
   gem 'capistrano-rails', '1.6.3', require: false
   gem 'capistrano-bundler', '1.6.0', require: false
+  gem 'capistrano-local-precompile', '1.2.0', require: false # NB: buggy on Ruby 3.2 - see comment in Capfile
   gem 'capistrano-rvm', '0.1.2', require: false
   gem 'capistrano-maintenance', '1.0.0', require: false
   gem 'capistrano-passenger', '0.2.0', require: false
