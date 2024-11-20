@@ -106,12 +106,14 @@ group :development do
   gem 'spring-watcher-listen', '~> 2.1.0'
 
   # Capistrano for rails deployment
-  gem 'capistrano', '~> 3.4.0'
-  gem 'capistrano-rails', '~> 1.6.3'
-  gem 'capistrano-bundler', '~> 2.1.1'
-  gem 'capistrano-rvm', '~> 0.1.2'
-  gem 'capistrano-maintenance', '~> 1.0', require: false
-  gem 'capistrano-passenger', '~> 0.1.1', require: false
+  # Deploy with Capistrano
+  gem 'capistrano', '3.18.0', require: false
+  gem 'capistrano-rails', '1.6.3', require: false
+  gem 'capistrano-bundler', '1.6.0', require: false
+  gem 'capistrano-rvm', '0.1.2', require: false
+  gem 'capistrano-maintenance', '1.0.0', require: false
+  gem 'capistrano-passenger', '0.2.0', require: false
+  gem 'slackistrano', '0.1.9', require: false
   gem 'rack-cors', :require => 'rack/cors'
 
   # Support ed25519 SSH keys
