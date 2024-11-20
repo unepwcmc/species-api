@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '7.0.8.6'
+gem 'rails', '7.1.5'
 
 gem 'psych', '~> 4'
 
@@ -71,11 +71,6 @@ end
 
 # Use postgresql as the database for Active Record
 gem 'pg', '~> 1.2'
-
-# gem 'schema_plus', '~> 2.1.0' # was 1.8.7
-gem 'schema_associations', '~> 1.4.0';
-gem 'schema_auto_foreign_keys', '~> 1.1.0';
-gem 'schema_validations', '~> 2.4.1';
 
 # Use CoffeeScript for .js.coffee assets and views
 gem 'coffee-rails', '~> 5.0.0'
