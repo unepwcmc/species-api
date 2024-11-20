@@ -34,7 +34,7 @@ require 'capistrano/rvm'
 # require 'capistrano/rbenv'
 # require 'capistrano/chruby'
 require 'capistrano/bundler'
-require 'capistrano/rails/assets'
+require 'capistrano/rails/assets' # If this ever takes too long
 # require 'capistrano/local_precompile'
 
 # we don't ever want to run schema patches, the db is controlled by SAPI not species-api
