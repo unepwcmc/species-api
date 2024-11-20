@@ -2,6 +2,14 @@
 require 'dotenv'
 Dotenv.load
 
+# capistrano-local-precompile is buggy on Ruby 3.2 - it uses the deprecated
+# `Dir.exists?` instead of `Dir.exist?`. This monkey-patches the old method
+# back in. The issue was reported and a patch submitted in 2022:
+#
+# - https://github.com/stve/capistrano-local-precompile/issues/37
+# - https://github.com/stve/capistrano-local-precompile/pull/38
+require 'file_exists'
+
 # Load DSL and set up stages
 require 'capistrano/setup'
 
@@ -24,10 +32,12 @@ require 'capistrano/rvm'
 # require 'capistrano/chruby'
 require 'capistrano/bundler'
 require 'capistrano/rails/assets'
-require 'capistrano/rails/migrations'
+
+# we don't ever want to run schema patches, the db is controlled by SAPI not species-api
+# require 'capistrano/rails/migrations'
 require 'capistrano/passenger'
 require 'capistrano/maintenance'
-require 'slackistrano/capistrano'
+require 'slackistrano'
 
 # Load custom tasks from `lib/capistrano/tasks` if you have any defined
 Dir.glob('lib/capistrano/tasks/*.rake').each { |r| import r }
