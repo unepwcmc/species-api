@@ -1,5 +1,6 @@
-mailer_secrets = Rails.application.secrets.mailer
 require 'active_support/core_ext/integer/time'
+
+mailer_secrets = Rails.application.credentials[:mailer]
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
