@@ -313,9 +313,6 @@ GEM
       json (>= 1.8, < 3)
       simplecov-html (~> 0.10.0)
     simplecov-html (0.10.2)
-    slackistrano (0.1.9)
-      capistrano (>= 3.0.1)
-      json
     spring (4.0.0)
     spring-watcher-listen (2.1.0)
       listen (>= 2.7, < 4.0)
@@ -408,7 +405,6 @@ DEPENDENCIES
   select2-rails (~> 4.0.13)
   shoulda (~> 5.0.0.rc1)
   simplecov (~> 0.17.1)
-  slackistrano (= 0.1.9)
   spring (~> 4.0.0)
   spring-watcher-listen (~> 2.1.0)
   terser (~> 1.2.3)

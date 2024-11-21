@@ -42,9 +42,6 @@ gem 'httparty', '~> 0.22'
 
 group :test do
   # Test assertion library.
-  # UPGRADE TODO: Shoulda is tested and supported against Ruby 3.0+, Rails 6.1+,
-  # RSpec 3.x, Minitest 4.x, and Test::Unit 3.x. For Ruby < 3 and Rails < 6.1
-  # compatibility, please use v4.0.0.
   gem 'shoulda', '~> 5.0.0.rc1'
 
   # Integration testing
@@ -60,9 +57,6 @@ group :test do
   # link headers and verify they're correct
   gem 'link_header', '~> 0.0.8'
 
-  # For laun
-  # gem 'launchy', '~> 2.4.3'
-
   # Mocks and stubs. Not equivalent to https://mochajs.org/
   gem 'mocha', '~> 1.1.0'
 end
@@ -76,9 +70,6 @@ gem 'pg', '~> 1.2'
 
 # Use CoffeeScript for .js.coffee assets and views
 gem 'coffee-rails', '~> 5.0.0'
-
-# See https://github.com/sstephenson/execjs#readme for more supported runtimes
-# gem 'therubyracer',  platforms: :ruby
 
 # Use jquery as the JavaScript library
 gem 'jquery-rails', '~> 4.6.0'
@@ -108,7 +99,6 @@ group :development do
   gem 'spring-watcher-listen', '~> 2.1.0'
 
   # Capistrano for rails deployment
-  # Deploy with Capistrano
   gem 'capistrano', '3.18.0', require: false
   gem 'capistrano-rails', '1.6.3', require: false
   gem 'capistrano-bundler', '1.6.0', require: false
@@ -116,7 +106,6 @@ group :development do
   gem 'capistrano-rvm', '0.1.2', require: false
   gem 'capistrano-maintenance', '1.0.0', require: false
   gem 'capistrano-passenger', '0.2.0', require: false
-  gem 'slackistrano', '0.1.9', require: false
   gem 'rack-cors', :require => 'rack/cors'
 
   # Support ed25519 SSH keys
