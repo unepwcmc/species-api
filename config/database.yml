@@ -6,6 +6,8 @@ default: &default
   password: <%= ENV.fetch("SPECIES_API_DATABASE_PASSWORD") { Rails.application.credentials.dig(:db, :password) } %>
   port:     <%= ENV.fetch("SPECIES_API_DATABASE_PORT")     { Rails.application.credentials.dig(:db, :port) || '5432' } %>
   pool:     <%= ENV.fetch("SPECIES_API_RAILS_MAX_THREADS") { 5 } %>
+  variables:
+    lock_timeout: 10s
 
 development:
   <<: *default
