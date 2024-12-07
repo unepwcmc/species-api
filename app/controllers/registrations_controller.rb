@@ -22,10 +22,15 @@ class RegistrationsController < Devise::RegistrationsController
 
   private
     def countries
-      @countries = HTTParty.get("http://www.speciesplus.net/api/v1/geo_entities.json?geo_entity_types_set=2&locale=en")
-      if @countries.code != 200
-        @countries = []
-      end
+      @countries = GeoEntity.where(
+        geo_entity_type_id: GeoEntityType.where(
+          name: ['COUNTRY', 'REGION', 'TERRITORY']
+        ).pluck(:id)
+      ).map do |row|
+        row.slice(:name, :id)
+      end.sort_by! do |row|
+        row["name"]
+      end.as_json
     end
 
     def organisations
