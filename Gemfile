@@ -108,6 +108,9 @@ group :development do
   gem 'capistrano-passenger', '0.2.0', require: false
   gem 'rack-cors', :require => 'rack/cors'
 
+  # Used to fix capistrano-local-precompile on Ruby 3.2 - see comment in Capfile
+  gem 'file_exists', '~> 0.2.0', require: false
+
   # Support ed25519 SSH keys
   gem 'rbnacl', '4.0.2'
   gem 'rbnacl-libsodium', '1.0.16'
