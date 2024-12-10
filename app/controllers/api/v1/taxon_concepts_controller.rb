@@ -1,5 +1,8 @@
 class Api::V1::TaxonConceptsController < Api::V1::BaseController
-  after_action only: [:index] do set_pagination_headers(:taxon_concepts) end
+  after_action only: [:index] do
+    set_pagination_headers(:taxon_concepts)
+  end
+
   before_action :validate_params, :set_eu_listings_display, only: [:index]
 
   resource_description do
