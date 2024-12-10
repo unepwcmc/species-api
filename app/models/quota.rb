@@ -27,7 +27,7 @@
 #  unit_fr                    :json
 #
 
-class Quota < ActiveRecord::Base
+class Quota < ApplicationRecord
   include Scope
   after_initialize :readonly!
   self.table_name = :api_cites_quotas_view

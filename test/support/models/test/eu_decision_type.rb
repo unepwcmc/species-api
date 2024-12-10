@@ -1,2 +1,2 @@
-class Test::EuDecisionType < ActiveRecord::Base
+class Test::EuDecisionType < ApplicationRecord
 end

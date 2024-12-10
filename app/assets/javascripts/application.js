@@ -12,8 +12,9 @@
 //
 //= require jquery
 //= require jquery_ujs
+//= require activestorage
 //= require turbolinks
-//= require select2
+//= require select2-full
 //= require bootstrap.min
 //= require apipie
 //= require_tree .

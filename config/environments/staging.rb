@@ -1,4 +1,4 @@
-#secrets = Rails.application.secrets.mailer
+require 'active_support/core_ext/integer/time'
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
@@ -21,12 +21,11 @@ Rails.application.configure do
   # For large-scale production use, consider using a caching reverse proxy like nginx, varnish or squid.
   # config.action_dispatch.rack_cache = true
 
-  # Disable Rails's static asset server (Apache or nginx will already do this).
-  config.serve_static_files = false
+  config.serve_static_files = true
 
-  # Compress JavaScripts and CSS.
-  config.assets.js_compressor = :uglifier
-  # config.assets.css_compressor = :sass
+  # Compress JavaScript and CSS.
+  config.assets.js_compressor = :terser
+  config.assets.css_compressor = :sass
 
   # Do not fallback to assets pipeline if a precompiled asset is missed.
   config.assets.compile = false
@@ -83,17 +82,20 @@ Rails.application.configure do
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
 
+  mailer_secrets = Rails.application.credentials[:mailer]
+
   config.action_mailer.delivery_method = :smtp
-  config.action_mailer.asset_host = secrets['asset_host']
-  config.action_mailer.default_url_options = { :host => secrets['host'] }
+  config.action_mailer.asset_host = mailer_secrets[:asset_host]
+  config.action_mailer.default_url_options = { :host => mailer_secrets[:host] }
   config.action_mailer.smtp_settings = {
     :enable_starttls_auto => true,
-    :address => secrets['address'],
+    :address => mailer_secrets[:address],
     :port => 587,
-    :domain => secrets['domain'],
+    :domain => mailer_secrets[:domain],
     :authentication => :login,
-    :user_name => secrets['username'],
-    :password => secrets['password']
+    :user_name => mailer_secrets[:username],
+    :password => mailer_secrets[:password]
   }
+
   config.active_support.test_order = :sorted
 end

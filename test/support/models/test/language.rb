@@ -1,1 +1,1 @@
-class Test::Language < ActiveRecord::Base; end
+class Test::Language < ApplicationRecord; end

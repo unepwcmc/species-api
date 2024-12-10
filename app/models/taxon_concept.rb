@@ -18,13 +18,13 @@
 #  updated_at           :datetime
 #
 
-class TaxonConcept < ActiveRecord::Base
+class TaxonConcept < ApplicationRecord
   after_initialize :readonly!
   self.table_name = :api_taxon_concepts_view
   self.primary_key = :id
   self.per_page = 500
 
-  has_many :children, class_name: TaxonConcept, foreign_key: :parent_id
+  has_many :children, class_name: 'TaxonConcept', foreign_key: :parent_id
   has_many :distributions
   has_many :common_names
   has_many :cites_listings

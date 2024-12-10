@@ -15,7 +15,7 @@ class Api::BaseController < ApplicationController
     token = request.headers['X-Authentication-Token']
     @user = User.where(authentication_token: token).first if token
     if @user.nil? || @user.is_contributor?
-      head status: :unauthorized
+      head :unauthorized
       track_this_request
       return false
     end

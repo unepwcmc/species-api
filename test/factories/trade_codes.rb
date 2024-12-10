@@ -1,5 +1,6 @@
 Dir[Rails.root.join("test/support/models/*.rb")].each {|f| require f}
-FactoryGirl.define do
+
+FactoryBot.define do
   factory :trade_code, class: Test::TradeCode do
     factory :source, :class => Test::Source do
       sequence(:code) { |n| (97 + n%26).chr }

@@ -1,1 +1,1 @@
-class Test::GeoEntityType < ActiveRecord::Base;  end
+class Test::GeoEntityType < ApplicationRecord;  end

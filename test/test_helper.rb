@@ -1,15 +1,14 @@
 require 'simplecov'
+
+ENV['RAILS_ENV'] ||= 'test'
+
 formatters = [SimpleCov::Formatter::HTMLFormatter]
-if ENV['CODECLIMATE_REPO_TOKEN']
-  require 'codeclimate-test-reporter'
-  formatters.push CodeClimate::TestReporter::Formatter
-end
-SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[*formatters]
+
+SimpleCov.formatter SimpleCov::Formatter::MultiFormatter.new([*formatters])
 SimpleCov.start 'rails'
 SimpleCov.command_name 'test'
 
-ENV['RAILS_ENV'] ||= 'test'
-require File.expand_path('../../config/environment', __FILE__)
+require File.expand_path('../config/environment', __dir__)
 require 'rails/test_help'
 require 'capybara/rails'
 require 'json'
@@ -48,5 +47,5 @@ class ActionDispatch::IntegrationTest
 end
 
 class ActionController::TestCase
-  include Devise::TestHelpers
+  include Devise::Test::ControllerHelpers
 end

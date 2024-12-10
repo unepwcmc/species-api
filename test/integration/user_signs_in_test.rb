@@ -2,9 +2,9 @@ require 'test_helper'
 
 class UserSignsInTest < ActionDispatch::IntegrationTest
   def setup
-    @user = FactoryGirl.create(:user)
-    @admin = FactoryGirl.create(:user, role: 'admin')
-    @contributor = FactoryGirl.create(:user, role: 'default')
+    @user = FactoryBot.create(:user)
+    @admin = FactoryBot.create(:user, role: 'admin')
+    @contributor = FactoryBot.create(:user, role: 'default')
   end
 
   test "user signs in with valid information" do

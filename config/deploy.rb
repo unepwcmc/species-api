@@ -1,11 +1,11 @@
 # config valid only for current version of Capistrano
-lock '3.4.0'
+lock '3.18.0'
 
 set :application, "species-api"
 set :repo_url, 'git@github.com:unepwcmc/species-api.git'
 
 set :rvm_type, :user
-set :rvm_ruby_version, '2.3.1'
+set :rvm_ruby_version, '3.2.5'
 
 set :deploy_user, 'wcmc'
 set :deploy_to, "/home/#{fetch(:deploy_user)}/#{fetch(:application)}"
@@ -17,15 +17,10 @@ set :deploy_to, "/home/#{fetch(:deploy_user)}/#{fetch(:application)}"
 # set :deploy_to, '/var/www/my_app_name'
 
 # Default value for :scm is :git
-set :scm, :git
 set :scm_username, "unepwcmc-read"
 
 set :linked_dirs, fetch(:linked_dirs, []).push('bin', 'log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'vendor/bundle', 'public/system','public/.well-known')
-set :linked_files, %w{config/database.yml config/secrets.yml .env}
-
-set :ssh_options, {
-  forward_agent: true,
-}
+append :linked_files,  "config/credentials/#{fetch(:stage)}.key"
 
 # Default value for :format is :pretty
 # set :format, :pretty
@@ -48,6 +43,19 @@ set :pty, true
 # Default value for keep_releases is 5
 set :keep_releases, 5
 
-set :passenger_restart_with_touch, false
+require 'yaml'
+require 'json'
+
+# snake_case to prevent injection
+safe_stage = fetch(:stage).to_s.gsub(/\W+/, '_')
+secrets = YAML.load(
+  %x(bundle exec rails credentials:show -e #{safe_stage})
+)
+
+set :api_token, secrets['api_token'] # used in smoke testing
+
+set :appsignal_config,
+  push_api_key: secrets['appsignal_push_api_key'],
+  active: true
 
 require 'appsignal/capistrano'
