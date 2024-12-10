@@ -30,7 +30,7 @@ class RegistrationsController < Devise::RegistrationsController
         row.slice(:name, :id)
       end.sort_by! do |row|
         row["name"]
-      end.as_json
+      end
     end
 
     def organisations
