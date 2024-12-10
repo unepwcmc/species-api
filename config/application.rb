@@ -25,11 +25,5 @@ module SpeciesPlusApi
     # config.eager_load_paths << Rails.root.join("extras")
 
     config.active_record.schema_format = :sql
-
-    if Rails.env == 'test'
-      config.autoload_paths += [
-        "#{config.root}/test/support/models",
-      ]
-    end
   end
 end
