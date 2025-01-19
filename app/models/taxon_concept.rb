@@ -34,58 +34,46 @@ class TaxonConcept < ApplicationRecord
   has_many :eu_decisions
   has_many :taxon_references
 
+  has_many :current_cites_additions,
+    -> do
+      where(
+        is_current: true,
+        change_type_name: 'ADDITION'
+      ).order(
+        'effective_at DESC, species_listing_name ASC'
+      )
+    end,
+    foreign_key: :taxon_concept_id,
+    class_name: 'CitesListing'
+
+  has_many :current_eu_additions,
+    -> do
+      where(
+        is_current: true,
+        change_type_name: 'ADDITION'
+      ).order(
+        'effective_at DESC, species_listing_name ASC'
+      )
+    end,
+    foreign_key: :taxon_concept_id,
+    class_name: 'EuListing'
+
+  def common_names_with_iso_code(languages = nil)
+    unless languages && languages.present?
+      return common_names
+    end
+
+    common_names.filter do |cn|
+      languages.include?(cn.iso_code1)
+    end
+  end
+
   def is_accepted_name?
     name_status == 'A'
   end
 
   def is_synonym?
     name_status == 'S'
-  end
-
-  def common_names_with_iso_code(languages = nil)
-    result = common_names.select([
-      :iso_code1,
-      :name
-    ]).where("iso_code1 IS NOT NULL")
-    if languages && !languages.empty?
-      result = result.where(iso_code1: languages)
-    end
-    result
-  end
-
-  def current_cites_additions
-    cites_listings.select([
-      :id,
-      :effective_at,
-      :species_listing_name,
-      :party_en,
-      :party_es,
-      :party_fr,
-      :annotation_en,
-      :annotation_es,
-      :annotation_fr,
-      :hash_annotation_en,
-      :hash_annotation_es,
-      :hash_annotation_fr
-    ]).where(is_current: true, change_type_name: 'ADDITION')
-  end
-
-  def current_eu_listings
-    eu_listings.select([
-      :id,
-      :effective_at,
-      :eu_regulation,
-      :species_listing_name,
-      :party_en,
-      :party_es,
-      :party_fr,
-      :annotation_en,
-      :annotation_es,
-      :annotation_fr,
-      :hash_annotation_en,
-      :hash_annotation_es,
-      :hash_annotation_fr
-    ]).where(is_current: true, change_type_name: 'ADDITION')
   end
 
   def cites_suspensions_including_global

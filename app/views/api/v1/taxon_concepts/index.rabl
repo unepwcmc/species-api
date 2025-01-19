@@ -19,7 +19,7 @@ child @taxon_concepts => :taxon_concepts do
 
   attribute :cites_listing, if: :is_accepted_name?
   node(:cites_listings, if: :is_accepted_name?) { |tc|
-    tc.current_cites_additions.map do |cl|
+    tc.cites_listings_list.map do |cl|
       {
         id: cl['id'],
         appendix: cl['species_listing_name'],

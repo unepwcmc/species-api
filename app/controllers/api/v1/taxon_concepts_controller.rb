@@ -285,14 +285,20 @@ For convenience, a 'pagination' meta object is also included in the body of the 
         taxon_concepts = taxon_concepts.where("updated_at >= ?", params[:updated_since])
       end
 
-      taxonomy_is_cites_eu = if params[:taxonomy] && params[:taxonomy].downcase == 'cms'
-        false
-      else
-        true
-      end
+      taxonomy_is_cites_eu =
+        if params[:taxonomy] && params[:taxonomy].downcase == 'cms'
+          false
+        else
+          true
+        end
 
       taxon_concepts = taxon_concepts.where(taxonomy_is_cites_eu: taxonomy_is_cites_eu)
       total_entries = taxon_concepts.total_entries
+
+      taxon_concepts = taxon_concepts.includes(
+        :current_cites_additions,
+        :common_names
+      )
 
       taxon_concepts = taxon_concepts.map do |tc|
         tc_json = tc.as_json
