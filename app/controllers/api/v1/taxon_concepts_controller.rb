@@ -408,27 +408,35 @@ For convenience, a 'pagination' meta object is also included in the body of the 
     Date.valid_date? y.to_i, m.to_i, d.to_i
   end
 
+  def is_positive_integer?(val)
+    /\A\d+\Z/.match?(val) && val.to_i <= 2147483647
+  end
+
+  def is_boolean?(val)
+    /\A(true|false)\Z/.match?(val)
+  end
+
   def validate_page_format
     return true unless params[:page]
 
-    /\A\d+\Z/.match(params[:page])
+    is_positive_integer?(params[:page])
   end
 
   def validate_per_page_format
     return true unless params[:per_page]
 
-    /\A\d+\Z/.match(params[:per_page])
+    is_positive_integer?(params[:per_page])
   end
 
   def validate_with_descendants_format
     return true unless params[:with_descendants]
 
-    /^(true|false)$/.match(params[:with_descendants])
+    is_boolean?(params[:with_descendants])
   end
 
   def validate_with_eu_listings_format
     return true unless params[:with_eu_listings]
 
-    /^(true|false)$/.match(params[:with_eu_listings])
+    is_boolean?(params[:with_eu_listings])
   end
 end
