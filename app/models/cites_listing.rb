@@ -37,7 +37,7 @@
 #  change_type_order          :integer
 #
 
-class CitesListing < ActiveRecord::Base
+class CitesListing < ApplicationRecord
   include Scope
   after_initialize :readonly!
   self.table_name = :api_cites_listing_changes_view

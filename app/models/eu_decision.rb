@@ -31,7 +31,7 @@
 #  nomenclature_note_es :text
 #
 
-class EuDecision < ActiveRecord::Base
+class EuDecision < ApplicationRecord
   include Scope
   after_initialize :readonly!
   self.table_name = :api_eu_decisions_view

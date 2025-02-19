@@ -15,7 +15,7 @@
 #  updated_at       :datetime
 #
 
-class Distribution < ActiveRecord::Base
+class Distribution < ApplicationRecord
   after_initialize :readonly!
   self.table_name = :api_distributions_view
   self.primary_key = :id

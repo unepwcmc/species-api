@@ -23,7 +23,7 @@
 #  start_notification         :json
 #
 
-class CitesSuspension < ActiveRecord::Base
+class CitesSuspension < ApplicationRecord
   include Scope
   after_initialize :readonly!
   self.table_name = :api_cites_suspensions_view

@@ -1,1 +1,1 @@
-class Test::Taxonomy < ActiveRecord::Base; end
+class Test::Taxonomy < ApplicationRecord; end

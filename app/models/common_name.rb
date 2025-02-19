@@ -8,7 +8,7 @@
 #  name             :string(255)
 #
 
-class CommonName < ActiveRecord::Base
+class CommonName < ApplicationRecord
   after_initialize :readonly!
   self.table_name = :api_common_names_view
   self.primary_key = :id

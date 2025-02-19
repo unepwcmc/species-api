@@ -1,3 +1,3 @@
-class Test::Designation < ActiveRecord::Base
+class Test::Designation < ApplicationRecord
   belongs_to :taxonomy
 end

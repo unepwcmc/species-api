@@ -2,7 +2,7 @@ require 'test_helper'
 
 class DashboardControllerTest < ActionController::TestCase
   def setup
-    user = FactoryGirl.create(:user)
+    user = FactoryBot.create(:user)
     sign_in user
   end
 
