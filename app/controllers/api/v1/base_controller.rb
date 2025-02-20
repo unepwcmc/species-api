@@ -6,6 +6,10 @@ class Api::V1::BaseController < Api::BaseController
   after_action :track_this_request
   rescue_from StandardError, with: :track_this_error
 
+  protected
+    def permitted_params
+      NoMethodError
+    end
   private
 
     def set_language
