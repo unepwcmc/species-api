@@ -1,4 +1,5 @@
 object @taxon_concept => :eu_legislation
+cache [:eu_legislation, @taxon_concept]
 
 child @eu_listings => :eu_listings do
   attributes :id, :taxon_concept_id, :is_current

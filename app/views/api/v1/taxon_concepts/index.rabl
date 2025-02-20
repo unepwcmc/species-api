@@ -5,6 +5,7 @@ child :pagination do
 end
 
 child @taxon_concepts => :taxon_concepts do
+  cache [:index_entry, @taxon_concept]
   attributes :id, :full_name, :author_year, :rank, :name_status,
     :taxonomy, :updated_at, :active
   node(:higher_taxa, if: :is_accepted_name?) { |tc| tc.higher_taxa }
