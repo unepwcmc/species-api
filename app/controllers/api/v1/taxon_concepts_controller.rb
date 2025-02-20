@@ -250,12 +250,13 @@ For convenience, a 'pagination' meta object is also included in the body of the 
   def index
     taxon_per_page = TaxonConcept.per_page
     new_per_page = params[:per_page] && params[:per_page].to_i < taxon_per_page ? params[:per_page] : taxon_per_page
-    @taxon_concepts = Rails.cache.fetch(cache_key, expires_in: 1.month) do
-      taxon_concepts = TaxonConcept.select([
-        :id, :full_name, :author_year, :name_status, :rank, :cites_listing,
-        :higher_taxa, :synonyms, :accepted_names, :updated_at, :active
-        ]).
-        paginate(
+
+    taxon_concepts_cached, total_entries = Rails.cache.fetch(cache_key, expires_in: 1.month) do
+      taxon_concepts =
+        TaxonConcept.select([
+          :id, :full_name, :author_year, :name_status, :rank, :cites_listing,
+          :higher_taxa, :synonyms, :accepted_names, :updated_at, :active
+        ]).paginate(
           page: params[:page],
           per_page: new_per_page
         ).order(:taxonomic_position)
@@ -287,14 +288,22 @@ For convenience, a 'pagination' meta object is also included in the body of the 
       total_entries = taxon_concepts.total_entries
 
       taxon_concepts = taxon_concepts.map do |tc|
-        tc.common_names_list = tc.common_names_with_iso_code(@languages).to_a
-        tc.cites_listings_list = tc.current_cites_additions.to_a
-        tc
+        tc_json = tc.as_json
+        tc_json['common_names_list'] = tc.common_names_with_iso_code(@languages).as_json
+        tc_json['cites_listings_list'] = tc.current_cites_additions.as_json
+        tc_json
       end
 
-      WillPaginate::Collection.create(params[:page] || 1, new_per_page, total_entries) do |pager|
-         pager.replace(taxon_concepts)
-      end
+      [
+        taxon_concepts.as_json,
+        total_entries,
+      ]
+    end
+
+    @taxon_concepts = WillPaginate::Collection.create(params[:page] || 1, new_per_page, total_entries) do |pager|
+      pager.replace(
+        TaxonConcept.hydrate(taxon_concepts_cached)
+      )
     end
 
     render 'api/v1/taxon_concepts/index'

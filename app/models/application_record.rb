@@ -16,16 +16,41 @@ class ApplicationRecord < ActiveRecord::Base
         model_class.hydrate(item)
       end
     elsif hydratable.is_a? Hash
-      association_names = model_class.reflect_on_all_associations.map(&:name)
+      column_names = model_class.column_names
+
+      association_names =
+        model_class.reflect_on_all_associations.map(&:name).map(&:to_s)
+
+      remaining_attrs = hydratable.except *column_names, *association_names
 
       instance = model_class.new(
-        hydratable.except(association_names)
+        **(hydratable.except(*association_names).slice(*column_names))
       )
 
       if model_class.primary_key && instance.send(
         model_class.primary_key.to_sym
       )
-        tc.instance_variable_set(:@new_record, false)
+        instance.instance_variable_set(:@new_record, false)
+      end
+
+      remaining_attrs.each do |attr_name, attr_val|
+        setter_name = "#{attr_name}=".to_sym
+
+        if instance.methods.include? setter_name
+          instance.send(setter_name, attr_val)
+        else
+          raise ArgumentError, "Unknown association or attribute #{
+            model_class
+          }.#{
+            attr_name
+          } in hydrate"
+        end
+      end
+
+      if model_class.primary_key && instance.send(
+        model_class.primary_key.to_sym
+      )
+        instance.instance_variable_set(:@new_record, false)
       end
 
       # hydrate associations
@@ -40,7 +65,7 @@ class ApplicationRecord < ActiveRecord::Base
 
           if associated_records
             if reflection.collection?
-              raise ArgumentError(
+              raise ArgumentError, (
                 "Expected array of #{
                   association_class
                 } for #{
@@ -54,7 +79,6 @@ class ApplicationRecord < ActiveRecord::Base
 
               association.target.concat(associated_records)
             else
-
               association.target = associated_records
             end
           end
@@ -65,7 +89,7 @@ class ApplicationRecord < ActiveRecord::Base
 
       instance
     else
-      raise ArgumentError(
+      raise ArgumentError, (
         "Expected array, hash or ActiveRecord::Base in #{
           model_class.name
         }.hydrate, got #{

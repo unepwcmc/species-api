@@ -298,14 +298,29 @@ class Api::V1::EuLegislationController < Api::V1::BaseController
 
   def index
     set_legislation_scope
-    @taxon_concept, @eu_listings, @eu_decisions =
-      Rails.cache.fetch(cache_key, expires_in: 1.month) do
+
+    tc = TaxonConcept.hydrate(
+      Rails.cache.fetch(
+        cache_key_for(:taxon_concept),
+        expires_in: 1.month
+      ) do
+        TaxonConcept.find(params[:taxon_concept_id]).as_json
+      end
+    )
+
+    eu_listings_json, eu_decisions_json =
+      Rails.cache.fetch(
+        cache_key_for(:taxon_concept_associations, tc),
+        expires_in: 1.month
+      ) do
         [
-          tc = TaxonConcept.find(params[:taxon_concept_id]),
-          tc.eu_listings.in_scope(@legislation_scope).to_a,
-          tc.eu_decisions.in_scope(@legislation_scope).to_a
+          tc.eu_listings.in_scope(@legislation_scope).as_json,
+          tc.eu_decisions.in_scope(@legislation_scope).as_json
         ]
       end
+
+    @eu_listings = EuListing.hydrate(eu_listings_json)
+    @eu_decisions = EuDecision.hydrate(eu_decisions_json)
   end
 
   def permitted_params
