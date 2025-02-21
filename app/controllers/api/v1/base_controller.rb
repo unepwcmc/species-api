@@ -77,11 +77,23 @@ class Api::V1::BaseController < Api::BaseController
       cache_key_for(:index)
     end
 
-    def cache_key_for(key, rec = nil)
-      params_key = params.slice(*permitted_params).values.join('_')
+    def cache_key_for(prefix_key, rec = nil)
+      prefix_key_string =
+        if prefix_key.is_a? Array
+          prefix_key.join('_')
+        else
+          prefix_key.to_s
+        end
 
-      ts = rec&.cache_key_with_version || taxon_last_updated
+      params_key_string = params.slice(*permitted_params).values.join('_')
 
-      [controller_name, key, ts, params_key].join('__')
+      version_string = rec&.cache_key_with_version || taxon_last_updated
+
+      [
+        controller_name,
+        prefix_key_string,
+        params_key_string,
+        version_string
+      ].join('__')
     end
 end
