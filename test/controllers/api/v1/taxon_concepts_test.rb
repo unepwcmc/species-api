@@ -322,18 +322,18 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     assert_response 422
   end
 
-  test 'it returns a bad request error when incorrectly formatted data' do
+  test 'it returns an unprocessable entity error when data formatted incorrectly' do
     @request.headers["X-Authentication-Token"] = @user.authentication_token
     get :index, params: { updated_since: '2012-122-12' }
-    assert_response 400
+    assert_response 422
   end
 
-  test 'it returns a bad request error when incorrect page value' do
+  test 'it returns an unprocessable entity error when incorrect page value' do
     @request.headers["X-Authentication-Token"] = @user.authentication_token
     assert_difference 'ApiRequest.count' do
       get :index, params: { page: 'something' }
     end
-    assert_response 400
+    assert_response 422
   end
 
   # test "it records a failed request" do

@@ -4,7 +4,10 @@ class Api::V1::BaseController < Api::BaseController
 
   # Add these two lines to record analytics on api requests and errors on a controller
   after_action :track_this_request
-  rescue_from StandardError, with: :track_this_error
+  rescue_from StandardError, with: :track_unhandled_error
+  rescue_from Api::ValidationError, with: :track_validation_error
+  rescue_from Api::PaginationError, with: :track_validation_error
+  rescue_from ActiveRecord::RecordNotFound, with: :track_not_found_error
 
   protected
     def permitted_params
@@ -33,9 +36,9 @@ class Api::V1::BaseController < Api::BaseController
     def validate_params
       always_permitted = ActionController::Parameters.always_permitted_parameters
       unpermitted_keys = params.keys - permitted_params.map(&:to_s) - always_permitted
+
       if unpermitted_keys.any?
-        track_api_error("Unpermitted parameters (#{unpermitted_keys.join(', ')})", 422)
-        return false
+        raise Api::ValidationError, "Unpermitted parameters (#{unpermitted_keys.join(', ')})"
       end
     end
 
@@ -67,11 +70,6 @@ class Api::V1::BaseController < Api::BaseController
         ].max&.to_fs(:number)
       end || DateTime.now.to_fs(:number)
     end
-
-#    def cache_key
-#      key = params.slice(*permitted_params).values.join('')
-#      [controller_name, key].join('_')
-#    end
 
     def cache_key
       cache_key_for(:index)

@@ -383,18 +383,20 @@ For convenience, a 'pagination' meta object is also included in the body of the 
       :with_eu_listings
     ].each do |param|
       unless send(:"validate_#{param}_format")
-        track_api_error("Invalid parameter format: #{param}", 400) and return
+        raise Api::PaginationError, "Invalid parameter format: #{param}"
       end
     end
+
     if (
       params[:taxonomy].present? && !(
         /^(cms|cites)$/.match(params[:taxonomy].downcase)
       )
     )
-      track_api_error("Unknown taxonomy: #{params[:taxonomy]}", 422) and return
+      raise Api::ValidationError, "Unknown taxonomy: #{params[:taxonomy]}"
     end
+
     if (params[:with_descendants] == 'true' && params[:name].blank?)
-      track_api_error("Invalid use of with_descendants", 422) and return
+      raise Api::ValidationError, "Invalid use of with_descendants"
     end
   end
 
