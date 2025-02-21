@@ -8,7 +8,7 @@ gem 'base64', '0.1.1'
 gem 'psych', '~> 4'
 
 # Use Puma as the app server
-gem 'puma', '~> 4.1'
+gem 'puma', '~> 5.0'
 
 gem 'apipie-rails', '~> 0.6'
 
@@ -69,7 +69,7 @@ end
 gem 'dalli', '~> 3.2.8'
 
 # Use postgresql as the database for Active Record
-gem 'pg', '~> 1.2'
+gem 'pg', '~> 1.5', '>= 1.5.4'
 
 # Use CoffeeScript for .js.coffee assets and views
 gem 'coffee-rails', '~> 5.0.0'
@@ -81,10 +81,10 @@ gem 'jquery-rails', '~> 4.6.0'
 gem 'turbolinks', '~> 2.5.3'
 
 # Build JSON / XML API
-gem 'rabl', '~> 0.16.1'
+gem 'rabl', '~> 0.17'
 
 # Also add either `oj` or `yajl-ruby` as the JSON parser
-gem 'oj', '~> 3'
+gem 'oj', '~> 3.16', '>= 3.16.3' # optimised JSON (picked by multi_json)
 
 # bundle exec rake doc:rails generates the API under doc/api.
 gem 'sdoc', '~> 1.1.0', group: :doc
@@ -127,4 +127,4 @@ group :development, :test do
 end
 
 # Error monitoring
-gem 'appsignal', '~> 3.3.11'
+gem 'appsignal', '~> 3.13.1'
