@@ -249,75 +249,91 @@ For convenience, a 'pagination' meta object is also included in the body of the 
 
   def index
     taxon_per_page = TaxonConcept.per_page
-    new_per_page = params[:per_page] && params[:per_page].to_i < taxon_per_page ? params[:per_page] : taxon_per_page
+    new_per_page =
+      if params[:per_page] && params[:per_page].to_i < taxon_per_page
+        params[:per_page]
+      else
+        taxon_per_page
+      end
 
-    taxon_concepts_cached, total_entries = Rails.cache.fetch(cache_key, expires_in: 1.month) do
-      taxon_concepts =
-        TaxonConcept.select([
-          :id, :full_name, :author_year, :name_status, :rank, :cites_listing,
-          :higher_taxa, :synonyms, :accepted_names, :updated_at, :active
-        ]).paginate(
-          page: params[:page],
-          per_page: new_per_page
-        ).order(:taxonomic_position)
-
-      if params[:with_descendants] == "true" && params[:name]
+    taxon_concepts_cached, total_entries =
+      Rails.cache.fetch(cache_key, expires_in: 1.month) do
         taxon_concepts =
-          taxon_concepts.where(
-            (
-              <<-SQL.squish
-                upper(full_name) = :name
-                OR upper(genus_name) = :name
-                OR upper(family_name) = :name
-                OR upper(order_name) = :name
-                OR upper(class_name) = :name
-                OR upper(phylum_name) = :name
-                OR upper(kingdom_name) = :name
-              SQL
-            ),
-            name: params[:name].upcase
-          )
-      elsif params[:name]
-        taxon_concepts = taxon_concepts.where("upper(full_name) = ?", params[:name].upcase)
-      end
+          TaxonConcept.select([
+            :id, :full_name, :author_year, :name_status, :rank, :cites_listing,
+            :higher_taxa, :synonyms, :accepted_names, :updated_at, :active
+          ]).paginate(
+            page: params[:page],
+            per_page: new_per_page
+          ).order(:taxonomic_position)
 
-      if params[:updated_since]
-        taxon_concepts = taxon_concepts.where("updated_at >= ?", params[:updated_since])
-      end
-
-      taxonomy_is_cites_eu =
-        if params[:taxonomy] && params[:taxonomy].downcase == 'cms'
-          false
-        else
-          true
+        if params[:with_descendants] == "true" && params[:name]
+          taxon_concepts =
+            taxon_concepts.where(
+              (
+                <<-SQL.squish
+                  upper(full_name) = :name
+                  OR upper(genus_name) = :name
+                  OR upper(family_name) = :name
+                  OR upper(order_name) = :name
+                  OR upper(class_name) = :name
+                  OR upper(phylum_name) = :name
+                  OR upper(kingdom_name) = :name
+                SQL
+              ),
+              name: params[:name].upcase
+            )
+        elsif params[:name]
+          taxon_concepts =
+            taxon_concepts.where("upper(full_name) = ?", params[:name].upcase)
         end
 
-      taxon_concepts = taxon_concepts.where(taxonomy_is_cites_eu: taxonomy_is_cites_eu)
-      total_entries = taxon_concepts.total_entries
+        if params[:updated_since]
+          taxon_concepts =
+            taxon_concepts.where("updated_at >= ?", params[:updated_since])
+        end
 
-      taxon_concepts = taxon_concepts.includes(
-        :current_cites_additions,
-        :common_names
-      )
+        taxonomy_is_cites_eu =
+          if params[:taxonomy] && params[:taxonomy].downcase == 'cms'
+            false
+          else
+            true
+          end
 
-      taxon_concepts = taxon_concepts.map do |tc|
-        tc_json = tc.as_json
-        tc_json['common_names_list'] = tc.common_names_with_iso_code(@languages).as_json
-        tc_json['cites_listings_list'] = tc.current_cites_additions.as_json
-        tc_json
+        taxon_concepts =
+          taxon_concepts.where(taxonomy_is_cites_eu: taxonomy_is_cites_eu)
+
+        total_entries = taxon_concepts.total_entries
+
+        taxon_concepts = taxon_concepts.includes(
+          :current_cites_additions,
+          :common_names
+        )
+
+        taxon_concepts =
+          taxon_concepts.map do |tc|
+            tc_json = tc.as_json
+            tc_json['common_names_list'] =
+              tc.common_names_with_iso_code(@languages).as_json
+            tc_json['cites_listings_list'] =
+              tc.current_cites_additions.as_json
+            tc_json
+          end
+
+        [
+          taxon_concepts.as_json,
+          total_entries,
+        ]
       end
 
-      [
-        taxon_concepts.as_json,
-        total_entries,
-      ]
-    end
-
-    @taxon_concepts = WillPaginate::Collection.create(params[:page] || 1, new_per_page, total_entries) do |pager|
-      pager.replace(
-        TaxonConcept.hydrate(taxon_concepts_cached)
-      )
-    end
+    @taxon_concepts =
+      WillPaginate::Collection.create(
+        params[:page] || 1, new_per_page, total_entries
+      ) do |pager|
+        pager.replace(
+          TaxonConcept.hydrate(taxon_concepts_cached)
+        )
+      end
 
     render 'api/v1/taxon_concepts/index'
   end
@@ -326,14 +342,24 @@ For convenience, a 'pagination' meta object is also included in the body of the 
 
   #overrides method from parent controller
   def set_language
-    language = params[:language] ? params[:language].try(:downcase).split(',').first.delete(' ') ||
-      'en' : 'en'
-    I18n.locale = if ['en', 'es', 'fr'].include?(language)
-      language
-    else
-      I18n.default_locale
-    end
-    @languages = params[:language].delete(' ').split(',').map! { |lang| lang.upcase } unless params[:language].nil?
+    language =
+      if params[:language]
+        params[:language].try(:downcase).split(',').first.delete(' ') || 'en'
+      else
+        'en'
+      end
+
+    I18n.locale =
+      if ['en', 'es', 'fr'].include?(language)
+        language
+      else
+        I18n.default_locale
+      end
+
+    @languages =
+      params[:language].delete(' ').split(',').map!(&:upcase) unless (
+        params[:language].nil?
+      )
   end
 
   def set_eu_listings_display
@@ -360,7 +386,11 @@ For convenience, a 'pagination' meta object is also included in the body of the 
         track_api_error("Invalid parameter format: #{param}", 400) and return
       end
     end
-    if (params[:taxonomy].present? && !(/^(cms|cites)$/.match(params[:taxonomy].downcase)))
+    if (
+      params[:taxonomy].present? && !(
+        /^(cms|cites)$/.match(params[:taxonomy].downcase)
+      )
+    )
       track_api_error("Unknown taxonomy: #{params[:taxonomy]}", 422) and return
     end
     if (params[:with_descendants] == 'true' && params[:name].blank?)
@@ -370,27 +400,33 @@ For convenience, a 'pagination' meta object is also included in the body of the 
 
   def validate_updated_since_format
     return true unless params[:updated_since]
+
     y, m, d = params[:updated_since].split('-')
+
     Date.valid_date? y.to_i, m.to_i, d.to_i
   end
 
   def validate_page_format
     return true unless params[:page]
+
     /\A\d+\Z/.match(params[:page])
   end
 
   def validate_per_page_format
     return true unless params[:per_page]
+
     /\A\d+\Z/.match(params[:per_page])
   end
 
   def validate_with_descendants_format
     return true unless params[:with_descendants]
+
     /^(true|false)$/.match(params[:with_descendants])
   end
 
   def validate_with_eu_listings_format
     return true unless params[:with_eu_listings]
+
     /^(true|false)$/.match(params[:with_eu_listings])
   end
 end
