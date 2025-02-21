@@ -258,59 +258,17 @@ For convenience, a 'pagination' meta object is also included in the body of the 
 
     taxon_concepts_cached, total_entries =
       Rails.cache.fetch(cache_key, expires_in: 1.month) do
-        taxon_concepts =
-          TaxonConcept.select([
-            :id, :full_name, :author_year, :name_status, :rank, :cites_listing,
-            :higher_taxa, :synonyms, :accepted_names, :updated_at, :active
-          ]).paginate(
+        taxon_concepts = taxon_concepts_query(
+          TaxonConcept.paginate(
             page: params[:page],
             per_page: new_per_page
-          ).order(:taxonomic_position)
-
-        if params[:with_descendants] == "true" && params[:name]
-          taxon_concepts =
-            taxon_concepts.where(
-              (
-                <<-SQL.squish
-                  upper(full_name) = :name
-                  OR upper(genus_name) = :name
-                  OR upper(family_name) = :name
-                  OR upper(order_name) = :name
-                  OR upper(class_name) = :name
-                  OR upper(phylum_name) = :name
-                  OR upper(kingdom_name) = :name
-                SQL
-              ),
-              name: params[:name].upcase
-            )
-        elsif params[:name]
-          taxon_concepts =
-            taxon_concepts.where("upper(full_name) = ?", params[:name].upcase)
-        end
-
-        if params[:updated_since]
-          taxon_concepts =
-            taxon_concepts.where("updated_at >= ?", params[:updated_since])
-        end
-
-        taxonomy_is_cites_eu =
-          if params[:taxonomy] && params[:taxonomy].downcase == 'cms'
-            false
-          else
-            true
-          end
-
-        taxon_concepts =
-          taxon_concepts.where(taxonomy_is_cites_eu: taxonomy_is_cites_eu)
+          ).order(:taxonomic_position),
+          params
+        )
 
         total_entries = taxon_concepts.total_entries
 
-        taxon_concepts = taxon_concepts.includes(
-          :current_cites_additions,
-          :common_names
-        )
-
-        taxon_concepts =
+        taxon_concepts_json =
           taxon_concepts.map do |tc|
             tc_json = tc.as_json
             tc_json['common_names_list'] =
@@ -321,8 +279,8 @@ For convenience, a 'pagination' meta object is also included in the body of the 
           end
 
         [
-          taxon_concepts.as_json,
-          total_entries,
+          taxon_concepts_json,
+          taxon_concepts.total_entries,
         ]
       end
 
@@ -336,6 +294,57 @@ For convenience, a 'pagination' meta object is also included in the body of the 
       end
 
     render 'api/v1/taxon_concepts/index'
+  end
+
+  def taxon_concepts_query(rel, params)
+    taxon_concepts =
+      rel.select([
+        :id, :full_name, :author_year, :name_status, :rank, :cites_listing,
+        :higher_taxa, :synonyms, :accepted_names, :updated_at, :active
+      ])
+
+    if params[:with_descendants] == "true" && params[:name]
+      taxon_concepts =
+        taxon_concepts.where(
+          (
+            <<-SQL.squish
+              upper(full_name) = :name
+              OR upper(genus_name) = :name
+              OR upper(family_name) = :name
+              OR upper(order_name) = :name
+              OR upper(class_name) = :name
+              OR upper(phylum_name) = :name
+              OR upper(kingdom_name) = :name
+            SQL
+          ),
+          name: params[:name].upcase
+        )
+    elsif params[:name]
+      taxon_concepts =
+        taxon_concepts.where("upper(full_name) = ?", params[:name].upcase)
+    end
+
+    if params[:updated_since]
+      taxon_concepts =
+        taxon_concepts.where("updated_at >= ?", params[:updated_since])
+    end
+
+    taxonomy_is_cites_eu =
+      if params[:taxonomy] && params[:taxonomy].downcase == 'cms'
+        false
+      else
+        true
+      end
+
+    taxon_concepts =
+      taxon_concepts.where(taxonomy_is_cites_eu: taxonomy_is_cites_eu)
+
+    taxon_concepts = taxon_concepts.includes(
+      :current_cites_additions,
+      :common_names
+    )
+
+    taxon_concepts
   end
 
   private
