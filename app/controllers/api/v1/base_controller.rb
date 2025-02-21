@@ -56,6 +56,9 @@ class Api::V1::BaseController < Api::BaseController
           TaxonConcept.from('taxon_concepts').where(
             'taxon_concepts.name_status': ['A', 'S']
           ).maximum(:updated_at),
+          TaxonConcept.from('taxon_concepts').where(
+            'taxon_concepts.name_status': ['A', 'S']
+          ).maximum('taxon_concepts.dependents_updated_at'),
           # Find the time last Taxon was deleted
           TaxonConcept.from('taxon_concept_versions').where(
             'taxon_concept_versions.name_status': ['A', 'S'],
