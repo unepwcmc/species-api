@@ -344,6 +344,10 @@ For convenience, a 'pagination' meta object is also included in the body of the 
       :common_names
     )
 
+    taxon_concepts = taxon_concepts.includes(
+      :current_eu_additions,
+    ) if 'true' == params[:with_eu_listings] && taxonomy_is_cites_eu
+
     taxon_concepts
   end
 
