@@ -1,31 +1,22 @@
 object @taxon_concept => :cites_legislation
 
 child @cites_listings => :cites_listings do
-  attributes :id, :taxon_concept_id, :is_current
-  attributes :species_listing_name => :appendix
-  attributes :change_type, :effective_at
-
-  node(:party, :if => lambda { |lc| lc.party }){ |lc| lc.party }
-
-  attributes :annotation
-
-  node(:hash_annotation, :if => lambda { |lc| lc.hash_annotation }){ |lc| lc.hash_annotation }
+  node do |cites_listing|
+    partial('api/v1/cites_legislation/cites_listing', object: cites_listing)
+  end
 end
 
 child @cites_quotas => :cites_quotas do
-  attributes :id, :taxon_concept_id, :quota, :publication_date, :notes, :url, :public_display, :is_current
-
-  node(:unit){ |cs| cs.unit }
-
-  node(:geo_entity){ |cs| cs.geo_entity }
+  node do |cites_quota|
+    partial('api/v1/cites_legislation/cites_quota', object: cites_quota)
+  end
 end
 
 child @cites_suspensions => :cites_suspensions do
-  attributes :id, :taxon_concept_id, :notes, :start_date, :is_current,
-    :applies_to_import
-
-  node(:geo_entity){ |cs| cs.geo_entity }
-
-  node(:start_notification){ |cs| cs.start_notification }
-
+  node do |cites_suspension|
+    partial(
+      'api/v1/cites_legislation/cites_suspension', object: cites_suspension
+    )
+  end
 end
+

@@ -1,2 +1,2 @@
 collection @references
-attributes :id, :citation, :is_standard
+extends 'api/v1/references/record'
