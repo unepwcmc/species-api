@@ -27,8 +27,12 @@ class BulkDownloads
       TaxonConcept.where(
         taxonomy_is_cites_eu: taxonomy_is_cites_eu
       ).includes(
-        :current_cites_additions,
-        :common_names
+        :common_names,
+        :cites_listings,
+        :eu_listings,
+        :eu_decisions,
+        :distributions,
+        :taxon_references,
       )
 
     I18n.with_locale(lang) do
@@ -81,7 +85,10 @@ class BulkDownloads
       taxon_concept_json =
         Api::V1::TaxonConceptsController.render(
           'api/v1/taxon_concepts/show',
-          assigns: { taxon_concept: taxon_concept }
+          assigns: {
+            taxon_concept: taxon_concept,
+            is_dump: true,
+          }
         )
       yield(taxon_concept_json)
     end
