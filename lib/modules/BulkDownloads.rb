@@ -40,27 +40,38 @@ class BulkDownloads
       ) do |file|
         Rails.logger.debug "Opened temp file #{filename}"
 
-        Zlib::GzipWriter.wrap(file) do |gz|
-          record_count = 0
+        record_count = 0
+        uncompressed_bytes = 0
 
-          generate_json(base_relation) do |taxon_concept_json|
-            gz.write("#{taxon_concept_json}\n")
+        elapsed_time =
+          Benchmark.realtime do
+            Zlib::GzipWriter.wrap(file) do |gz|
+              generate_json(base_relation) do |taxon_concept_json|
+                gz.write("#{taxon_concept_json}\n")
 
-            record_count = record_count + 1
+                record_count = record_count + 1
+              end
+
+              uncompressed_bytes = gz.pos
+            end
           end
 
-          Rails.logger.debug "Written #{record_count} rows to #{filename}"
+        Rails.logger.debug "Written #{record_count} rows to #{filename}"
 
-          yield({
-            lang:,
-            taxonomy:,
-            file:,
-            filename:,
-            stats: {
-              record_count:,
-            }
-          })
-        end
+        compressed_bytes = file.size
+
+        yield({
+          lang:,
+          taxonomy:,
+          file:,
+          filename:,
+          stats: {
+            record_count:,
+            uncompressed_bytes:,
+            compressed_bytes:,
+            elapsed_time:,
+          }
+        })
       end
     end
   end
