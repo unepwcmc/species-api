@@ -137,5 +137,4 @@ class Api::V1::CitesLegislationControllerTest < ActionController::TestCase
     cites_quotas = results['cites_listings']
     assert_equal 3, cites_quotas.size
   end
-
 end

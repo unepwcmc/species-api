@@ -15,6 +15,11 @@ gem 'apipie-rails', '~> 0.6'
 # devise provides authentication
 gem 'devise', '~> 4.9.4'
 
+# Active storage for persistent assets
+gem 'activestorage'
+
+gem 'aws-sdk-s3', '~> 1.143'
+
 # Maintains comments at the top of model files describing the schema,
 # using the database as the source of truth (replaces annotate).
 gem 'annotaterb', '~> 4.13.0'
