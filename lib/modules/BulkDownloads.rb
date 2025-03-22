@@ -9,7 +9,8 @@ class BulkDownloads
 
   def each_language_and_taxonomy
     ['en', 'es', 'fr'].each do |lang|
-      ['CITES_EU', 'CMS'].each do |taxonomy|
+      # 'CMS' not yet supported by API
+      ['CITES_EU'].each do |taxonomy|
         yield({
           lang:,
           taxonomy:,
