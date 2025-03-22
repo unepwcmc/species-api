@@ -1,4 +1,41 @@
 class BulkDownloads
+  def create_bulk_download(generated)
+    completed_at = Time.now
+    started_at = completed_at - generated[:stats][:elapsed_time]
+    expires_at = started_at + 3.weeks
+    io = generated[:file]
+    filename = generated[:filename]
+    download_type = 'api_taxons_ndjson'
+    content_type = 'application/x-gzip-compressed'
+    success_message = { stats: generated[:stats] }
+    filters = {
+      lang: generated[:lang],
+      taxonomy: generated[:taxonomy],
+    }
+
+    bd = BulkDownload.create!(
+      completed_at:,
+      download_type:,
+      error_message: nil,
+      expires_at: nil,
+      filters:,
+      format: content_type,
+      is_public: true,
+      started_at:,
+      success_message:,
+    )
+
+    bd.download.attach io:, filename:, content_type:
+
+    bd
+  end
+
+  def refresh_all
+    generate_all_files() do |results|
+      create_bulk_download(results)
+    end
+  end
+
   def generate_all_files
     each_language_and_taxonomy() do |options|
       generate_nd_json_gz_file(options) do |results|
@@ -60,6 +97,10 @@ class BulkDownloads
               end
 
               uncompressed_bytes = gz.pos
+
+              # Calling this ensures the stream is not closed at the end of the
+              # `Zlib::GzipWriter.wrap` block, so the temp file can be reused.
+              gz.finish
             end
           end
 
