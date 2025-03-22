@@ -52,6 +52,7 @@ class Api::V1::CitesLegislationControllerTest < ActionController::TestCase
     )
     ActiveRecord::Base.connection.execute(<<-SQL
       SELECT * FROM rebuild_taxonomy();
+      SELECT * FROM rebuild_taxon_concepts_mview();
       SELECT * FROM rebuild_cites_eu_taxon_concepts_and_ancestors_mview();
       SELECT * FROM rebuild_cites_listing_changes_mview()
     SQL

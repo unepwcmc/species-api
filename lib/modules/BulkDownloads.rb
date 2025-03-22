@@ -34,6 +34,8 @@ class BulkDownloads
         :eu_decisions,
         :distributions,
         :taxon_references,
+        :cites_quotas_including_global,
+        :cites_suspensions_including_global,
       )
 
     I18n.with_locale(lang) do
