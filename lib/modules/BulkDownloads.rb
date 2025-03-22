@@ -82,7 +82,8 @@ class BulkDownloads
   end
 
   def generate_json(base_relation)
-    base_relation.each do |taxon_concept|
+    # find_each uses a default batch size of 1000
+    base_relation.find_each do |taxon_concept|
       taxon_concept_json =
         Api::V1::TaxonConceptsController.render(
           'api/v1/taxon_concepts/show',
