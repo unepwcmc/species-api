@@ -10,6 +10,9 @@ Rails.application.routes.draw do
   namespace :api, defaults: { format: 'json' } do
     namespace :v1 do
       resources :downloads, only: [:index]
+
+      get 'downloads/latest', to: 'downloads#latest'
+
       resources :taxon_concepts, only: [:index] do
         resources :cites_legislation, only: [:index]
         resources :distributions, only: [:index]

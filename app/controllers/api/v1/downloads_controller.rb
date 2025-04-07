@@ -20,7 +20,31 @@ class Api::V1::DownloadsController < Api::V1::BaseController
   error code: 500, desc: "Internal Server Error"
 
   def index
-    @downloads = BulkDownload.where(
+    @downloads = get_latest_downloads
+
+    with_storage_url_options do
+      render 'api/v1/downloads/index'
+    end
+  end
+
+  def latest
+    @downloads = get_latest_downloads
+
+    if @downloads[0]
+      with_storage_url_options do
+        redirect_to @downloads[0].download_url, external: true
+      end
+    else
+      throw ActiveRecord::RecordNotFound.new('No latest download')
+    end
+  end
+
+  def permitted_params
+    [ :taxonomy, :lang, :format ]
+  end
+
+  def get_latest_downloads(params = {})
+    BulkDownload.where(
       download_type: 'api_taxons_ndjson',
       filters: {
         taxonomy: 'CITES_EU',
@@ -34,16 +58,13 @@ class Api::V1::DownloadsController < Api::V1::BaseController
     ).order(
       'completed_at desc'
     ).limit(1)
+  end
 
+  def with_storage_url_options
     ActiveStorage::Current.set(
       url_options: { host: request.protocol + request.host_with_port }
     ) do
-      # redirect_to url, external: true
-      render 'api/v1/downloads/index'
+      yield if block_given?
     end
-  end
-
-  def permitted_params
-    [ :taxonomy, :lang, :format ]
   end
 end
