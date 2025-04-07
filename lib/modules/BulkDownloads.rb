@@ -108,6 +108,8 @@ class BulkDownloads
 
         compressed_bytes = file.size
 
+        file.rewind
+
         yield({
           lang:,
           taxonomy:,
