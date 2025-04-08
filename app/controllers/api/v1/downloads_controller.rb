@@ -2,16 +2,70 @@ class Api::V1::DownloadsController < Api::V1::BaseController
   resource_description do
     formats ['JSON', 'XML']
     api_base_url 'api/v1/downloads'
-    name 'Whole-database Downloads'
+    name 'Whole-database downloads'
   end
 
-  api :GET, '/', 'Gets the latest download of the whole taxonomy'
+  api :GET, '/', 'Gets a link to the latest bulk download of the whole CITES/EU taxonomy'
 
   description <<-EOS
+Note that download files are available as gzipped, newline-delimited JSON only,
+regardless of whether this metadata endpoint was retrieved as JSON or XML.
+
+Note: This feature is in beta and may change based on feedback.
+
+`GET /api/v1/downloads/latest` will return a redirect to the latest download.
+
 [lang] ISO 2-letter code indicating language - should be one of en, fr, es.
   EOS
 
-  # param :taxonomy, String, :desc => "Taxonomy", :required => false
+  param :lang, String, :desc => "Language", :required => false
+
+  example <<-EOS
+  [
+    {
+      "id": 5,
+      "filters": {
+        "lang": "en",
+        "taxonomy": "CITES_EU"
+      },
+      "format": "application/x-gzip-compressed",
+      "started_at": "2025-04-01T16:00:17.463Z",
+      "success_message": {
+        "stats": {
+          "elapsed_time": 299.37821418899875,
+          "record_count": 89616,
+          "compressed_bytes": 49427903,
+          "uncompressed_bytes": 362830553
+        }
+      },
+      "download_url": "https://api.speciesplus.net/.../cites_eu_en.ndjson.gz"
+    }
+  ]
+  EOS
+
+  example <<-EOS
+  <?xml version="1.0" encoding="UTF-8"?>
+  <bulk-downloads type="array">
+    <bulk-download>
+      <id type="integer">5</id>
+      <filters>
+        <lang>en</lang>
+        <taxonomy>CITES_EU</taxonomy>
+      </filters>
+      <format>application/x-gzip-compressed</format>
+      <started-at type="dateTime">2025-04-01T16:00:17Z</started-at>
+      <success-message>
+        <stats>
+          <elapsed-time type="float">299.37821418899875</elapsed-time>
+          <record-count type="integer">89616</record-count>
+          <compressed-bytes type="integer">49427903</compressed-bytes>
+          <uncompressed-bytes type="integer">362830553</uncompressed-bytes>
+        </stats>
+      </success-message>
+      <download-url>https://api.speciesplus.net/.../cites_eu_en.ndjson.gz</download-url>
+    </bulk-download>
+  </bulk-downloads>
+  EOS
 
   error code: 400, desc: "Bad Request"
   error code: 401, desc: "Unauthorized"
