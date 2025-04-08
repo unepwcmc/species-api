@@ -91,7 +91,7 @@ Note: This feature is in beta and may change based on feedback.
         redirect_to download_url, external: true
       end
     else
-      throw ActiveRecord::RecordNotFound.new('No latest download')
+      raise ActiveRecord::RecordNotFound.new('No latest download')
     end
   end
 
