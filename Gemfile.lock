@@ -382,7 +382,6 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  activestorage
   annotaterb (~> 4.13.0)
   api_pagination_headers (~> 2.1.1)
   apipie-rails (~> 0.6)
