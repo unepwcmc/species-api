@@ -86,7 +86,9 @@ Note: This feature is in beta and may change based on feedback.
 
     if @downloads[0]
       with_storage_url_options do
-        redirect_to @downloads[0].download_url, external: true
+        download_url = @downloads[0].download.url expires_in: 1.hour
+
+        redirect_to download_url, external: true
       end
     else
       throw ActiveRecord::RecordNotFound.new('No latest download')
@@ -114,6 +116,10 @@ Note: This feature is in beta and may change based on feedback.
     ).limit(1)
   end
 
+  ##
+  # This must wrap any code which contains `record.download.url` so that
+  # ActiveStorage knows the host and port with which to build the URL.
+  # Otherwise, an error will be thrown `Cannot generate URL for`...
   def with_storage_url_options
     ActiveStorage::Current.set(
       url_options: { host: request.protocol + request.host_with_port }

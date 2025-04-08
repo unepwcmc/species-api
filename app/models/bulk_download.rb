@@ -31,10 +31,4 @@ class BulkDownload < ApplicationRecord
     inverse_of: :bulk_downloads
 
   has_one_attached :download
-
-  def download_url
-    return nil unless download.attached?
-
-    download.url expires_in: 1.hour
-  end
 end
