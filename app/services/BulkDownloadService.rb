@@ -1,4 +1,4 @@
-class BulkDownloads
+class BulkDownloadService
   def create_bulk_download(generated)
     completed_at = Time.now
     started_at = completed_at - generated[:stats][:elapsed_time]
