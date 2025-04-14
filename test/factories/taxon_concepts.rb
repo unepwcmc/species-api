@@ -15,7 +15,20 @@ FactoryBot.define do
 
   factory :rank, class: Test::Rank do
     name { 'SPECIES' }
-    display_name_en { 'SPECIES' }
+    display_name_en { name&.humanize || 'Species' }
+    display_name_es { name&.humanize || 'Species' }
+    display_name_fr { name&.humanize || 'Species' }
+
+    to_create do |instance|
+      instance.attributes =
+        instance.class.find_or_create_by(
+          name: instance.name,
+          display_name_en: instance.name&.humanize,
+          display_name_es: instance.name&.humanize,
+          display_name_fr: instance.name&.humanize
+        ).attributes
+      instance.reload
+    end
   end
 
   factory :taxon_name, class: Test::TaxonName do

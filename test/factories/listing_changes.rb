@@ -7,7 +7,7 @@ FactoryBot.define do
   factory :change_type, class: Test::ChangeType do
     association :designation
     name { 'ADDITION' }
-    display_name_en { 'Addition' }
+    display_name_en { name || 'Addition' }
   end
 
   factory :species_listing, class: Test::SpeciesListing do

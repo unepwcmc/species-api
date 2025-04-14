@@ -9,6 +9,7 @@ class Api::V1::CitesLegislationControllerTest < ActionController::TestCase
     @taxon_concept = FactoryBot.create(:taxon_concept,
       taxonomy: @taxonomy,
       parent: FactoryBot.create(:taxon_concept,
+        taxonomy: @taxonomy,
         rank: FactoryBot.create(:rank, name: 'GENUS', display_name_en: 'Genus'),
         taxon_name: FactoryBot.create(:taxon_name, scientific_name: 'Canis')
       )
@@ -16,13 +17,65 @@ class Api::V1::CitesLegislationControllerTest < ActionController::TestCase
     @country_geo_entity_type = FactoryBot.create(:geo_entity_type, name: 'COUNTRY')
     @geo_entity = FactoryBot.create(:geo_entity, geo_entity_type: @country_geo_entity_type)
     @cites_designation = FactoryBot.create(:designation, taxonomy: @taxonomy, name: 'CITES')
-    @taxon_level_suspension = FactoryBot.create(:cites_suspension, taxon_concept: @taxon_concept)
+
+    @current_start_notification = FactoryBot.create(
+      :cites_suspension_notification,
+      designation: @cites_designation,
+      is_current: true
+    )
+
+    @historic_start_notification = FactoryBot.create(
+      :cites_suspension_notification,
+      designation: @cites_designation,
+      is_current: false
+    )
+
+    @taxon_level_suspension = FactoryBot.create(:cites_suspension,
+      taxon_concept: @taxon_concept,
+      geo_entity: @geo_entity,
+      start_notification: @current_start_notification,
+      end_notification: nil
+    )
+
     @distribution = FactoryBot.create(:distribution, taxon_concept: @taxon_concept, geo_entity: @geo_entity)
-    @global_suspension = FactoryBot.create(:cites_suspension, geo_entity: @geo_entity, taxon_concept: nil)
-    @historic_suspension = FactoryBot.create(:cites_suspension, taxon_concept: @taxon_concept, is_current: false)
-    @taxon_level_quota = FactoryBot.create(:quota, taxon_concept: @taxon_concept)
-    @global_quota = FactoryBot.create(:quota, geo_entity: @geo_entity, taxon_concept: nil)
-    @historic_quota = FactoryBot.create(:quota, taxon_concept: @taxon_concept, is_current: false)
+    @global_suspension = FactoryBot.create(
+      :cites_suspension,
+      geo_entity: @geo_entity,
+      taxon_concept: nil,
+      start_notification: @current_start_notification,
+      end_notification: nil,
+    )
+    @historic_suspension = FactoryBot.create(
+      :cites_suspension,
+      geo_entity: @geo_entity,
+      taxon_concept: @taxon_concept,
+      is_current: false,
+      start_notification: @historic_start_notification,
+      end_notification: @current_start_notification,
+    )
+
+    @taxon_level_quota = FactoryBot.create(
+      :quota,
+      taxon_concept: @taxon_concept,
+      geo_entity: @geo_entity,
+      start_notification: @current_start_notification,
+      end_notification: nil,
+    )
+    @global_quota = FactoryBot.create(
+      :quota,
+      geo_entity: @geo_entity,
+      taxon_concept: nil,
+      start_notification: @current_start_notification,
+      end_notification: nil,
+    )
+    @historic_quota = FactoryBot.create(
+      :quota,
+      geo_entity: @geo_entity,
+      taxon_concept: @taxon_concept,
+      is_current: false,
+      start_notification: @historic_start_notification,
+      end_notification: @current_start_notification,
+    )
     @addition_change_type = FactoryBot.create(:change_type, designation: @cites_designation, name: 'ADDITION')
     @deletion_change_type = FactoryBot.create(:change_type, designation: @cites_designation, name: 'DELETION')
     @reservation_change_type = FactoryBot.create(:change_type, designation: @cites_designation, name: 'RESERVATION')
@@ -50,12 +103,14 @@ class Api::V1::CitesLegislationControllerTest < ActionController::TestCase
       species_listing: @appendixII_species_listing,
       is_current: false
     )
-    ActiveRecord::Base.connection.execute(<<-SQL
-      SELECT * FROM rebuild_taxonomy();
-      SELECT * FROM rebuild_taxon_concepts_mview();
-      SELECT * FROM rebuild_cites_eu_taxon_concepts_and_ancestors_mview();
-      SELECT * FROM rebuild_cites_listing_changes_mview()
-    SQL
+
+    ActiveRecord::Base.connection.execute(
+      <<-SQL
+        SELECT * FROM rebuild_taxonomy();
+        SELECT * FROM rebuild_taxon_concepts_mview();
+        SELECT * FROM rebuild_cites_eu_taxon_concepts_and_ancestors_mview();
+        SELECT * FROM rebuild_cites_listing_changes_mview()
+      SQL
     )
   end
 
