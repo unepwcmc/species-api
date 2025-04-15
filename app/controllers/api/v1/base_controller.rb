@@ -1,3 +1,4 @@
+
 class Api::V1::BaseController < Api::BaseController
   before_action :set_language
   before_action :validate_params
@@ -8,6 +9,7 @@ class Api::V1::BaseController < Api::BaseController
   rescue_from Api::ValidationError, with: :track_validation_error
   rescue_from Api::PaginationError, with: :track_validation_error
   rescue_from ActiveRecord::RecordNotFound, with: :track_not_found_error
+  rescue_from ActionController::RoutingError, with: :track_not_found_error
 
   protected
     def permitted_params

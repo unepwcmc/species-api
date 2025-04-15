@@ -15,6 +15,9 @@ gem 'apipie-rails', '~> 0.6'
 # devise provides authentication
 gem 'devise', '~> 4.9.4'
 
+# AWS S3 for ActiveStorage; also used directly for ARU changes
+gem 'aws-sdk-s3', '~> 1.143', require: false
+
 # Maintains comments at the top of model files describing the schema,
 # using the database as the source of truth (replaces annotate).
 gem 'annotaterb', '~> 4.13.0'
@@ -94,7 +97,7 @@ gem 'bootsnap', '~> 1.18.4', require: false
 
 group :development do
   # Access an interactive console on exception pages or by calling 'console' anywhere in the code.
-  gem 'web-console', '~> 3.7.0'
+  gem 'web-console', '~> 4.2.1'
   gem 'listen', '~> 3.2'
 
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring

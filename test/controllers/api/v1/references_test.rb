@@ -17,9 +17,10 @@ class Api::V1::ReferencesControllerTest < ActionController::TestCase
     FactoryBot.create(:taxon_concept_reference,
       taxon_concept: @taxon_concept, reference: @reference2, is_standard: true
     )
-    ActiveRecord::Base.connection.execute(<<-SQL
-      SELECT * FROM rebuild_taxonomy();
-    SQL
+    ActiveRecord::Base.connection.execute(
+      <<-SQL
+        SELECT * FROM rebuild_taxonomy();
+      SQL
     )
   end
 

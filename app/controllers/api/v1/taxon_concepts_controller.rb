@@ -256,6 +256,13 @@ For convenience, a 'pagination' meta object is also included in the body of the 
         taxon_per_page
       end
 
+    inclusion_clause =
+      if 'true' == params[:with_eu_listings]
+        [:current_cites_additions, :current_eu_additions]
+      else
+        [:current_cites_additions]
+      end
+
     taxon_concepts_cached, total_entries =
       Rails.cache.fetch(cache_key, expires_in: 1.month) do
         taxon_concepts = taxon_concepts_query(
@@ -270,11 +277,11 @@ For convenience, a 'pagination' meta object is also included in the body of the 
 
         taxon_concepts_json =
           taxon_concepts.map do |tc|
-            tc_json = tc.as_json
+            tc_json = tc.as_json include: inclusion_clause
+
             tc_json['common_names_list'] =
               tc.common_names_with_iso_code(@languages).as_json
-            tc_json['cites_listings_list'] =
-              tc.current_cites_additions.as_json
+
             tc_json
           end
 
