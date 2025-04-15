@@ -8,17 +8,25 @@ class Api::V1::DownloadsController < Api::V1::BaseController
   api :GET, '/', 'Gets a link to the latest bulk download of the whole CITES/EU taxonomy'
 
   description <<-EOS
-Note that download files are available as gzipped, newline-delimited JSON only,
+*Note*: This feature is in beta and may change based on feedback.
+
+Downloads are prepared weekly so there may be some small inconsistencies when
+compared to the latest data available from other API calls. The response itself
+contains the timestamp at which the download was built. The download URL is
+generated on request and has an expiry time.
+
+Downloadable files are available as gzipped, newline-delimited JSON only,
 regardless of whether this metadata endpoint was retrieved as JSON or XML.
 
-Note: This feature is in beta and may change based on feedback.
+<code>GET /api/v1/downloads/latest</code> will return a redirect to the latest download.
 
-`GET /api/v1/downloads/latest` will return a redirect to the latest download.
-
-[lang] ISO 2-letter code indicating language - should be one of en, fr, es.
+[lang] ISO 2-letter code indicating the language in which annotations will be returned - should be one of +en+, +fr+, +es+. Note that common names for all languages will be reported regardless of this field.
   EOS
 
-  param :lang, String, :desc => "Language", :required => false
+  param :lang,
+    String,
+    :desc => "ISO 2-letter code indicating the language in which annotations will be returned - should be one of +en+, +fr+, +es+. Note that common names for all languages will be reported regardless of this field.",
+    :required => false
 
   example <<-EOS
   [
