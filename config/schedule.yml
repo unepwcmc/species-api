@@ -1,0 +1,4 @@
+refresh_downloads_job:
+  cron: "21 22 * * 6"
+  class: "RefreshDownloadsJob"
+  queue: admin
