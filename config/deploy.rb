@@ -43,6 +43,10 @@ set :pty, true
 # Default value for keep_releases is 5
 set :keep_releases, 5
 
+# Sidekiq config
+set :sidekiq_service_unit_user, :system
+set :sidekiq_service_unit_name, 'sidekiq_species_api'
+
 require 'yaml'
 require 'json'
 

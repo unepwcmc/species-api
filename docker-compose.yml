@@ -56,7 +56,7 @@ services:
       SPECIES_API_DATABASE_HOST: sapi-db
       SPECIES_API_DATABASE_USERNAME: postgres
       SPECIES_API_DATABASE_PORT: 5432
-      SPECIES_API_SIDEKIQ_REDIS_URL: redis://sapi-redis:6379/0
+      SPECIES_API_SIDEKIQ_REDIS_URL: redis://sapi-redis:6379/1
       CAPTIVE_BREEDING_DATABASE_HOST: sapi-db
 
   api-sidekiq:
