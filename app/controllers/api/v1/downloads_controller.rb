@@ -74,7 +74,7 @@ Note: This feature is in beta and may change based on feedback.
   error code: 500, desc: "Internal Server Error"
 
   def index
-    @downloads = get_latest_downloads
+    @downloads = get_latest_downloads(params)
 
     with_storage_url_options do
       render 'api/v1/downloads/index'

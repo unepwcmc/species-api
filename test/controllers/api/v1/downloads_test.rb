@@ -60,7 +60,7 @@ class Api::V1::DownloadsControllerTest < ActionController::TestCase
 
   test "returns spanish download only when requested" do
     @request.headers["X-Authentication-Token"] = @user.authentication_token
-    get :index, params: { language: 'es' }
+    get :index, params: { lang: 'es' }
 
     results = JSON.parse(response.body)
     assert_equal 1, results.size
