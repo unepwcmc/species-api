@@ -24,6 +24,10 @@ module SpeciesPlusApi
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
 
+    # Active Job
+    config.active_job.queue_adapter = :sidekiq
+    config.action_mailer.deliver_later_queue_name = 'default'
+
     config.active_record.schema_format = :sql
   end
 end

@@ -1,3 +1,6 @@
+require 'sidekiq/web'
+require 'sidekiq/cron/web'
+
 Rails.application.routes.draw do
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 
@@ -25,7 +28,12 @@ Rails.application.routes.draw do
   end
 
   devise_for :users, :controllers => { registrations: "registrations" }
+
   apipie
+
   match 'nomenclature' => 'static_pages#nomenclature', via: [:get]
+
+  mount Sidekiq::Web => '/sidekiq'
+
   root 'static_pages#index'
 end

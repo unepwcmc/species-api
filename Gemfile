@@ -40,6 +40,12 @@ gem 'api_pagination_headers', '~> 2.1.1'
 # i18n
 gem 'traco', '~> 5.3.3' # TODO: switch to mobility
 
+# Background jobs
+gem 'sidekiq', '< 7' # TODO, latest is 7, which required Redis 6.2+, but our servers running Redis 4.0.9.
+gem 'sidekiq-status', '~> 3.0', '>= 3.0.3'
+gem 'sidekiq-unique-jobs', '7.1.33' # TODO: can upgrade to latest when sidekiq upgrade to 7
+gem 'sidekiq-cron', '~> 1.12'
+
 # HTTP user agent
 gem 'httparty', '~> 0.22'
 
