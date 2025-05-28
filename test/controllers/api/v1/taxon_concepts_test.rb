@@ -10,91 +10,156 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
   end
 
   def create_common_names
-    @lang_en = FactoryBot.create(:language, iso_code1: 'EN')
-    @lang_pl = FactoryBot.create(:language, iso_code1: 'PL')
-    @lang_it = FactoryBot.create(:language, iso_code1: 'IT')
+    @lang_en = FactoryBot.create(:language, iso_code1: 'EN', iso_code3: 'ENG')
+    @lang_pl = FactoryBot.create(:language, iso_code1: 'PL', iso_code3: 'POL')
+    @lang_it = FactoryBot.create(:language, iso_code1: 'IT', iso_code3: 'ITA')
 
     @en_name = FactoryBot.create(:common_name, language: @lang_en)
     @pl_name = FactoryBot.create(:common_name, language: @lang_pl)
     @it_name = FactoryBot.create(:common_name, language: @lang_it)
 
-    @taxon_concept = FactoryBot.create(:taxon_concept)
+    @taxon_concept = FactoryBot.create(:taxon_concept, taxonomy: @cites)
+
     FactoryBot.create(:taxon_common, common_name: @en_name, taxon_concept: @taxon_concept)
     FactoryBot.create(:taxon_common, common_name: @pl_name, taxon_concept: @taxon_concept)
     FactoryBot.create(:taxon_common, common_name: @it_name, taxon_concept: @taxon_concept)
   end
 
+  def create_ranks
+    @ranks ||= [
+      :kingdom,
+      :phylum,
+      :class,
+      :order,
+      :family,
+      :subfamily,
+      :genus,
+      :species,
+      :subspecies,
+      :variety
+    ].map do |rank_name|
+      [ rank_name, FactoryBot.create(:rank, name: rank_name.to_s.upcase) ]
+    end.to_h
+  end
+
   def create_taxon_concept_tree
-    kingdom = FactoryBot.create(:taxon_concept, taxon_name: FactoryBot.create(:taxon_name, scientific_name: 'Animalia'),
-      rank: FactoryBot.create(:rank, name: 'KINGDOM', display_name_en: 'Kingdom'))
+    rank = create_ranks
 
-    phylum = FactoryBot.create(:taxon_concept, parent: kingdom,
-      taxon_name: FactoryBot.create(:taxon_name, scientific_name: 'Chordata'), rank: FactoryBot.create(:rank, name: 'PHYLUM', display_name_en: 'Phylum'))
-    @klass = FactoryBot.create(:taxon_concept, parent: phylum,
+    kingdom = FactoryBot.create(
+      :taxon_concept,
+      taxonomy: @cites,
+      taxon_name: FactoryBot.create(:taxon_name, scientific_name: 'Animalia'),
+      rank: rank[:kingdom]
+    )
+
+    phylum = FactoryBot.create(
+      :taxon_concept,
+      parent: kingdom,
+      taxonomy: @cites,
+      taxon_name: FactoryBot.create(:taxon_name, scientific_name: 'Chordata'),
+      rank: rank[:phylum]
+    )
+
+    @klass = FactoryBot.create(
+      :taxon_concept,
+      parent: phylum,
+      taxonomy: @cites,
       taxon_name: FactoryBot.create(:taxon_name, scientific_name: 'Mammalia'),
-      rank: FactoryBot.create(:rank, name: 'CLASS', display_name_en: 'Class')
+      rank: rank[:class]
     )
-    order = FactoryBot.create(:taxon_concept, parent: @klass,
+
+    order = FactoryBot.create(
+      :taxon_concept,
+      parent: @klass,
+      taxonomy: @cites,
       taxon_name: FactoryBot.create(:taxon_name, scientific_name: 'Psittaciformes'),
-      rank: FactoryBot.create(:rank, name: 'ORDER', display_name_en: 'Order')
+      rank: rank[:order]
     )
-    family = FactoryBot.create(:taxon_concept, parent: order,
+
+    family = FactoryBot.create(
+      :taxon_concept,
+      parent: order,
+      taxonomy: @cites,
       taxon_name: FactoryBot.create(:taxon_name, scientific_name: 'Psittacidae'),
-      rank: FactoryBot.create(:rank, name: 'FAMILY', display_name_en: 'Family')
+      rank: rank[:family]
     )
-    genus = FactoryBot.create(:taxon_concept, parent: family,
+
+    genus = FactoryBot.create(
+      :taxon_concept,
+      parent: family,
+      taxonomy: @cites,
       taxon_name: FactoryBot.create(:taxon_name, scientific_name: 'Psittacus'),
-      rank: FactoryBot.create(:rank, name: 'GENUS', display_name_en: 'Genus')
+      rank: rank[:genus],
     )
 
-    taxon_concept = FactoryBot.create(:taxon_concept,
-      parent: genus, taxon_name: FactoryBot.create(:taxon_name, scientific_name: 'WRGTEH'),
-      rank: FactoryBot.create(:rank, name: 'SPECIES', display_name_en: "Species")
+    taxon_concept = FactoryBot.create(
+      :taxon_concept,
+      parent: genus,
+      taxonomy: @cites,
+      taxon_name: FactoryBot.create(:taxon_name, scientific_name: 'WRGTEH'),
+      rank: rank[:species]
     )
 
-    ActiveRecord::Base.connection.execute(<<-SQL
-      SELECT * FROM rebuild_taxonomy();
-    SQL
+    ActiveRecord::Base.connection.execute(
+      <<-SQL
+        SELECT * FROM rebuild_taxonomy();
+      SQL
     )
   end
 
   def create_canis_tree_and_taxon_concepts
-    order = FactoryBot.create(:taxon_concept, parent: @klass,
+    rank = create_ranks
+
+    order = FactoryBot.create(
+      :taxon_concept,
+      parent: @klass,
+      taxonomy: @cites,
       taxon_name: FactoryBot.create(:taxon_name, scientific_name: 'Carnivora'),
-      rank: FactoryBot.create(:rank, name: 'ORDER', display_name_en: 'Order')
+      rank: rank[:order]
     )
-    family = FactoryBot.create(:taxon_concept, parent: order,
+
+    family = FactoryBot.create(
+      :taxon_concept, parent: order,
+      taxonomy: @cites,
       taxon_name: FactoryBot.create(:taxon_name, scientific_name: 'Canidae'),
-      rank: FactoryBot.create(:rank, name: 'FAMILY', display_name_en: 'Family')
+      rank: rank[:family]
     )
 
-    genus_rank = FactoryBot.create(:rank, name: 'GENUS', display_name_en: 'Genus')
-
-    genus = FactoryBot.create(:taxon_concept, parent: family,
+    genus = FactoryBot.create(
+      :taxon_concept,
+      parent: family,
+      taxonomy: @cites,
       taxon_name: FactoryBot.create(:taxon_name, scientific_name: 'Canis'),
-      rank: genus_rank
+      rank: rank[:genus]
     )
 
-    other_genus = FactoryBot.create(:taxon_concept, parent: family,
+    other_genus = FactoryBot.create(
+      :taxon_concept,
+      parent: family,
+      taxonomy: @cites,
       taxon_name: FactoryBot.create(:taxon_name, scientific_name: 'Testus'),
-      rank: genus_rank
+      rank: rank[:genus]
     )
 
-    species_rank = FactoryBot.create(:rank, name: 'SPECIES', display_name_en: "Species")
-
-    taxon_concept = FactoryBot.create(:taxon_concept,
+    taxon_concept = FactoryBot.create(
+      :taxon_concept,
+      taxonomy: @cites,
       parent: genus, taxon_name: FactoryBot.create(:taxon_name, scientific_name: 'lupus'),
-      rank: species_rank
+      rank: rank[:species]
     )
 
-    other_taxon_concept = FactoryBot.create(:taxon_concept,
-      parent: other_genus, taxon_name: FactoryBot.create(:taxon_name, scientific_name: 'Canis'),
-      rank: species_rank
+    other_taxon_concept = FactoryBot.create(
+      :taxon_concept,
+      parent: other_genus,
+      taxonomy: @cites,
+      taxon_name: FactoryBot.create(:taxon_name, scientific_name: 'Canis'),
+      rank: rank[:species]
     )
 
-    ActiveRecord::Base.connection.execute(<<-SQL
-      SELECT * FROM rebuild_taxonomy();
-    SQL
+    ActiveRecord::Base.connection.execute(
+      <<-SQL
+        SELECT * FROM rebuild_taxonomy();
+      SQL
     )
   end
 
@@ -322,18 +387,18 @@ class Api::V1::TaxonConceptsControllerTest < ActionController::TestCase
     assert_response 422
   end
 
-  test 'it returns a bad request error when incorrectly formatted data' do
+  test 'it returns an unprocessable entity error when data formatted incorrectly' do
     @request.headers["X-Authentication-Token"] = @user.authentication_token
     get :index, params: { updated_since: '2012-122-12' }
-    assert_response 400
+    assert_response 422
   end
 
-  test 'it returns a bad request error when incorrect page value' do
+  test 'it returns an unprocessable entity error when incorrect page value' do
     @request.headers["X-Authentication-Token"] = @user.authentication_token
     assert_difference 'ApiRequest.count' do
       get :index, params: { page: 'something' }
     end
-    assert_response 400
+    assert_response 422
   end
 
   # test "it records a failed request" do

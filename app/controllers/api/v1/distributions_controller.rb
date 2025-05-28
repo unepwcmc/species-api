@@ -79,7 +79,12 @@ class Api::V1::DistributionsController < Api::V1::BaseController
   error code: 500, desc: "Internal Server Error"
 
   def index
-    @distributions = TaxonConcept.find(params[:taxon_concept_id]).distributions
+    @distributions =
+      Distribution.hydrate(
+        Rails.cache.fetch(cache_key, expires_in: 1.month) do
+          TaxonConcept.find(params[:taxon_concept_id]).distributions.as_json
+        end
+      )
   end
 
   def permitted_params

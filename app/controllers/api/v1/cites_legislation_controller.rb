@@ -289,10 +289,31 @@ class Api::V1::CitesLegislationController < Api::V1::BaseController
 
   def index
     set_legislation_scope
-    @taxon_concept = TaxonConcept.find(params[:taxon_concept_id])
-    @cites_listings = @taxon_concept.cites_listings.in_scope(@legislation_scope)
-    @cites_suspensions = @taxon_concept.cites_suspensions_including_global.in_scope(@legislation_scope)
-    @cites_quotas = @taxon_concept.cites_quotas_including_global.in_scope(@legislation_scope)
+
+    @taxon_concept = tc = TaxonConcept.hydrate(
+      Rails.cache.fetch(
+        cache_key_for(:taxon_concept), expires_in: 1.month
+      ) do
+        TaxonConcept.find(params[:taxon_concept_id]).as_json
+      end
+    )
+
+    cites_listings, cites_suspensions, cites_quotas =
+      Rails.cache.fetch(
+        cache_key_for(:taxon_concept_associations, tc),
+        expires_in: 1.month
+      ) do
+        [
+          tc.cites_listings.in_scope(@legislation_scope).as_json,
+          tc.cites_suspensions_including_global.in_scope(@legislation_scope).as_json,
+          tc.cites_quotas_including_global.in_scope(@legislation_scope).as_json
+        ]
+      end
+
+
+    @cites_listings = CitesListing.hydrate(cites_listings)
+    @cites_suspensions = CitesSuspension.hydrate(cites_suspensions)
+    @cites_quotas = Quota.hydrate(cites_quotas)
   end
 
   def permitted_params

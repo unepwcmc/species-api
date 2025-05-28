@@ -1,11 +1,12 @@
 # config/initializers/rabl_init.rb
 require 'rabl'
+
 Rabl.configure do |config|
   # Commented as these are defaults
   # config.cache_all_output = false
-  # config.cache_sources = Rails.env != 'development' # Defaults to false
-  # config.cache_engine = Rabl::CacheEngine.new # Defaults to Rails cache
-  # config.perform_caching = false
+  config.cache_sources = true # Rails.env != 'development' # Defaults to false
+  config.cache_engine = Rabl::CacheEngine.new # Defaults to Rails cache
+  config.perform_caching = true
   # config.escape_all_output = false
   # config.json_engine = nil # Class with #dump class method (defaults JSON)
   # config.msgpack_engine = nil # Defaults to ::MessagePack

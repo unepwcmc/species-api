@@ -14,6 +14,7 @@ require 'capybara/rails'
 require 'json'
 
 class ActiveSupport::TestCase
+  self.use_transactional_tests = true
 end
 
 class ActionDispatch::IntegrationTest

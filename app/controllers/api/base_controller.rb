@@ -41,23 +41,46 @@ class Api::BaseController < ApplicationController
     )
   end
 
+  # rescue_from various validation failures
+  def track_validation_error(exception)
+    handle_error(exception, 422)
+  end
+
+  # rescue_from ActiveRecord::RecordNotFound
+  def track_not_found_error(exception)
+    handle_error(exception, 404)
+  end
+
+  def handle_error(exception, code)
+    @message =
+      if exception.is_a? String
+        exception
+      else
+        exception.try(
+          :message
+        ) || 'We are sorry but an error occurred processing your request'
+      end
+
+    create_api_request(@message, code)
+
+    render 'api/error', status: code
+  end
+
   # rescue_from method for recording API Metrics on 500 errors
-  def track_this_error(exception)
+  def track_unhandled_error(exception)
     if Rails.env.production? || Rails.env.staging?
       Appsignal.add_exception(exception) if defined? Appsignal
     else
       Rails.logger.error exception.message
       Rails.logger.error exception.backtrace.join("\n")
     end
-    code = 500
-    @message = 'We are sorry but an error occurred processing your request'
-    create_api_request(@message, code)
-    render 'api/error', status: code
-  end
 
-  def track_api_error(message, code)
-    create_api_request(message, code)
-    @message = message
+    code = 500
+
+    @message = 'We are sorry but an error occurred processing your request'
+
+    create_api_request(@message, code)
+
     render 'api/error', status: code
   end
 
@@ -73,5 +96,4 @@ class Api::BaseController < ApplicationController
       error_message: message
     )
   end
-
 end
