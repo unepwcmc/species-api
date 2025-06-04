@@ -306,7 +306,8 @@ For convenience, a 'pagination' meta object is also included in the body of the 
   def taxon_concepts_query(rel, params)
     taxon_concepts =
       rel.select([
-        :id, :full_name, :author_year, :name_status, :rank, :cites_listing,
+        :id, :full_name, :author_year, :name_status, :rank,
+        :cites_listing, :eu_listing,
         :higher_taxa, :synonyms, :accepted_names, :updated_at, :active
       ])
 
