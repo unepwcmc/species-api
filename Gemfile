@@ -118,6 +118,7 @@ group :development do
   gem 'capistrano-rvm', '0.1.2', require: false
   gem 'capistrano-maintenance', '1.0.0', require: false
   gem 'capistrano-passenger', '0.2.0', require: false
+  gem 'capistrano-sidekiq', '~> 2.3', '>= 2.3.1', require: false
   gem 'rack-cors', :require => 'rack/cors'
 
   # Used to fix capistrano-local-precompile on Ruby 3.2 - see comment in Capfile

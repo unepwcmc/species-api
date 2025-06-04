@@ -96,7 +96,7 @@ regardless of whether this metadata endpoint was retrieved as JSON or XML.
       with_storage_url_options do
         download_url = @downloads[0].download.url expires_in: 1.hour
 
-        redirect_to download_url, external: true
+        redirect_to download_url, allow_other_host: true
       end
     else
       raise ActiveRecord::RecordNotFound.new('No latest download')
