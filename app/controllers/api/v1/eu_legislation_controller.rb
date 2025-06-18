@@ -323,6 +323,6 @@ class Api::V1::EuLegislationController < Api::V1::BaseController
   end
 
   def permitted_params
-    [:scope, :language, :taxon_concept_id, :format]
+    [:taxon_concept_id, :scope, :language, :format]
   end
 end
