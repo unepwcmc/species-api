@@ -299,10 +299,9 @@ class Api::V1::EuLegislationController < Api::V1::BaseController
   def index
     set_legislation_scope
 
-    tc = TaxonConcept.hydrate(
+    @taxon_concept = tc = TaxonConcept.hydrate(
       Rails.cache.fetch(
-        cache_key_for([ :taxon_concept, params[:taxon_concept_id] ]),
-        expires_in: 1.month
+        cache_key_for(:taxon_concept), expires_in: 1.month
       ) do
         TaxonConcept.find(params[:taxon_concept_id]).as_json
       end
