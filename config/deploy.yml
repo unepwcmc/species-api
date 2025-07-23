@@ -1,0 +1,42 @@
+# Name of your application. Used to uniquely configure containers.
+service: species-api
+
+# Credentials for your image host.
+registry:
+  server: ghcr.io
+  username:
+    - KAMAL_REGISTRY_USERNAME
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+# Inject ENV variables into containers (secrets come from .kamal/secrets.{environment})
+env:
+  clear:
+    RAILS_LOG_LEVEL: warn # @see https://github.com/heartcombo/devise#password-reset-tokens-and-rails-logs
+    PORT: 80
+    RAILS_SERVE_STATIC_FILES: 1
+    RAILS_LOG_TO_STDOUT: 1 # Need this before upgrade to Rails 7.1, which then default is STDOUT.
+  secret:
+    - RAILS_MASTER_KEY
+    - DATABASE_HOST
+    - DATABASE_NAME
+    - DATABASE_USERNAME
+    - DATABASE_PASSWORD
+    - DATABASE_PORT
+    - MAIL_USERNAME
+    - MAIL_PASSWORD
+    - AWS_ACCESS_KEY_ID
+    - AWS_SECRET_ACCESS_KEY
+    - AWS_REGION
+    - SIDEKIQ_REDIS_URL
+
+# Use a different ssh user than root
+ssh:
+  user: wcmc
+
+# Configure builder setup
+builder:
+  arch: amd64
+  dockerfile: Dockerfile.deploy
+  args:
+    RUBY_VERSION: 3.2.5
