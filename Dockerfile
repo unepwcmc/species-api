@@ -1,30 +1,37 @@
-# WARNING:
-# This file is for development, not for production.
-# For production, please refer to https://railsdiff.org/7.0.8.4/7.1.3.4#diff-466a28a0e93935ce250159682062e5a94698a3d8
-# or SUS-ORS project.
-
 # Dockerfile
-FROM ruby:3.2.5
+FROM ruby:3.2.5-slim
 
 # Rails and species-api has some additional dependencies, e.g. rake requires a JS
 # runtime, so attempt to get these from apt, where possible
-RUN apt-get update && apt-get install -y --force-yes \
+RUN apt-get update && apt-get install --no-install-recommends -y --force-yes \
+  # for node js install
+  curl xz-utils \
   libsodium-dev libgmp3-dev libssl-dev \
   libpq-dev postgresql-client \
-  nodejs \
   texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra \
-  ;
+  # Clean up
+  && rm -rf /var/lib/apt/lists/*
 # NB: Postgres client from Debian is 9.4 - not sure if this is acceptable
 
-RUN mkdir /species-api
-WORKDIR /species-api
-
-# COPY Gemfile /species-api/Gemfile
-# COPY Gemfile.lock /species-api/Gemfile.lock
+# Install Ruby bundler
 RUN gem install bundler -v 2.5.17
-# RUN bundle install
 
-# COPY . /species-api
+# Install Node.js 18.20.8 manually
+ARG NODE_VERSION=18.20.8
+ARG TARGETARCH
+# Map Docker TARGETARCH to Node.js archive name
+RUN case "$TARGETARCH" in \
+  amd64) NODE_ARCH=x64 ;; \
+  arm64) NODE_ARCH=arm64 ;; \
+  *) echo "Unsupported architecture: $TARGETARCH"; exit 1 ;; \
+  esac && \
+  curl -fsSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${NODE_ARCH}.tar.xz \
+  | tar -xJ -C /usr/local --strip-components=1
+
+# Install Yarn globally using npm
+RUN npm install -g yarn
+
+WORKDIR /species-api
 
 EXPOSE 3000
 CMD ["rails", "server", "-b", "0.0.0.0"]
