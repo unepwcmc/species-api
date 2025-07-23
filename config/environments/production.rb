@@ -112,8 +112,8 @@ Rails.application.configure do
     :port => 587,
     :domain => mailer_secrets[:domain],
     :authentication => :login,
-    :user_name => ENV.fetch('MAIL_USERNAME'),
-    :password => ENV.fetch('MAIL_PASSWORD')
+    :user_name => ENV.fetch('MAIL_USERNAME', ''),
+    :password => ENV.fetch('MAIL_PASSWORD', '')
   }
 
   # Inserts middleware to perform automatic connection switching.

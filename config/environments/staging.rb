@@ -96,8 +96,8 @@ Rails.application.configure do
     :port => 587,
     :domain => mailer_secrets[:domain],
     :authentication => :login,
-    :user_name => ENV.fetch('MAIL_USERNAME'),
-    :password => ENV.fetch('MAIL_PASSWORD')
+    :user_name => ENV.fetch('MAIL_USERNAME', ''),
+    :password => ENV.fetch('MAIL_PASSWORD', '')
   }
 
   config.active_support.test_order = :sorted
