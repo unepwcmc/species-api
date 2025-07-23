@@ -9,12 +9,11 @@ Sidekiq.configure_client do |config|
   end
 
   config.redis = {
-    url: ENV.fetch(
-      'SPECIES_API_SIDEKIQ_REDIS_URL',
-      Rails.application.credentials.dig(:redis, :url)
-    )
+    url: %w[development test].include?(Rails.env) ? Rails.application.credentials.sidekiq_redis_url) : ENV.fetch('SIDEKIQ_REDIS_URL', '')
   }
 end
+
+
 
 Sidekiq.configure_server do |config|
   config.server_middleware do |chain|
@@ -28,10 +27,7 @@ Sidekiq.configure_server do |config|
   end
 
   config.redis = {
-    url: ENV.fetch(
-      'SPECIES_API_SIDEKIQ_REDIS_URL',
-      Rails.application.credentials.dig(:redis, :url)
-    )
+    url: %w[development test].include?(Rails.env) ? Rails.application.credentials.sidekiq_redis_url) : ENV.fetch('SIDEKIQ_REDIS_URL', '')
   }
 
   SidekiqUniqueJobs::Server.configure(config)
