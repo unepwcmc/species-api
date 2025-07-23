@@ -15,9 +15,9 @@ dev_default: &dev_default
 
 default: &default
   <<: *general
-  host: <%= ENV.fetch("DATABASE_HOST") %>
-  username: <%= ENV.fetch("DATABASE_USERNAME") %>
-  password: <%= ENV.fetch("DATABASE_PASSWORD") %>
+  host: <%= ENV.fetch("DATABASE_HOST", '') %>
+  username: <%= ENV.fetch("DATABASE_USERNAME", '') %>
+  password: <%= ENV.fetch("DATABASE_PASSWORD", '') %>
   port: <%= ENV.fetch("DATABASE_PORT", '5432') %>
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 10 } %>
   template: template0
