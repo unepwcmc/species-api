@@ -102,15 +102,14 @@ Rails.application.configure do
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
 
-  mailer_secrets = Rails.application.credentials[:mailer]
   config.action_mailer.delivery_method = :smtp
-  config.action_mailer.asset_host = mailer_secrets[:asset_host]
-  config.action_mailer.default_url_options = { :host => mailer_secrets[:host] }
+  config.action_mailer.asset_host = "api.speciesplus.net"
+  config.action_mailer.default_url_options = { :host => "api.speciesplus.net" }
   config.action_mailer.smtp_settings = {
     :enable_starttls_auto => true,
-    :address => mailer_secrets[:address],
+    :address => "smtp.sendgrid.net",
     :port => 587,
-    :domain => mailer_secrets[:domain],
+    :domain => "unep-wcmc.org",
     :authentication => :login,
     :user_name => ENV.fetch('MAIL_USERNAME', ''),
     :password => ENV.fetch('MAIL_PASSWORD', '')
