@@ -9,7 +9,6 @@ servers:
     proxy:
       hosts:
         - sapi-api.sapi-staging.linode.unep-wcmc.org # Public-facing domain
-        api.speciesplus.net
       ssl: true # Proxy terminates SSL
       forward_headers: true # Forward headers like X-Forwarded-Proto
       healthcheck:
