@@ -18,28 +18,28 @@ services:
       # Used for both rails and sidekiq
 
       # The following paths are commonly written by the application at runtime
-      - 'app_tmp:/species-api/tmp'
-      - 'app_log:/species-api/log'
-      - 'app_storage:/species-api/storage'
+      # - 'app_tmp:/species-api/tmp'
+      # - 'app_log:/species-api/log'
+      # - 'app_storage:/species-api/storage'
 
-      # The following paths are writable during build/development
-      - './Gemfile.lock:/species-api/Gemfile.lock'
+      # # The following paths are writable during build/development
+      # - './Gemfile.lock:/species-api/Gemfile.lock'
 
-      # Most rest of the application should not be writable, except to run
-      # specific tasks like db migrations
-      - './app:/species-api/app:${SAPI_CONTAINER_FS_MODE:-ro}'
-      - './bin:/species-api/bin:${SAPI_CONTAINER_FS_MODE:-ro}'
-      - './config:/species-api/config:${SAPI_CONTAINER_FS_MODE:-ro}'
-      - './db:/species-api/db:${SAPI_CONTAINER_FS_MODE:-ro}'
-      - './db_init:/species-api/db_init:${SAPI_CONTAINER_FS_MODE:-ro}'
-      - './doc:/species-api/doc:${SAPI_CONTAINER_FS_MODE:-ro}'
-      - './lib:/species-api/lib:${SAPI_CONTAINER_FS_MODE:-ro}'
-      - './script:/species-api/script:${SAPI_CONTAINER_FS_MODE:-ro}'
-      - './spec:/species-api/spec:${SAPI_CONTAINER_FS_MODE:-ro}'
-      - './vendor:/species-api/vendor:${SAPI_CONTAINER_FS_MODE:-ro}'
+      # # Most rest of the application should not be writable, except to run
+      # # specific tasks like db migrations
+      # - './app:/species-api/app:${SAPI_CONTAINER_FS_MODE:-ro}'
+      # - './bin:/species-api/bin:${SAPI_CONTAINER_FS_MODE:-ro}'
+      # - './config:/species-api/config:${SAPI_CONTAINER_FS_MODE:-ro}'
+      # - './db:/species-api/db:${SAPI_CONTAINER_FS_MODE:-ro}'
+      # - './db_init:/species-api/db_init:${SAPI_CONTAINER_FS_MODE:-ro}'
+      # - './doc:/species-api/doc:${SAPI_CONTAINER_FS_MODE:-ro}'
+      # - './lib:/species-api/lib:${SAPI_CONTAINER_FS_MODE:-ro}'
+      # - './script:/species-api/script:${SAPI_CONTAINER_FS_MODE:-ro}'
+      # - './spec:/species-api/spec:${SAPI_CONTAINER_FS_MODE:-ro}'
+      # - './vendor:/species-api/vendor:${SAPI_CONTAINER_FS_MODE:-ro}'
 
       # During deploy public/assets is removed and re-added
-      - './public:/species-api/public'
+      # - './public:/species-api/public'
       - '.:/species-api'
 
       # Keep the cache of bundler gems for sharing across install commands
