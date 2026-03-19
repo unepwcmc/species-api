@@ -123,6 +123,8 @@ jobs:
           working-directory: .
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          CERTIFICATE_PEM: ${{ secrets.CERTIFICATE_PEM }}
+          PRIVATE_KEY_PEM: ${{ secrets.PRIVATE_KEY_PEM }}
 
       - name: Set workflow end time and calculate duration
         if: always()
