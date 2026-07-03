@@ -34,4 +34,5 @@ RUN npm install -g yarn
 WORKDIR /species-api
 
 EXPOSE 3000
-CMD ["rails", "server", "-b", "0.0.0.0"]
+ENTRYPOINT ["/rails/bin/docker-entrypoint-dev"]
+CMD ["tail", "-f", "/dev/null"]
