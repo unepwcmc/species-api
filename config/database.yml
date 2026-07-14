@@ -19,7 +19,9 @@ default: &default
   username: <%= ENV.fetch("DATABASE_USERNAME", '') %>
   password: <%= ENV.fetch("DATABASE_PASSWORD", '') %>
   port: <%= ENV.fetch("DATABASE_PORT", '5432') %>
-  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 10 } %>
+  # Kamal overrides this shared value for the Sidekiq role, allowing each
+  # process type to match its own concurrency without another pool variable.
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   template: template0
 
 development:

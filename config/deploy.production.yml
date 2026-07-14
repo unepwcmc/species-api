@@ -24,6 +24,12 @@ servers:
   job:
     hosts:
       - 172.20.0.158 # sapi-web-prod-01.internal.unep-wcmc.org
+    env:
+      clear:
+        # This container runs Sidekiq rather than Puma, so overriding the shared
+        # variable sizes Active Record for its two job threads. Remove this
+        # override if Sidekiq later uses the same five threads as the web pool.
+        RAILS_MAX_THREADS: 2
     options:
       add-host: host.docker.internal:host-gateway # Required to reach host-bound Redis
       # Docker-native healthcheck (non-proxy role). Explicit fast interval/start-period
@@ -45,3 +51,8 @@ builder:
 env:
   clear:
     RAILS_ENV: production
+    # Four workers restore useful API capacity without competing with SAPI for
+    # every shared VM core; revisit after production load testing or scaling out.
+    WEB_CONCURRENCY: 4
+    # Active Record reads the same value, keeping each web pool aligned.
+    RAILS_MAX_THREADS: 5
