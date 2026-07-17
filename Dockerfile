@@ -4,6 +4,9 @@ FROM ruby:3.2.5-slim
 # Rails and species-api has some additional dependencies, e.g. rake requires a JS
 # runtime, so attempt to get these from apt, where possible
 RUN apt-get update && apt-get install --no-install-recommends -y --force-yes \
+  # Bundler installs gems at container startup, so native extensions need a
+  # compiler and make in the development image.
+  build-essential \
   # for node js install
   curl xz-utils \
   libsodium-dev libgmp3-dev libssl-dev \
@@ -34,5 +37,4 @@ RUN npm install -g yarn
 WORKDIR /species-api
 
 EXPOSE 3000
-ENTRYPOINT ["/rails/bin/docker-entrypoint-dev"]
 CMD ["tail", "-f", "/dev/null"]
