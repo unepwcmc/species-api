@@ -9,7 +9,9 @@ Sidekiq.configure_client do |config|
   end
 
   config.redis = {
-    url: %w[development test].include?(Rails.env) ? Rails.application.credentials.sidekiq_redis_url : ENV.fetch('SIDEKIQ_REDIS_URL', '')
+    # Redis is an environment-specific service, so every runtime receives its
+    # connection URL through the environment instead of encrypted credentials.
+    url: ENV.fetch('SIDEKIQ_REDIS_URL')
   }
 end
 
@@ -27,7 +29,8 @@ Sidekiq.configure_server do |config|
   end
 
   config.redis = {
-    url: %w[development test].include?(Rails.env) ? Rails.application.credentials.sidekiq_redis_url : ENV.fetch('SIDEKIQ_REDIS_URL', '')
+    # Keep the server and client on the same explicitly configured Redis instance.
+    url: ENV.fetch('SIDEKIQ_REDIS_URL')
   }
 
   SidekiqUniqueJobs::Server.configure(config)
