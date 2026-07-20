@@ -18,8 +18,6 @@ if %w[test development].exclude?(Rails.env)
 end
 
 Rails.application.routes.draw do
-  get 'debug/ip', to: 'debug#ip', as: 'debug_ip'
-
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
