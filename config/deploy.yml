@@ -25,6 +25,7 @@ env:
     - AWS_SECRET_ACCESS_KEY
     - AWS_REGION
     - SIDEKIQ_REDIS_URL
+    - RACK_ATTACK_REDIS_URL
 
 # Use a different ssh user than root
 ssh:

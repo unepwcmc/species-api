@@ -46,6 +46,13 @@ gem 'sidekiq-status', '~> 3.0', '>= 3.0.3'
 gem 'sidekiq-unique-jobs', '7.1.33' # TODO: can upgrade to latest when sidekiq upgrade to 7
 gem 'sidekiq-cron', '~> 1.12'
 
+# Rack-level IP rate limiting, replacing the nginx Lua limiter now that nginx
+# is gone (see config/initializers/rack_attack.rb). Depends directly on the
+# `redis` gem for its cache store, so pin it explicitly rather than relying on
+# sidekiq's transitive dependency.
+gem 'rack-attack', '~> 6.7'
+gem 'redis', '~> 4.8'
+
 # HTTP user agent
 gem 'httparty', '~> 0.22'
 

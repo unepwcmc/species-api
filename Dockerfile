@@ -7,6 +7,8 @@ RUN apt-get update && apt-get install --no-install-recommends -y --force-yes \
   # Bundler installs gems at container startup, so native extensions need a
   # compiler and make in the development image.
   build-essential \
+  # Text editor
+  vim nano \
   # for node js install
   curl xz-utils \
   libsodium-dev libgmp3-dev libssl-dev \
