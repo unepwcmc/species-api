@@ -11,6 +11,7 @@ servers:
       response_timeout: 120
       hosts:
         - api-sapi-web-prod-01.linode.unep-wcmc.org
+        - api-preflight.speciesplus.net
       ssl: true
       forward_headers: true # Forward headers like X-Forwarded-Proto
       logging:
