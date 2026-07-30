@@ -82,7 +82,7 @@ group :staging, :production do
 end
 
 # Memcached driver for Rails.cache
-gem 'dalli', '~> 3.2.8'
+# gem 'dalli', '~> 3.2.8'
 
 # Use postgresql as the database for Active Record
 gem 'pg', '~> 1.5', '>= 1.5.4'

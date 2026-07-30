@@ -26,6 +26,7 @@ env:
     - AWS_REGION
     - SIDEKIQ_REDIS_URL
     - RACK_ATTACK_REDIS_URL
+    - REDIS_CACHE_URL
 
 # Use a different ssh user than root
 ssh:
