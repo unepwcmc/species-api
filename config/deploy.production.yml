@@ -1,0 +1,73 @@
+# Name of the container image
+image: unepwcmc/species-api/rails-production
+
+servers:
+  web:
+    hosts:
+      - sapi-web-prod-01.linode.unep-wcmc.org
+    options:
+      add-host: host.docker.internal:host-gateway # Required to reach host-bound Redis
+    proxy:
+      response_timeout: 120
+      hosts:
+        - api-sapi-web-prod-01.linode.unep-wcmc.org
+        - api.speciesplus.net
+        - api-preflight.speciesplus.net
+      ssl: true
+      logging:
+        request_headers:
+          - Cache-Control
+          - User-Agent
+          - X-Forwarded-Proto
+        response_headers:
+          - X-Request-ID
+  job:
+    hosts:
+      - sapi-web-prod-01.linode.unep-wcmc.org
+    env:
+      clear:
+        # This container runs Sidekiq rather than Puma, so overriding the shared
+        # variable sizes Active Record for its two job threads. Remove this
+        # override if Sidekiq later uses the same five threads as the web pool.
+        RAILS_MAX_THREADS: 2
+    options:
+      add-host: host.docker.internal:host-gateway # Required to reach host-bound Redis
+      # Docker-native healthcheck (non-proxy role). Explicit fast interval/start-period
+      # so the container reports healthy well within Kamal's readiness window — Docker's
+      # default 30s interval means the first check wouldn't fire in time otherwise.
+      # https://docs.docker.com/engine/containers/run/#healthchecks
+      health-cmd: /rails/bin/docker-sidekiq-healthcheck
+      health-interval: 5s
+      health-retries: 3
+      health-start-period: 5s
+      health-timeout: 3s
+    cmd: bundle exec sidekiq -C config/sidekiq.yml
+
+# Build remotely on the production web server, same host the app deploys to.
+builder:
+  remote: ssh://wcmc@sapi-web-prod-01.linode.unep-wcmc.org
+
+# Environment variables
+env:
+  clear:
+    RAILS_ENV: production
+    # Four workers restore useful API capacity without competing with SAPI for
+    # every shared VM core; revisit after production load testing or scaling out.
+    WEB_CONCURRENCY: 4
+    # Active Record reads the same value, keeping each web pool aligned.
+    RAILS_MAX_THREADS: 5
+
+# kamal-proxy daemon settings (top level = the shared proxy container itself,
+# distinct from the per-role `proxy:` blocks above which configure routing).
+#
+# metrics_port makes kamal-proxy publish Prometheus metrics — per-host request
+# counts, status classes and request durations — which Zabbix scrapes to graph
+# real per-site traffic. Without it the daemon runs with metrics disabled
+# (kamal-proxy's default is 0 = off) and there is nothing to pull.
+#
+# This is set in EVERY app because whichever app boots or reboots the shared
+# proxy determines the daemon's flags; if one repo lacked it, a reboot triggered
+# from that repo would silently drop metrics.
+proxy:
+  run:
+    metrics_port: 9091

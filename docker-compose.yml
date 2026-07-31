@@ -12,34 +12,34 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile
-    entrypoint: ./bin/docker-entrypoint
+    entrypoint: ./bin/docker-entrypoint-dev
     command: bundle exec rails s -p 3000 -b '0.0.0.0'
     volumes: &rails_volumes
       # Used for both rails and sidekiq
 
       # The following paths are commonly written by the application at runtime
-      - 'app_tmp:/species-api/tmp'
-      - 'app_log:/species-api/log'
-      - 'app_storage:/species-api/storage'
+      # - 'app_tmp:/species-api/tmp'
+      # - 'app_log:/species-api/log'
+      # - 'app_storage:/species-api/storage'
 
-      # The following paths are writable during build/development
-      - './Gemfile.lock:/species-api/Gemfile.lock'
+      # # The following paths are writable during build/development
+      # - './Gemfile.lock:/species-api/Gemfile.lock'
 
-      # Most rest of the application should not be writable, except to run
-      # specific tasks like db migrations
-      - './app:/species-api/app:${SAPI_CONTAINER_FS_MODE:-ro}'
-      - './bin:/species-api/bin:${SAPI_CONTAINER_FS_MODE:-ro}'
-      - './config:/species-api/config:${SAPI_CONTAINER_FS_MODE:-ro}'
-      - './db:/species-api/db:${SAPI_CONTAINER_FS_MODE:-ro}'
-      - './db_init:/species-api/db_init:${SAPI_CONTAINER_FS_MODE:-ro}'
-      - './doc:/species-api/doc:${SAPI_CONTAINER_FS_MODE:-ro}'
-      - './lib:/species-api/lib:${SAPI_CONTAINER_FS_MODE:-ro}'
-      - './script:/species-api/script:${SAPI_CONTAINER_FS_MODE:-ro}'
-      - './spec:/species-api/spec:${SAPI_CONTAINER_FS_MODE:-ro}'
-      - './vendor:/species-api/vendor:${SAPI_CONTAINER_FS_MODE:-ro}'
+      # # Most rest of the application should not be writable, except to run
+      # # specific tasks like db migrations
+      # - './app:/species-api/app:${SAPI_CONTAINER_FS_MODE:-ro}'
+      # - './bin:/species-api/bin:${SAPI_CONTAINER_FS_MODE:-ro}'
+      # - './config:/species-api/config:${SAPI_CONTAINER_FS_MODE:-ro}'
+      # - './db:/species-api/db:${SAPI_CONTAINER_FS_MODE:-ro}'
+      # - './db_init:/species-api/db_init:${SAPI_CONTAINER_FS_MODE:-ro}'
+      # - './doc:/species-api/doc:${SAPI_CONTAINER_FS_MODE:-ro}'
+      # - './lib:/species-api/lib:${SAPI_CONTAINER_FS_MODE:-ro}'
+      # - './script:/species-api/script:${SAPI_CONTAINER_FS_MODE:-ro}'
+      # - './spec:/species-api/spec:${SAPI_CONTAINER_FS_MODE:-ro}'
+      # - './vendor:/species-api/vendor:${SAPI_CONTAINER_FS_MODE:-ro}'
 
       # During deploy public/assets is removed and re-added
-      - './public:/species-api/public'
+      # - './public:/species-api/public'
       - '.:/species-api'
 
       # Keep the cache of bundler gems for sharing across install commands
@@ -56,7 +56,9 @@ services:
       SPECIES_API_DATABASE_HOST: sapi-db
       SPECIES_API_DATABASE_USERNAME: postgres
       SPECIES_API_DATABASE_PORT: 5432
-      SPECIES_API_SIDEKIQ_REDIS_URL: redis://sapi-redis:6379/1
+      SIDEKIQ_REDIS_URL: redis://sapi-redis:6379/1
+      RACK_ATTACK_REDIS_URL: redis://sapi-redis:6379/2
+      REDIS_CACHE_URL: redis://sapi-redis:6379/3
       CAPTIVE_BREEDING_DATABASE_HOST: sapi-db
 
   api-sidekiq:
@@ -74,7 +76,7 @@ services:
       SPECIES_API_DATABASE_HOST: sapi-db
       SPECIES_API_DATABASE_USERNAME: postgres
       SPECIES_API_DATABASE_PORT: 5432
-      SPECIES_API_SIDEKIQ_REDIS_URL: redis://sapi-redis:6379/1
+      SIDEKIQ_REDIS_URL: redis://sapi-redis:6379/1
 
 volumes:
   bundler_gems:
