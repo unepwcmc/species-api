@@ -117,31 +117,13 @@ group :development do
   gem 'spring', '~> 4.0.0'
   gem 'spring-watcher-listen', '~> 2.1.0'
 
-  # Capistrano for rails deployment
-  gem 'capistrano', '3.18.0', require: false
-  gem 'capistrano-rails', '1.6.3', require: false
-  gem 'capistrano-bundler', '1.6.0', require: false
-  gem 'capistrano-local-precompile', '1.2.0', require: false # NB: buggy on Ruby 3.2 - see comment in Capfile
-  gem 'capistrano-rvm', '0.1.2', require: false
-  gem 'capistrano-maintenance', '1.0.0', require: false
-  gem 'capistrano-passenger', '0.2.0', require: false
-  gem 'capistrano-sidekiq', '~> 2.3', '>= 2.3.1', require: false
   gem 'rack-cors', :require => 'rack/cors'
-
-  # Used to fix capistrano-local-precompile on Ruby 3.2 - see comment in Capfile
-  gem 'file_exists', '~> 0.2.0', require: false
-
-  # Support ed25519 SSH keys
-  gem 'rbnacl', '4.0.2'
-  gem 'rbnacl-libsodium', '1.0.16'
-  gem 'bcrypt_pbkdf', '1.1.0'
-  gem 'ed25519', '1.2.4'
 end
 
 group :development, :test do
   # A better debugger
-  gem 'byebug', '~> 10.0.2'
+  gem 'byebug', '~> 13.0.0'
 end
 
 # Error monitoring
-gem 'appsignal', '~> 3.13.1'
+gem 'appsignal', '~> 4.9.1'
