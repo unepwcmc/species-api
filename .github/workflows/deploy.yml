@@ -57,7 +57,7 @@ jobs:
           echo "START_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> $GITHUB_ENV
           echo "ACTION_TYPE=Deploy" >> $GITHUB_ENV
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Notify deployment start
         id: notify-start
